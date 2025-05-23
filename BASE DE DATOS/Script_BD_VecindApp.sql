@@ -36,7 +36,7 @@ CREATE TABLE `certificados` (
   UNIQUE KEY `codigo_verificacion_UNIQUE` (`codigo_verificacion`),
   KEY `solicitud_id_idx` (`solicitud_id`),
   CONSTRAINT `solicitud_id_fk` FOREIGN KEY (`solicitud_id`) REFERENCES `solicitudes_certificado` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,6 +45,7 @@ CREATE TABLE `certificados` (
 
 LOCK TABLES `certificados` WRITE;
 /*!40000 ALTER TABLE `certificados` DISABLE KEYS */;
+INSERT INTO `certificados` VALUES (1,1,'CERT-952959','2025-05-23 19:06:22','2025-08-23','/certificados/CERT-952959.pdf','vigente');
 /*!40000 ALTER TABLE `certificados` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -372,7 +373,7 @@ CREATE TABLE `solicitudes_certificado` (
   CONSTRAINT `directiva_cert_rut` FOREIGN KEY (`directiva_rut`) REFERENCES `usuarios` (`rut`),
   CONSTRAINT `tipo_certificado_fk` FOREIGN KEY (`tipo_certificado_id`) REFERENCES `tipos_certificado` (`id`),
   CONSTRAINT `usuario_cert_rut` FOREIGN KEY (`usuario_rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -381,6 +382,7 @@ CREATE TABLE `solicitudes_certificado` (
 
 LOCK TABLES `solicitudes_certificado` WRITE;
 /*!40000 ALTER TABLE `solicitudes_certificado` DISABLE KEYS */;
+INSERT INTO `solicitudes_certificado` VALUES (1,17144575,3,'2025-05-23 18:41:41','aprobado','Necesito certificado de residencia para trámites bancarios','documento.pdf','2025-05-23 19:06:22',17144575,3000.00,'prueba');
 /*!40000 ALTER TABLE `solicitudes_certificado` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -513,7 +515,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva','cfd0d89c946588d802cde8fe7a48e6c0','2025-04-19 20:32:06'),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'vecino',NULL,NULL);
+INSERT INTO `usuarios` VALUES (17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva','cfd0d89c946588d802cde8fe7a48e6c0','2025-04-19 20:32:06'),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','00a684800a2e6ab0b17fbc343478846f3ca4fdaf81ea81fc6422e582d35e4064','2025-05-23',1,'vecino',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'vecino',NULL,NULL);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1672,6 +1674,39 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_SOLICITUDES_PENDIENTES` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_OBTENER_SOLICITUDES_PENDIENTES`()
+BEGIN
+    SELECT 
+        sc.id,
+        sc.usuario_rut,
+        sc.tipo_certificado_id,
+        sc.fecha_solicitud,
+        sc.estado,
+        sc.motivo,
+        sc.documentos_adjuntos,
+        sc.fecha_aprobacion,
+        sc.directiva_rut,
+        sc.precio,
+        sc.observaciones
+    FROM solicitudes_certificado sc
+    WHERE sc.estado = 'pendiente'
+    ORDER BY sc.fecha_solicitud DESC;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_TODOS_SOCIOS` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -2091,6 +2126,42 @@ BEGIN
     );
 
     SELECT v_pago_id AS pago_id, p_token_webpay AS token_webpay, p_url_pago AS url_pago;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_REGISTRAR_TRANSACCION_CERTIFICADO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_REGISTRAR_TRANSACCION_CERTIFICADO`(
+    IN p_solicitud_id INT,
+    IN p_preferencia_id VARCHAR(255),
+    IN p_monto DECIMAL(10,2),
+    IN p_estado VARCHAR(20)
+)
+BEGIN
+    INSERT INTO transacciones_certificado (
+        solicitud_id,
+        preferencia_id,
+        monto,
+        estado,
+        fecha_transaccion
+    ) VALUES (
+        p_solicitud_id,
+        p_preferencia_id,
+        p_monto,
+        p_estado,
+        NOW()
+    );
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2589,4 +2660,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-23 12:38:56
+-- Dump completed on 2025-05-23 19:09:43
