@@ -1,0 +1,6 @@
+@REST_VECINDAPP_HostAddress = http://localhost:5032
+
+GET {{REST_VECINDAPP_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

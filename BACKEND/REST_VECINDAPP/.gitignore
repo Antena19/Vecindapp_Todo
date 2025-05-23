@@ -1,0 +1,36 @@
+# Archivos de configuración del editor
+.vs/
+*.user
+*.suo
+
+# Archivos de compilación
+bin/
+obj/
+
+# Archivos de publicación
+*.publish/
+
+# Archivos generados por Rider o VS Code
+.idea/
+.vscode/
+*.code-workspace
+
+# Archivos temporales del sistema
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Base de datos local temporal
+*.mdf
+*.ldf
+
+# Secretos y configuraciones locales
+appsettings.Development.json
+secrets.json
+
+# Otros
+*.db
+*.bak
+*.sql

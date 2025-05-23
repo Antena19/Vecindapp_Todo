@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/mantenedores/gestion-usuarios" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Lista de Vecinos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="agregarUsuario()">
+        <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <!-- Barra de búsqueda y filtros -->
+  <ion-card>
+    <ion-card-content>
+      <ion-searchbar
+        [(ngModel)]="terminoBusqueda"
+        placeholder="Buscar vecinos..."
+        (ionChange)="buscarUsuarios()"
+        animated
+      ></ion-searchbar>
+      
+      <ion-segment [(ngModel)]="filtroEstado" (ionChange)="filtrarUsuarios()">
+        <ion-segment-button value="todos">
+          <ion-label>Todos</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="activo">
+          <ion-label>Activos</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="inactivo">
+          <ion-label>Inactivos</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de vecinos -->
+  <ion-card>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let usuario of usuariosFiltrados" (click)="verDetalleUsuario(usuario.id)" class="usuario-item">
+          <ion-avatar slot="start">
+            <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{usuario.nombre}} {{usuario.apellido}}</h2>
+            <p>{{usuario.email}}</p>
+            <p>{{usuario.direccion}}</p>
+            <p class="ultimo-acceso">Último acceso: {{usuario.ultimoAcceso | date:'short'}}</p>
+          </ion-label>
+          <ion-badge slot="end" [color]="usuario.estado === 'activo' ? 'success' : 'danger'">
+            {{usuario.estado}}
+          </ion-badge>
+          <ion-button fill="clear" slot="end" (click)="actualizarEstado(usuario.id, usuario.estado === 'activo' ? 'inactivo' : 'activo'); $event.stopPropagation()">
+            <ion-icon [name]="usuario.estado === 'activo' ? 'close-circle-outline' : 'checkmark-circle-outline'" [color]="usuario.estado === 'activo' ? 'danger' : 'success'"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

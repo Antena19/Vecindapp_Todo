@@ -1,0 +1,108 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <!-- Título de la página -->
+  <h1 class="page-title">Gestión de Socios</h1>
+
+  <!-- Tarjetas de acción principal -->
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12" size-md="6" size-lg="4">
+        <ion-card class="menu-option-card" (click)="navigateTo('lista-socios')">
+          <ion-card-content class="ion-text-center">
+            <ion-icon name="people-outline" class="menu-icon"></ion-icon>
+            <p>Lista de Socios</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6" size-lg="4">
+        <ion-card class="menu-option-card" (click)="navigateTo('agregar-socio')">
+          <ion-card-content class="ion-text-center">
+            <ion-icon name="person-add-outline" class="menu-icon"></ion-icon>
+            <p>Agregar Socio</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6" size-lg="4">
+        <ion-card class="menu-option-card" (click)="navigateTo('solicitudes')">
+          <ion-card-content class="ion-text-center">
+            <ion-icon name="clipboard-outline" class="menu-icon"></ion-icon>
+            <p>Solicitudes de Membresía</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Estadísticas rápidas -->
+  <ion-card class="stats-card">
+    <ion-card-header>
+      <ion-card-title class="section-title">Estadísticas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="people-outline" color="primary"></ion-icon>
+              <h3>{{totalSocios}}</h3>
+              <p>Total Socios</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="time-outline" color="warning"></ion-icon>
+              <h3>{{solicitudesPendientes}}</h3>
+              <p>Solicitudes Pendientes</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <h3>{{sociosActivos}}</h3>
+              <p>Socios Activos</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              <h3>{{sociosInactivos}}</h3>
+              <p>Socios Inactivos</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Últimas actividades -->
+  <ion-card class="activity-card">
+    <ion-card-header>
+      <ion-card-title class="section-title">Últimas Actividades</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let actividad of ultimasActividades">
+          <ion-icon [name]="actividad.icono" slot="start" [color]="actividad.color"></ion-icon>
+          <ion-label>
+            <h2>{{actividad.titulo}}</h2>
+            <p>{{actividad.descripcion}}</p>
+          </ion-label>
+          <ion-note slot="end">{{actividad.fecha | date:'short'}}</ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

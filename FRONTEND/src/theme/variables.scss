@@ -1,0 +1,134 @@
+/* 
+ * Variables SCSS - Tema Único
+ * Se ha eliminado la dualidad de temas (claro/oscuro)
+ * Se mantiene un solo tema visual independientemente de la preferencia del sistema
+ */
+
+ :root {
+  /** primary - verde azulado **/
+  --ion-color-primary: #00897B;
+  --ion-color-primary-rgb: 0, 137, 123;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #00796c;
+  --ion-color-primary-tint: #1a9589;
+
+  /** secondary - azul oscuro **/
+  --ion-color-secondary: #2C3E50;
+  --ion-color-secondary-rgb: 44, 62, 80;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #273746;
+  --ion-color-secondary-tint: #415162;
+
+  /** tertiary - tono intermedio **/
+  --ion-color-tertiary: #1a6d85;
+  --ion-color-tertiary-rgb: 26, 109, 133;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #175f75;
+  --ion-color-tertiary-tint: #317c91;
+
+  /** success **/
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  /** warning **/
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
+
+  /** danger **/
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+
+  /** dark **/
+  --ion-color-dark: #000000;
+  --ion-color-dark-rgb: 0, 0, 0;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #000000;
+  --ion-color-dark-tint: #1a1a1a;
+
+  /** medium **/
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+
+  /** light - beige claro **/
+  --ion-color-light: #F5F5DC;
+  --ion-color-light-rgb: 245, 245, 220;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d8d8c2;
+  --ion-color-light-tint: #f6f6df;
+
+  /** Colores de fondo globales **/
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  
+  /** Colores de texto globales **/
+  --ion-text-color: #000000;
+  --ion-text-color-rgb: 0, 0, 0;
+  
+  /** Colores para items/tarjetas **/
+  --ion-item-background: #F5F5DC;
+  --ion-card-background: #F5F5DC;
+  
+  /** Colores para pestañas **/
+  --ion-tab-bar-background: #f7f7f2;
+  --ion-toolbar-background: #2C3E50;
+  
+  /** Ajustes de íconos y botones **/
+  --ion-toolbar-color: #ffffff;
+  --ion-tab-bar-color: #8c8c8c;
+  --ion-tab-bar-color-selected: #00897B;
+  
+  /** Colores de borde **/
+  --ion-border-color: #e2e2d0;
+}
+
+/* 
+ * Se aplican estos mismos estilos a todas las plataformas 
+ * independientemente del modo del sistema
+ */
+.ios body,
+.md body {
+  --ion-background-color: var(--ion-background-color);
+  --ion-background-color-rgb: var(--ion-background-color-rgb);
+  --ion-text-color: var(--ion-text-color);
+  --ion-text-color-rgb: var(--ion-text-color-rgb);
+  --ion-border-color: var(--ion-border-color);
+  --ion-item-background: var(--ion-item-background);
+  --ion-card-background: var(--ion-card-background);
+  --ion-toolbar-background: var(--ion-toolbar-background);
+  --ion-tab-bar-background: var(--ion-tab-bar-background);
+}
+
+/* Estilos adicionales para la barra de herramientas */
+ion-header ion-toolbar,
+ion-toolbar {
+  --background: var(--ion-toolbar-background) !important;
+  --color: white !important;
+}
+
+ion-header ion-title,
+ion-toolbar ion-title,
+ion-back-button,
+ion-buttons ion-button {
+  color: white !important;
+}

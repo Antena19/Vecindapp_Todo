@@ -1,0 +1,104 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <!-- Sección de bienvenida al usuario -->
+  <div class="welcome-section" *ngIf="usuario">
+    <h2>{{ getBienvenida() }}</h2>
+  </div>
+
+  <!-- Tarjetas de información -->
+  <ng-container [ngSwitch]="tipoUsuario">
+<!-- Tarjeta de anuncio para Vecino -->
+    <ng-container *ngSwitchCase="'vecino'">
+      <ion-card class="announcement-card">
+        <ion-card-content>
+          <h2>¿Quieres ser Socio?</h2>
+          <p>Conoce los beneficios de asociarte</p>
+          <ion-button 
+            expand="block" 
+            fill="clear" 
+            [disabled]="solicitudSocioEstado === 'pendiente' || solicitudSocioEstado === 'aprobada'"
+            (click)="navigateTo('/mantenedores/gestion-socios/solicitar-membresia')">
+            <ion-icon name="people-outline" slot="start" color="primary"></ion-icon>
+            Solicitar Membresía
+          </ion-button>
+          <div *ngIf="solicitudSocioEstado === 'pendiente'" style="color: orange; margin-top: 8px;">
+            Solicitud enviada, espere aprobación.
+          </div>
+          <div *ngIf="solicitudSocioEstado === 'aprobada'" style="color: green; margin-top: 8px;">
+            Ya eres socio, ¡bienvenido!
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <!-- Tarjeta para Socio -->
+    <ng-container *ngSwitchCase="'socio'">
+      <ion-card class="cuotas-card">
+        <ion-card-content>
+          <h2>Estado de Cuotas</h2>
+          <p>Revisa tu situación actual</p>
+          <ion-button expand="block" fill="clear" (click)="navigateTo('/estado-cuotas')">
+            <ion-icon name="cash-outline" slot="start" color="primary"></ion-icon>
+            Ver Detalles
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <!-- Tarjetas para Directiva -->
+    <ng-container *ngSwitchCase="'directiva'">
+      <ion-card class="admin-card">
+        <ion-card-content>
+          <h2>Gestión Administrativa</h2>
+          <p>Tienes solicitudes pendientes</p>
+          <ion-button expand="block" fill="clear" (click)="navigateTo('/mantenedores/gestion-socios/solicitudes')">
+            <ion-icon name="clipboard-outline" slot="start" color="primary"></ion-icon>
+            Revisar Solicitudes
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <!-- Tarjeta común de anuncios/alertas -->
+    <ion-card class="general-info-card">
+      <ion-card-content>
+        <h2>Próxima reunión vecinal</h2>
+        <p>Jueves, 18:00 - Centro comunitario</p>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6" *ngFor="let option of menuOptions">
+        <ion-card class="menu-option-card" (click)="navigateTo(option.route)">
+          <ion-card-content class="ion-text-center">
+            <!-- Iconos para todos los tipos de botones -->
+            <ion-icon name="person-outline" class="menu-icon" *ngIf="option.title === 'Mi Perfil'"></ion-icon>
+            <ion-icon name="newspaper-outline" class="menu-icon" *ngIf="option.title === 'Noticias'"></ion-icon>
+            <ion-icon name="document-text-outline" class="menu-icon" *ngIf="option.title === 'Certificados'"></ion-icon>
+            <ion-icon name="people-outline" class="menu-icon" *ngIf="option.title === 'Hacerme Socio'"></ion-icon>
+            <ion-icon name="cash-outline" class="menu-icon" *ngIf="option.title === 'Estado de Cuotas'"></ion-icon>
+            <ion-icon name="create-outline" class="menu-icon" *ngIf="option.title === 'Publicar Noticias'"></ion-icon>
+            <ion-icon name="people-circle-outline" class="menu-icon" *ngIf="option.title === 'Gestión de Socios'"></ion-icon>
+            <ion-icon name="people-outline" class="menu-icon" *ngIf="option.title === 'Gestión de Vecinos'"></ion-icon>
+            <ion-icon name="clipboard-outline" class="menu-icon" *ngIf="option.title === 'Solicitudes'"></ion-icon>
+            <ion-icon name="stats-chart-outline" class="menu-icon" *ngIf="option.title === 'Gestión Financiera'"></ion-icon>
+            <p>{{option.title}}</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

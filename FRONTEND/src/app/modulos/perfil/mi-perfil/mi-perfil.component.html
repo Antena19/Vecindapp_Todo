@@ -1,0 +1,223 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-button (click)="volverAlInicio()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Mi Perfil</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="!editando && !cambiandoPassword" (click)="toggleEdicion()">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="editando" (click)="toggleEdicion()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <div *ngIf="usuario">
+    <!-- Información del perfil -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          Información Personal
+          <ion-badge slot="end" [color]="usuario.tipo_usuario === 'Vecino' ? 'primary' : 'success'">
+            {{ usuario.tipo_usuario }}
+          </ion-badge>
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()">
+          <!-- RUT (solo visualización) -->
+          <ion-item>
+            <ion-label position="stacked">RUT</ion-label>
+            <ion-input [value]="usuario.rut + '-' + usuario.dv_rut" readonly></ion-input>
+          </ion-item>
+
+          <!-- Nombre -->
+          <ion-item>
+            <ion-label position="stacked">Nombre <ion-text color="danger" *ngIf="editando">*</ion-text></ion-label>
+            <ion-input formControlName="nombre" type="text"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="editando && isSubmitted && perfilForm.get('nombre')?.errors">
+            <ion-text color="danger" *ngIf="perfilForm.get('nombre')?.errors?.['required']">
+              El nombre es obligatorio
+            </ion-text>
+            <ion-text color="danger" *ngIf="perfilForm.get('nombre')?.errors?.['maxlength']">
+              El nombre no debe exceder 100 caracteres
+            </ion-text>
+          </div>
+
+          <!-- Apellido Paterno -->
+          <ion-item>
+            <ion-label position="stacked">Apellido Paterno <ion-text color="danger" *ngIf="editando">*</ion-text></ion-label>
+            <ion-input formControlName="apellido_paterno" type="text"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="editando && isSubmitted && perfilForm.get('apellido_paterno')?.errors">
+            <ion-text color="danger" *ngIf="perfilForm.get('apellido_paterno')?.errors?.['required']">
+              El apellido paterno es obligatorio
+            </ion-text>
+            <ion-text color="danger" *ngIf="perfilForm.get('apellido_paterno')?.errors?.['maxlength']">
+              El apellido paterno no debe exceder 100 caracteres
+            </ion-text>
+          </div>
+
+          <!-- Apellido Materno -->
+          <ion-item>
+            <ion-label position="stacked">Apellido Materno</ion-label>
+            <ion-input formControlName="apellido_materno" type="text"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="editando && isSubmitted && perfilForm.get('apellido_materno')?.errors">
+            <ion-text color="danger" *ngIf="perfilForm.get('apellido_materno')?.errors?.['maxlength']">
+              El apellido materno no debe exceder 100 caracteres
+            </ion-text>
+          </div>
+
+          <!-- Correo Electrónico -->
+          <ion-item>
+            <ion-label position="stacked">Correo Electrónico <ion-text color="danger" *ngIf="editando">*</ion-text></ion-label>
+            <ion-input formControlName="correo_electronico" type="email"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="editando && isSubmitted && perfilForm.get('correo_electronico')?.errors">
+            <ion-text color="danger" *ngIf="perfilForm.get('correo_electronico')?.errors?.['required']">
+              El correo electrónico es obligatorio
+            </ion-text>
+            <ion-text color="danger" *ngIf="perfilForm.get('correo_electronico')?.errors?.['email']">
+              El formato del correo electrónico no es válido
+            </ion-text>
+            <ion-text color="danger" *ngIf="perfilForm.get('correo_electronico')?.errors?.['maxlength']">
+              El correo electrónico no debe exceder 100 caracteres
+            </ion-text>
+          </div>
+
+          <!-- Teléfono -->
+          <ion-item>
+            <ion-label position="stacked">Teléfono</ion-label>
+            <ion-input formControlName="telefono" type="tel"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="editando && isSubmitted && perfilForm.get('telefono')?.errors">
+            <ion-text color="danger" *ngIf="perfilForm.get('telefono')?.errors?.['pattern']">
+              Formato de teléfono inválido (ej: +56912345678)
+            </ion-text>
+            <ion-text color="danger" *ngIf="perfilForm.get('telefono')?.errors?.['maxlength']">
+              El teléfono no debe exceder 15 caracteres
+            </ion-text>
+          </div>
+
+          <!-- Dirección -->
+          <ion-item>
+            <ion-label position="stacked">Dirección <ion-text color="danger" *ngIf="editando">*</ion-text></ion-label>
+            <ion-input formControlName="direccion" type="text"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="editando && isSubmitted && perfilForm.get('direccion')?.errors">
+            <ion-text color="danger" *ngIf="perfilForm.get('direccion')?.errors?.['required']">
+              La dirección es obligatoria
+            </ion-text>
+            <ion-text color="danger" *ngIf="perfilForm.get('direccion')?.errors?.['maxlength']">
+              La dirección no debe exceder 200 caracteres
+            </ion-text>
+          </div>
+
+          <!-- Botones de acción para edición -->
+          <div *ngIf="editando" class="ion-padding-top">
+            <ion-button expand="block" type="submit" [disabled]="cargando">
+              <ion-spinner name="crescent" *ngIf="cargando"></ion-spinner>
+              <span *ngIf="!cargando">Guardar cambios</span>
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="toggleEdicion()" [disabled]="cargando">
+              Cancelar
+            </ion-button>
+          </div>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Cambio de contraseña -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Seguridad</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div *ngIf="!cambiandoPassword">
+          <ion-button expand="block" (click)="toggleCambioPassword()" [disabled]="editando">
+            Cambiar contraseña
+          </ion-button>
+        </div>
+
+        <form *ngIf="cambiandoPassword" [formGroup]="passwordForm" (ngSubmit)="cambiarPassword()">
+          <!-- Contraseña actual -->
+          <ion-item>
+            <ion-label position="stacked">Contraseña actual <ion-text color="danger">*</ion-text></ion-label>
+            <ion-input formControlName="passwordActual" type="password"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="isSubmitted && passwordForm.get('passwordActual')?.errors">
+            <ion-text color="danger" *ngIf="passwordForm.get('passwordActual')?.errors?.['required']">
+              La contraseña actual es obligatoria
+            </ion-text>
+          </div>
+
+          <!-- Nueva contraseña -->
+          <ion-item>
+            <ion-label position="stacked">Nueva contraseña <ion-text color="danger">*</ion-text></ion-label>
+            <ion-input formControlName="passwordNueva" type="password"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="isSubmitted && passwordForm.get('passwordNueva')?.errors">
+            <ion-text color="danger" *ngIf="passwordForm.get('passwordNueva')?.errors?.['required']">
+              La nueva contraseña es obligatoria
+            </ion-text>
+            <ion-text color="danger" *ngIf="passwordForm.get('passwordNueva')?.errors?.['minlength']">
+              La contraseña debe tener al menos 8 caracteres
+            </ion-text>
+            <ion-text color="danger" *ngIf="passwordForm.get('passwordNueva')?.errors?.['pattern']">
+              La contraseña debe incluir mayúsculas, minúsculas, números y caracteres especiales
+            </ion-text>
+          </div>
+
+          <!-- Confirmar nueva contraseña -->
+          <ion-item>
+            <ion-label position="stacked">Confirmar nueva contraseña <ion-text color="danger">*</ion-text></ion-label>
+            <ion-input formControlName="confirmPasswordNueva" type="password"></ion-input>
+          </ion-item>
+          <div class="error-container" *ngIf="isSubmitted && passwordForm.errors?.['passwordMismatch']">
+            <ion-text color="danger">
+              Las contraseñas no coinciden
+            </ion-text>
+          </div>
+
+          <!-- Botones de acción para cambio de contraseña -->
+          <div class="ion-padding-top">
+            <ion-button expand="block" type="submit" [disabled]="cargando">
+              <ion-spinner name="crescent" *ngIf="cargando"></ion-spinner>
+              <span *ngIf="!cargando">Actualizar contraseña</span>
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="toggleCambioPassword()" [disabled]="cargando">
+              Cancelar
+            </ion-button>
+          </div>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Sección para solicitar ser socio (si es vecino) -->
+    <ion-card *ngIf="usuario.tipo_usuario === 'Vecino'">
+      <ion-card-header>
+        <ion-card-title>Membresía</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p>Como vecino, puedes solicitar ser socio de la Junta de Vecinos para acceder a beneficios exclusivos.</p>
+        <ion-button expand="block" routerLink="/solicitar-membresia">
+          Solicitar membresía como socio
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Indicador de carga inicial -->
+  <ion-spinner *ngIf="!usuario" name="crescent" class="spinner-center"></ion-spinner>
+</ion-content>

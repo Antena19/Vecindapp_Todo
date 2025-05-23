@@ -1,0 +1,126 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/mantenedores/gestion-socios" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <h1 class="page-title">Solicitudes de Membresía</h1>
+  <div class="container">
+    <ion-segment [(ngModel)]="filtroEstado" (ionChange)="cambiarFiltro($event.detail.value?.toString() || 'pendiente')">
+      <ion-segment-button value="pendiente">
+        <ion-label>Pendientes</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="aprobada">
+        <ion-label>Aprobadas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="rechazada">
+        <ion-label>Rechazadas</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <div *ngIf="mensaje" class="success-message">
+      <ion-note color="primary">{{ mensaje }}</ion-note>
+    </div>
+
+    <div *ngIf="cargando" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Cargando solicitudes...</p>
+    </div>
+
+    <div *ngIf="!cargando && solicitudes.length === 0" class="error-container">
+      <ion-text color="medium">
+        <p>No hay solicitudes {{ filtroEstado }}s</p>
+      </ion-text>
+    </div>
+
+    <div *ngFor="let solicitud of solicitudes">
+      <ion-card class="general-info-card">
+        <ion-card-header>
+          <ion-card-subtitle>RUT: {{ solicitud.rut }}</ion-card-subtitle>
+          <ion-card-title>{{ solicitud.nombre }} {{ solicitud.apellidoPaterno }} {{ solicitud.apellidoMaterno }}</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-list>
+            <ion-item>
+              <ion-label>
+                <h3>Nombre Completo</h3>
+                <p>{{ solicitud.nombre }} {{ solicitud.apellidoPaterno }} {{ solicitud.apellidoMaterno }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <h3>Fecha de Solicitud</h3>
+                <p>{{ solicitud.fechaSolicitud | date:'dd/MM/yyyy' }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <h3>Estado</h3>
+                <p>{{ solicitud.estadoSolicitud }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+
+          <div *ngIf="solicitud.DocumentoIdentidad">
+            <label>Documento de Identidad:</label>
+            <img [src]="apiUrl + solicitud.DocumentoIdentidad" alt="Documento Identidad" style="max-width: 100%;"/>
+          </div>
+          <div *ngIf="solicitud.DocumentoDomicilio">
+            <label>Comprobante de Domicilio:</label>
+            <img [src]="apiUrl + solicitud.DocumentoDomicilio" alt="Comprobante Domicilio" style="max-width: 100%;"/>
+          </div>
+
+          <ion-button expand="block" *ngIf="filtroEstado === 'pendiente'" 
+                      (click)="aprobarSolicitud(solicitud.rut)" 
+                      color="success">
+            Aprobar
+          </ion-button>
+
+          <ion-button expand="block" *ngIf="filtroEstado === 'pendiente'" 
+                      (click)="rechazarSolicitud(solicitud.rut)" 
+                      color="danger">
+            Rechazar
+          </ion-button>
+
+          <ion-item *ngIf="filtroEstado === 'rechazada' && solicitud.motivoRechazo">
+            <ion-label>
+              <h3>Motivo de Rechazo</h3>
+              <p>{{ solicitud.motivoRechazo }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Modal para motivo de rechazo -->
+  <ion-modal [isOpen]="motivoRechazo !== ''" (didDismiss)="motivoRechazo = ''">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Motivo de Rechazo</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="motivoRechazo = ''">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-item>
+          <ion-label position="stacked">Ingrese el motivo del rechazo</ion-label>
+          <ion-textarea [(ngModel)]="motivoRechazo" rows="4"></ion-textarea>
+        </ion-item>
+        <ion-button expand="block" (click)="rechazarSolicitud(solicitudes[0].rut)">
+          Confirmar Rechazo
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

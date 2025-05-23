@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="'/mantenedores/gestion-socios/detalle/' + socio?.idSocio" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <div class="container">
+    <h1 class="page-title">Editar Socio</h1>
+
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando información del socio...</p>
+    </div>
+
+    <div *ngIf="error" class="error-container">
+      <ion-text color="danger">
+        <p>{{ error }}</p>
+      </ion-text>
+    </div>
+
+    <div *ngIf="!loading && !error && socio" class="form-container">
+      <!-- Información del socio -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Información del Socio</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p><strong>ID:</strong> {{ socio.idSocio }}</p>
+          <p><strong>Nombre:</strong> {{ socio.nombreCompleto }}</p>
+          <p><strong>RUT:</strong> {{ formatearRut(socio.rut, socio.dvRut) }}</p>
+          <p><strong>Email:</strong> {{ socio.correo }}</p>
+          <p><strong>Teléfono:</strong> {{ socio.telefono }}</p>
+          <p><strong>Dirección:</strong> {{ socio.direccion }}</p>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Estado del socio -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Estado del Socio</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-label>Estado</ion-label>
+            <ion-toggle
+              [(ngModel)]="estadoActual.estado"
+              color="primary">
+              {{ estadoActual.estado ? 'Activo' : 'Inactivo' }}
+            </ion-toggle>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">
+              {{ estadoActual.estado ? 'Motivo de activación' : 'Motivo de desactivación' }}
+            </ion-label>
+            <ion-textarea
+              [(ngModel)]="estadoActual.motivo"
+              [placeholder]="estadoActual.estado ? 'Ingrese el motivo de activación' : 'Ingrese el motivo de desactivación'"
+              rows="3">
+            </ion-textarea>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Botones de acción -->
+      <div class="action-buttons">
+        <ion-button expand="block" color="primary" (click)="guardarCambios()" [disabled]="guardando">
+          <ion-spinner *ngIf="guardando" name="crescent"></ion-spinner>
+          <span *ngIf="!guardando">Guardar Cambios</span>
+        </ion-button>
+        
+        <ion-button expand="block" color="medium" routerLink="/mantenedores/gestion-socios/lista-socios">
+          Cancelar
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

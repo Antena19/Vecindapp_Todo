@@ -1,0 +1,175 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Crear Nueva Cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <ion-card>
+    <ion-card-content>
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+        <!-- Nombre -->
+        <ion-item>
+          <ion-label position="stacked">Nombre <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="nombre" type="text"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.get('nombre')?.errors">
+          <ion-text color="danger" *ngIf="registroForm.get('nombre')?.errors?.['required']">
+            El nombre es obligatorio
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('nombre')?.errors?.['maxlength']">
+            El nombre no debe exceder 100 caracteres
+          </ion-text>
+        </div>
+
+        <!-- Apellido Paterno -->
+        <ion-item>
+          <ion-label position="stacked">Apellido Paterno <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="apellido_paterno" type="text"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.get('apellido_paterno')?.errors">
+          <ion-text color="danger" *ngIf="registroForm.get('apellido_paterno')?.errors?.['required']">
+            El apellido paterno es obligatorio
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('apellido_paterno')?.errors?.['maxlength']">
+            El apellido paterno no debe exceder 100 caracteres
+          </ion-text>
+        </div>
+
+        <!-- Apellido Materno -->
+        <ion-item>
+          <ion-label position="stacked">Apellido Materno</ion-label>
+          <ion-input formControlName="apellido_materno" type="text"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.get('apellido_materno')?.errors">
+          <ion-text color="danger" *ngIf="registroForm.get('apellido_materno')?.errors?.['maxlength']">
+            El apellido materno no debe exceder 100 caracteres
+          </ion-text>
+        </div>
+
+        <!-- RUT y DV -->
+        <ion-row>
+          <ion-col size="9">
+            <ion-item>
+              <ion-label position="stacked">RUT (sin puntos ni guión) <ion-text color="danger">*</ion-text></ion-label>
+              <ion-input formControlName="rut" type="text" (ionBlur)="validarRut()"></ion-input>
+            </ion-item>
+            <div class="error-container" *ngIf="isSubmitted && registroForm.get('rut')?.errors">
+              <ion-text color="danger" *ngIf="registroForm.get('rut')?.errors?.['required']">
+                El RUT es obligatorio
+              </ion-text>
+              <ion-text color="danger" *ngIf="registroForm.get('rut')?.errors?.['pattern']">
+                El RUT debe contener solo números
+              </ion-text>
+            </div>
+          </ion-col>
+          <ion-col size="3">
+            <ion-item>
+              <ion-label position="stacked">DV <ion-text color="danger">*</ion-text></ion-label>
+              <ion-input formControlName="dv_rut" type="text" maxlength="1" (ionBlur)="validarRut()"></ion-input>
+            </ion-item>
+            <div class="error-container" *ngIf="isSubmitted && registroForm.get('dv_rut')?.errors">
+              <ion-text color="danger" *ngIf="registroForm.get('dv_rut')?.errors?.['required']">
+                El DV es obligatorio
+              </ion-text>
+              <ion-text color="danger" *ngIf="registroForm.get('dv_rut')?.errors?.['pattern']">
+                DV inválido (0-9 o K)
+              </ion-text>
+              <ion-text color="danger" *ngIf="registroForm.get('dv_rut')?.errors?.['rutInvalido']">
+                RUT inválido
+              </ion-text>
+            </div>
+          </ion-col>
+        </ion-row>
+
+        <!-- Correo Electrónico -->
+        <ion-item>
+          <ion-label position="stacked">Correo Electrónico <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="correo_electronico" type="email"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.get('correo_electronico')?.errors">
+          <ion-text color="danger" *ngIf="registroForm.get('correo_electronico')?.errors?.['required']">
+            El correo electrónico es obligatorio
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('correo_electronico')?.errors?.['email']">
+            El formato del correo electrónico no es válido
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('correo_electronico')?.errors?.['maxlength']">
+            El correo electrónico no debe exceder 100 caracteres
+          </ion-text>
+        </div>
+
+        <!-- Teléfono -->
+        <ion-item>
+          <ion-label position="stacked">Teléfono (ej: +56912345678)</ion-label>
+          <ion-input formControlName="telefono" type="tel"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.get('telefono')?.errors">
+          <ion-text color="danger" *ngIf="registroForm.get('telefono')?.errors?.['pattern']">
+            Formato de teléfono inválido (ej: +56912345678)
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('telefono')?.errors?.['maxlength']">
+            El teléfono no debe exceder 15 caracteres
+          </ion-text>
+        </div>
+
+        <!-- Dirección -->
+        <ion-item>
+          <ion-label position="stacked">Dirección <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="direccion" type="text"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.get('direccion')?.errors">
+          <ion-text color="danger" *ngIf="registroForm.get('direccion')?.errors?.['required']">
+            La dirección es obligatoria
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('direccion')?.errors?.['maxlength']">
+            La dirección no debe exceder 200 caracteres
+          </ion-text>
+        </div>
+
+        <!-- Contraseña -->
+        <ion-item>
+          <ion-label position="stacked">Contraseña <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="password" type="password"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.get('password')?.errors">
+          <ion-text color="danger" *ngIf="registroForm.get('password')?.errors?.['required']">
+            La contraseña es obligatoria
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('password')?.errors?.['minlength']">
+            La contraseña debe tener al menos 8 caracteres
+          </ion-text>
+          <ion-text color="danger" *ngIf="registroForm.get('password')?.errors?.['pattern']">
+            La contraseña debe incluir mayúsculas, minúsculas, números y caracteres especiales
+          </ion-text>
+        </div>
+
+        <!-- Confirmar Contraseña -->
+        <ion-item>
+          <ion-label position="stacked">Confirmar Contraseña <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="confirmPassword" type="password"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="isSubmitted && registroForm.errors?.['passwordMismatch']">
+          <ion-text color="danger">
+            Las contraseñas no coinciden
+          </ion-text>
+        </div>
+
+        <!-- Botón de registro -->
+        <div class="ion-padding-top">
+          <ion-button expand="block" type="submit" [disabled]="cargando">
+            Registrarme
+          </ion-button>
+        </div>
+
+        <!-- Enlace a login -->
+        <div class="ion-text-center ion-padding-top">
+          <p>¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión aquí</a></p>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

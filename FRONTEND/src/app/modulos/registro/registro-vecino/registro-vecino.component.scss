@@ -1,0 +1,95 @@
+.error-container {
+    padding-left: 16px;
+    padding-top: 5px;
+    font-size: 12px;
+  }
+  
+  ion-card {
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 10px;
+    background-color: var(--ion-color-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  ion-card-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--ion-color-secondary);
+  }
+  
+  .ion-padding-top {
+    padding-top: 20px;
+  }
+  
+  ion-button {
+    margin: 20px 0;
+    --border-radius: 8px;
+    --background: var(--ion-color-primary);
+    --background-activated: var(--ion-color-primary-shade);
+    --color: white;
+    font-weight: 500;
+  }
+  
+  a {
+    color: var(--ion-color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  ion-item {
+    --background: var(--ion-color-light);
+    margin-bottom: 2px;
+    --border-radius: 8px;
+    --color: #222;
+  }
+  
+  ion-input {
+    --background: #fff;
+    --padding-start: 10px;
+    --padding-end: 10px;
+    border: 1.5px solid #bdbdbd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    --color: #222;
+    color: #222 !important;
+  }
+  
+  /** Forzar color oscuro en labels flotantes y textos de inputs usando ::ng-deep */
+  ::ng-deep ion-label,
+  ::ng-deep .label-floating,
+  ::ng-deep .sc-ion-label-md-h,
+  ::ng-deep .sc-ion-label-ios-h {
+    color: #222 !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    letter-spacing: 0.2px;
+  }
+  
+  ::ng-deep ion-input,
+  ::ng-deep ion-input input,
+  ::ng-deep ion-input .native-input {
+    color: #222 !important;
+    font-weight: 500 !important;
+  }
+  
+  ::ng-deep ion-input::part(native) {
+    color: #222 !important;
+  }
+  
+  ::ng-deep input::placeholder {
+    color: #888 !important;
+    opacity: 1 !important;
+  }
+  
+  ion-text[color="danger"] {
+    color: var(--ion-color-danger) !important;
+  }
+  
+  p {
+    color: var(--ion-color-secondary);
+  }
+  
+  ion-content {
+    --color: var(--ion-color-secondary);
+  }

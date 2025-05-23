@@ -1,0 +1,103 @@
+ion-content.splash-container {
+    --background: none !important;
+    background-color: #2C3E50 !important;
+    height: 100%;
+  }
+  
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
+  .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out;
+  }
+
+  .animate-logo {
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .animate-text {
+    opacity: 0;
+    animation: fadeInUp 1s ease-out forwards;
+    &:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+  }
+
+  .animate-button {
+    opacity: 0;
+    animation: fadeInUp 1s ease-out forwards;
+    animation-delay: 0.9s;
+  }
+  
+  .app-logo {
+    width: 150px;
+    height: auto;
+    margin-bottom: 1.5rem;
+  }
+  
+  .app-name {
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+    letter-spacing: 1px;
+  }
+  
+  .app-slogan {
+    color: #ccc;
+    font-size: 14px;
+    margin: 0.5rem 0 0;
+    letter-spacing: 0.5px;
+  }
+  
+  .enter-button-container {
+    width: 80%;
+    max-width: 300px;
+    margin: 0 auto;
+    
+    ion-button {
+      --background: #00897B;
+      --border-radius: 4px;
+      --color: white;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }

@@ -1,0 +1,105 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <ion-card class="general-info-card">
+    <ion-card-header>
+      <ion-card-title>Solicitud de Membresía</ion-card-title>
+      <ion-card-subtitle>
+        Complete el formulario y adjunte los documentos requeridos para solicitar su membresía
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <form (ngSubmit)="enviarSolicitud()">
+        <ion-item>
+          <ion-label position="stacked">RUT</ion-label>
+          <ion-input type="number" [(ngModel)]="solicitud.rut" name="rut" required disabled></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Carnet de Identidad</ion-label>
+          <ion-input type="file" accept="image/*" (change)="onDocumentoIdentidadChange($event)" required></ion-input>
+        </ion-item>
+
+        <ion-item *ngIf="documentoIdentidadPreview" class="preview-container">
+          <ion-thumbnail slot="start">
+            <img [src]="documentoIdentidadPreview" alt="Vista previa carnet" class="preview-image">
+          </ion-thumbnail>
+          <ion-label>
+            <h3>Vista previa del carnet</h3>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Comprobante de Domicilio</ion-label>
+          <ion-input type="file" accept="image/*,.pdf" (change)="onDocumentoDomicilioChange($event)" required></ion-input>
+        </ion-item>
+
+        <ion-item *ngIf="documentoDomicilioPreview" class="preview-container">
+          <ion-thumbnail slot="start">
+            <img [src]="documentoDomicilioPreview" alt="Vista previa comprobante" class="preview-image">
+          </ion-thumbnail>
+          <ion-label>
+            <h3>Vista previa del comprobante</h3>
+          </ion-label>
+        </ion-item>
+
+        <ion-note color="danger" *ngIf="mensajeError" class="error-message">
+          {{ mensajeError }}
+        </ion-note>
+
+        <ion-note color="success" *ngIf="mensaje" class="success-message">
+          {{ mensaje }}
+        </ion-note>
+
+        <div class="ion-padding-top">
+          <ion-button expand="block" type="submit" [disabled]="cargando" class="primary-button">
+            <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+            <span *ngIf="!cargando">Enviar Solicitud</span>
+          </ion-button>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="general-info-card">
+    <ion-card-header>
+      <ion-card-title>Información Importante</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-icon name="information-circle-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <h3>Documentos Requeridos</h3>
+            <p>Carnet de identidad vigente y comprobante de domicilio actualizado</p>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <h3>Tiempo de Procesamiento</h3>
+            <p>Su solicitud será revisada en un plazo máximo de 48 horas hábiles</p>
+          </ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <h3>Notificación</h3>
+            <p>Recibirá una notificación por correo electrónico sobre el estado de su solicitud</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

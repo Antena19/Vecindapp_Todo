@@ -1,0 +1,123 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/mantenedores/gestion-socios/lista-socios" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <div class="container">
+    <h1 class="page-title">Detalle del Socio</h1>
+
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando información del socio...</p>
+    </div>
+
+    <div *ngIf="error" class="error-container">
+      <ion-text color="danger">
+        <p>{{ error }}</p>
+      </ion-text>
+    </div>
+
+    <div *ngIf="!loading && !error && socio" class="detail-container">
+      <!-- Información básica -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ socio.nombreCompleto }}</ion-card-title>
+          <ion-card-subtitle>N° Socio: {{ socio.idSocio }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            <ion-item>
+              <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>RUT</h3>
+                <p>{{ formatearRut(socio.rut, socio.dvRut) }}</p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Email</h3>
+                <p>{{ socio.correo }}</p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Teléfono</h3>
+                <p>{{ socio.telefono }}</p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon name="home-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Dirección</h3>
+                <p>{{ socio.direccion }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Estado y fechas -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Estado y Registro</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list lines="none">
+            <ion-item>
+              <ion-icon name="checkmark-circle-outline" slot="start" [color]="socio.activo ? 'success' : 'danger'"></ion-icon>
+              <ion-label>
+                <h3>Estado</h3>
+                <p>{{ socio.activo ? 'Activo' : 'Inactivo' }}</p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon name="information-circle-outline" slot="start" [color]="socio.activo ? 'success' : 'danger'"></ion-icon>
+              <ion-label>
+                <h3>Motivo del último cambio</h3>
+                <p>{{ socio.motivoDesactivacion || 'No especificado' }}</p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Fecha de Registro</h3>
+                <p>{{ socio.fechaRegistro | date:'dd/MM/yyyy' }}</p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item *ngIf="socio.fechaAprobacion">
+              <ion-icon name="checkmark-circle-outline" slot="start" color="success"></ion-icon>
+              <ion-label>
+                <h3>Fecha de Aprobación</h3>
+                <p>{{ socio.fechaAprobacion | date:'dd/MM/yyyy' }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Botones de acción -->
+      <div class="action-buttons">
+        <ion-button expand="block" color="primary" (click)="irAEditar()">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Editar Socio
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

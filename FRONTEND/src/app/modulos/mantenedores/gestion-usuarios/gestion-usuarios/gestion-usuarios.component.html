@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <h1 class="page-title">Gestión de Vecinos</h1>
+
+  <!-- Tarjetas de acción principal -->
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="6" size-lg="4">
+        <ion-card class="menu-option-card" (click)="navigateTo('listar')">
+          <ion-card-content>
+            <ion-icon name="people-outline" class="menu-icon"></ion-icon>
+            <p>Lista de Vecinos</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6" size-lg="4">
+        <ion-card class="menu-option-card" (click)="navigateTo('agregar')">
+          <ion-card-content>
+            <ion-icon name="person-add-outline" class="menu-icon"></ion-icon>
+            <p>Agregar Vecino</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Estadísticas rápidas -->
+  <ion-card class="stats-card">
+    <ion-card-header>
+      <ion-card-title class="section-title">Estadísticas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="people-outline" color="primary"></ion-icon>
+              <h3>{{totalVecinos}}</h3>
+              <p>Total Vecinos</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <h3>{{vecinosActivos}}</h3>
+              <p>Vecinos Activos</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              <h3>{{vecinosInactivos}}</h3>
+              <p>Vecinos Inactivos</p>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-item">
+              <ion-icon name="calendar-outline" color="warning"></ion-icon>
+              <h3>{{nuevosEsteMes}}</h3>
+              <p>Nuevos este mes</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Últimas actividades -->
+  <ion-card class="activity-card">
+    <ion-card-header>
+      <ion-card-title class="section-title">Últimas Actividades</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let actividad of ultimasActividades">
+          <ion-icon [name]="actividad.icono" slot="start" [color]="actividad.color"></ion-icon>
+          <ion-label>
+            <h2>{{actividad.titulo}}</h2>
+            <p>{{actividad.descripcion}}</p>
+          </ion-label>
+          <ion-note slot="end">{{actividad.fecha | date:'short'}}</ion-note>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

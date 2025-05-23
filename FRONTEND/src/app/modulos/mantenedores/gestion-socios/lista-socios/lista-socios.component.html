@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/mantenedores/gestion-socios" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <!-- Título de la página -->
+  <h1 class="page-title">Socios</h1>
+
+  <div class="container">
+    <!-- Botón Agregar Socio -->
+    <ion-button expand="block" color="primary" class="add-button" routerLink="/mantenedores/gestion-socios/agregar-socio">
+      <ion-icon name="person-add-outline" slot="start"></ion-icon>
+      Agregar Nuevo Socio
+    </ion-button>
+
+    <!-- Barra de búsqueda y filtros -->
+    <div class="search-container">
+      <ion-searchbar 
+        [placeholder]="'Buscar por ' + tipoBusqueda"
+        (ionInput)="buscar($event)"
+        [value]="terminoBusqueda"
+        class="custom-searchbar">
+      </ion-searchbar>
+      
+      <ion-segment [value]="tipoBusqueda" (ionChange)="cambiarTipoBusqueda($event)">
+        <ion-segment-button value="nombre">
+          <ion-label>Nombre</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="rut">
+          <ion-label>RUT</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="id">
+          <ion-label>N° Socio</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      <ion-item lines="none" class="estado-toggle">
+        <ion-toggle 
+          [checked]="filtroEstado === 'todos'"
+          (ionChange)="cambiarFiltroEstado($event)"
+          color="primary">
+          <small>Ver socios inactivos</small>
+        </ion-toggle>
+      </ion-item>
+    </div>
+
+    <!-- Loading spinner -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando socios...</p>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="error" class="error-container">
+      <ion-text color="danger">
+        <p>{{ error }}</p>
+      </ion-text>
+    </div>
+
+    <!-- Lista de socios -->
+    <ion-list *ngIf="!loading && !error">
+      <ion-item *ngFor="let socio of sociosFiltrados" class="socio-item">
+        <ion-label>
+          <h2>
+            <ion-text color="primary">N° Socio: {{ socio.idSocio }}</ion-text>
+          </h2>
+          <h3>{{ socio.nombreCompleto }}</h3>
+          <p>RUT: {{ formatearRut(socio.rut, socio.dvRut) }}</p>
+          <p>Email: {{ socio.correo }}</p>
+          <p>Teléfono: {{ socio.telefono }}</p>
+          <p>Dirección: {{ socio.direccion }}</p>
+          <p>Fecha Registro: {{ socio.fechaRegistro | date:'dd/MM/yyyy' }}</p>
+          <p *ngIf="socio.fechaAprobacion">Fecha Aprobación: {{ socio.fechaAprobacion | date:'dd/MM/yyyy' }}</p>
+        </ion-label>
+        <ion-buttons slot="end">
+          <ion-button color="primary" [routerLink]="['/mantenedores/gestion-socios/detalle', socio.idSocio]">
+            <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    </ion-list>
+
+    <!-- Mensaje cuando no hay socios -->
+    <div *ngIf="!loading && !error && sociosFiltrados.length === 0" class="no-data">
+      <ion-text color="medium">
+        <p>No se encontraron socios con los criterios de búsqueda.</p>
+      </ion-text>
+    </div>
+  </div>
+</ion-content>

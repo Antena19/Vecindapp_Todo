@@ -1,0 +1,55 @@
+<ion-app>
+  <ion-split-pane contentId="main-content">
+    <!-- Mostrar menú solo después del login -->
+    <ion-menu *ngIf="showMenu" contentId="main-content" type="overlay">
+      <ion-content>
+        <ion-list id="menu-list">
+          <ion-list-header>VecindApp</ion-list-header>
+          <ion-note>Junta de Vecinos Portal Puerto Montt</ion-note>
+
+          <!-- Opciones de menú según el rol -->
+          @for (p of appPages; track p) {
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
+                <ion-icon aria-hidden="true" slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+                <ion-label>{{ p.title }}</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          }
+
+          <!-- Botón de cerrar sesión -->
+          <ion-menu-toggle auto-hide="false">
+            <ion-item button (click)="logout()" lines="none">
+              <ion-icon aria-hidden="true" slot="start" ios="log-out-outline" md="log-out-sharp"></ion-icon>
+              <ion-label>Cerrar Sesión</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+      </ion-content>
+    </ion-menu>
+
+    <!-- Aplicar estilo directo al router-outlet para asegurar que los estilos se apliquen -->
+    <div id="main-content" style="width: 100%; height: 100vh; overflow: auto;">
+      <ion-router-outlet></ion-router-outlet>
+    </div>
+  </ion-split-pane>
+</ion-app>
+
+<!-- Añadir un estilo global directamente en el HTML -->
+<style>
+  ion-header ion-toolbar,
+  ion-toolbar,
+  .toolbar-container {
+    --background: #2C3E50 !important;
+    background-color: #2C3E50 !important;
+    --color: white !important;
+    color: white !important;
+  }
+  
+  ion-back-button,
+  ion-buttons ion-button,
+  ion-title {
+    --color: white !important;
+    color: white !important;
+  }
+</style>

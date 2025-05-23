@@ -1,0 +1,77 @@
+<ion-header>
+    <ion-toolbar color="secondary">
+      <ion-title>VecindApp</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+    <div class="logo-container ion-text-center">
+      <h1>Junta de Vecinos</h1>
+      <h2>Portal Puerto Montt</h2>
+      
+    </div>
+  
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <ion-card>
+        <ion-card-content>
+          <div class="input-container">
+            <ion-label>RUT (sin puntos)</ion-label>
+            <div class="rut-container">
+              <ion-item>
+                <ion-input type="number" formControlName="rut" inputmode="numeric" placeholder="Ingresa tu RUT"></ion-input>
+              </ion-item>
+              <div class="rut-separator">-</div>
+              <ion-item class="dv-item">
+                <ion-input type="text" formControlName="dv_rut" maxlength="1" placeholder="DV"></ion-input>
+              </ion-item>
+            </div>
+          </div>
+    
+          <div *ngIf="loginForm.get('rut')?.invalid && loginForm.get('rut')?.touched" class="error-message">
+            <span *ngIf="loginForm.get('rut')?.errors?.['required']">El RUT es obligatorio</span>
+          </div>
+    
+          <div class="input-container">
+            <ion-label>Contraseña</ion-label>
+            <ion-item>
+              <ion-input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Ingresa tu contraseña"></ion-input>
+              <ion-icon 
+                slot="end"
+                [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+                (click)="togglePassword()" 
+                class="password-toggle-icon">
+              </ion-icon>
+            </ion-item>
+          </div>
+          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
+            <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es obligatoria</span>
+            <span *ngIf="loginForm.get('password')?.errors?.['minlength']">La contraseña debe tener al menos 8 caracteres</span>
+          </div>
+  
+          <ion-button 
+          expand="block" 
+          type="submit" 
+          class="ion-margin-top login-button" 
+          [disabled]="loginForm.invalid || isLoading"
+          color="primary"
+        >
+          <ion-spinner name="circles" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">Iniciar Sesión</span>
+        </ion-button>
+  
+          <div class="ion-text-center ion-padding-top">
+            <ion-button fill="clear" size="small" (click)="irARecuperarPassword()">
+              ¿Olvidaste tu contraseña?
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </form>
+  
+    <div class="ion-text-center ion-padding-top">
+      <p>¿No tienes una cuenta?</p>
+      <ion-button expand="block" fill="outline" (click)="irARegistro()">
+        Regístrate
+      </ion-button>
+    </div>
+  </ion-content>

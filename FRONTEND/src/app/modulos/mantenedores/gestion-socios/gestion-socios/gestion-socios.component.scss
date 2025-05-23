@@ -1,0 +1,239 @@
+// Variables de color
+:host {
+  --primary-green: #00897B;
+  --light-bg: #F5F5F5;
+  --card-bg: #FFFFFF;
+}
+
+// Estilos generales
+ion-content {
+  --background: var(--light-bg);
+}
+
+// Título de la página
+.page-title {
+  color: var(--primary-green);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 16px 0;
+  padding: 0 16px;
+  text-align: center;
+}
+
+// Tarjetas de acción
+.menu-option-card {
+  background-color: var(--primary-green);
+  color: white;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  margin: 8px 0;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  ion-card-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .menu-icon {
+    font-size: 44px;
+    margin-bottom: 10px;
+    color: white !important;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+  }
+}
+
+// Tarjetas de estadísticas y actividades
+.stats-card,
+.activity-card,
+.vecinos-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 16px 0;
+}
+
+// Títulos de sección
+.section-title {
+  color: var(--primary-green);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+// Lista de vecinos
+.vecinos-card {
+  ion-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+
+    ion-button {
+      --color: var(--primary-green);
+      margin: 0;
+    }
+  }
+
+  .vecino-item {
+    --padding-start: 8px;
+    --inner-padding-end: 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      --background: rgba(0, 137, 123, 0.05);
+    }
+
+    .avatar-icon {
+      font-size: 40px;
+      color: var(--primary-green);
+    }
+
+    ion-label {
+      h2 {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      p {
+        font-size: 14px;
+        color: #666;
+        margin: 2px 0;
+      }
+    }
+
+    ion-badge {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+  }
+}
+
+// Elementos de estadísticas
+.stat-item {
+  text-align: center;
+  padding: 16px;
+
+  ion-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 8px 0;
+    color: #333;
+  }
+
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+// Lista de actividades
+ion-list {
+  background: transparent;
+  padding: 0;
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 8px;
+
+    ion-icon {
+      font-size: 20px;
+      margin-right: 12px;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    ion-note {
+      font-size: 12px;
+      color: #999;
+    }
+  }
+}
+
+// Ajustes responsivos
+@media (max-width: 576px) {
+  .menu-option-card {
+    height: 100px;
+    
+    .menu-icon {
+      font-size: 36px;
+    }
+    
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .stat-item {
+    padding: 8px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+    
+    h3 {
+      font-size: 20px;
+    }
+    
+    p {
+      font-size: 12px;
+    }
+  }
+
+  .vecino-item {
+    .avatar-icon {
+      font-size: 32px;
+    }
+
+    ion-label {
+      h2 {
+        font-size: 14px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+    }
+  }
+} 

@@ -1,0 +1,168 @@
+/* Estilos para el menú lateral con texto e iconos claros */
+
+ion-menu ion-content {
+  --background: #2C3E50;
+}
+
+ion-menu.md ion-content {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+}
+
+ion-menu.md ion-list {
+  padding: 20px 0;
+  background: #2C3E50;
+}
+
+/* Asegurar que los items del menú también tengan el fondo correcto */
+ion-menu ion-item {
+  --background: #2C3E50;
+  --color: #ffffff; /* Color claro para el texto del menú */
+}
+
+/* Mantener el efecto de selección */
+ion-menu ion-item.selected {
+  --background: rgba(0, 137, 123, 0.2); /* Color primario semi-transparente */
+  --color: #ffffff; /* Texto blanco para el ítem seleccionado */
+}
+
+ion-menu.md ion-note {
+  margin-bottom: 30px;
+  color: #cccccc; /* Color claro para las notas */
+}
+
+ion-menu.md ion-list-header,
+ion-menu.md ion-note {
+  padding-left: 10px;
+  color: #ffffff; /* Color claro para los encabezados de lista */
+}
+
+ion-menu.md ion-list#inbox-list {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Borde más claro */
+}
+
+ion-menu.md ion-list#inbox-list ion-list-header {
+  font-size: 22px;
+  font-weight: 600;
+  min-height: 20px;
+  color: #ffffff; /* Color claro para encabezados */
+}
+
+ion-menu.md ion-list#labels-list ion-list-header {
+  font-size: 16px;
+  margin-bottom: 18px;
+  color: #cccccc; /* Color claro para encabezados de etiquetas */
+  min-height: 26px;
+}
+
+ion-menu.md ion-item {
+  --padding-start: 10px;
+  --padding-end: 10px;
+  border-radius: 4px;
+}
+
+ion-menu.md ion-item.selected ion-icon {
+  color: #00897B; /* Color primario para el ícono seleccionado */
+}
+
+ion-menu.md ion-item ion-icon {
+  color: #ffffff; /* Color claro para los iconos */
+}
+
+ion-menu.md ion-item ion-label {
+  font-weight: 500;
+  color: #ffffff; /* Color claro para las etiquetas */
+}
+
+ion-menu.ios ion-content {
+  --padding-bottom: 20px;
+  --background: #2C3E50;
+}
+
+ion-menu.ios ion-list {
+  padding: 20px 0 0 0;
+  background: #2C3E50;
+}
+
+ion-menu.ios ion-note {
+  line-height: 24px;
+  margin-bottom: 20px;
+  color: #cccccc; /* Color claro para notas en iOS */
+}
+
+ion-menu.ios ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 50px;
+  --color: #ffffff; /* Color claro para texto en iOS */
+}
+
+ion-menu.ios ion-item.selected ion-icon {
+  color: #00897B; /* Color primario para ícono seleccionado en iOS */
+}
+
+ion-menu.ios ion-item ion-icon {
+  font-size: 24px;
+  color: #ffffff; /* Color claro para iconos en iOS */
+}
+
+ion-menu.ios ion-list#labels-list ion-list-header {
+  margin-bottom: 8px;
+  color: #ffffff; /* Color claro para encabezados en iOS */
+}
+
+ion-menu.ios ion-list-header,
+ion-menu.ios ion-note {
+  padding-left: 16px;
+  padding-right: 16px;
+  color: #ffffff; /* Color claro para encabezados en iOS */
+}
+
+ion-menu.ios ion-note {
+  margin-bottom: 8px;
+  color: #cccccc; /* Color claro para notas en iOS */
+}
+
+ion-note {
+  display: inline-block;
+  font-size: 16px;
+  color: #cccccc; /* Color claro para notas */
+}
+
+ion-item.selected {
+  --color: #00897B; /* Color primario para el ítem seleccionado */
+}
+
+/* Para el elemento activo del menú */
+.active-item {
+  --color: #00897B; /* Color primario para el ítem activo */
+  font-weight: bold;
+}
+
+/* Para mejorar la visibilidad del ítem seleccionado */
+ion-menu ion-item.selected ion-label {
+  color: #ffffff; /* Asegura que la etiqueta del ítem seleccionado sea clara */
+}
+
+/* Para el título del menú */
+ion-menu ion-title {
+  color: #ffffff; /* Color claro para el título */
+}
+
+/* Para subtítulos o descripción */
+ion-menu .app-description {
+  color: #cccccc; /* Color claro para descripciones */
+  padding-left: 16px;
+  font-size: 14px;
+}
+
+ion-split-pane {
+  height: 100vh;
+}
+
+#main-content {
+  height: 100%;
+  width: 100%;
+}

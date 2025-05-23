@@ -1,0 +1,137 @@
+:host {
+  --card-bg-color: var(--ion-color-light);
+  --text-dark-color: #333333;
+}
+
+ion-header ion-toolbar {
+  --background: var(--ion-color-secondary);
+  --color: white;
+}
+
+ion-title {
+  color: white !important;
+}
+
+.page-title {
+  color: var(--ion-color-primary);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 16px 0;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.container {
+  padding: 16px;
+}
+
+.general-info-card, ion-card {
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background-color: var(--card-bg-color);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+ion-item {
+  --background: var(--ion-color-light);
+  --border-radius: 8px;
+  margin-bottom: 2px;
+}
+
+ion-segment {
+  margin: 16px 0 8px 0;
+  --background: var(--ion-color-light);
+}
+
+ion-segment-button {
+  --background: var(--ion-color-light);
+  --background-checked: var(--ion-color-primary);
+  --color: var(--ion-color-medium);
+  --color-checked: var(--ion-color-light);
+  --indicator-color: transparent;
+}
+
+ion-button {
+  font-weight: 500;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+ion-button[color="success"] {
+  --background: var(--ion-color-success);
+  --background-activated: var(--ion-color-success-shade);
+  --color: var(--ion-color-success-contrast);
+}
+
+ion-button[color="danger"] {
+  --background: var(--ion-color-danger);
+  --background-activated: var(--ion-color-danger-shade);
+  --color: var(--ion-color-danger-contrast);
+}
+
+ion-spinner {
+  margin: 16px auto;
+  width: 48px;
+  height: 48px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.error-container {
+  padding: 16px;
+  text-align: center;
+  background-color: var(--ion-color-danger-tint);
+  border-radius: 8px;
+  margin: 16px 0;
+  color: white;
+}
+
+.error-container p, .error-container ion-text, .error-container ion-label {
+  color: white !important;
+}
+
+ion-note.success-message {
+  color: var(--ion-color-success);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+ion-note.error-message {
+  color: var(--ion-color-danger);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+ion-modal {
+  --background: #ffffff;
+  --height: auto;
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 20px;
+  }
+  .container {
+    padding: 8px;
+  }
+  ion-card, .general-info-card {
+    margin-bottom: 8px;
+  }
+}
+
+ion-content {
+  --background: var(--ion-background-color);
+}
+
+ion-menu-button, ion-back-button {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: white !important;
+}

@@ -1,0 +1,132 @@
+// Colores personalizados basados en tu tema
+:host {
+  --menu-bg-color: #00897B;
+  --card-bg-color: #F5F5DC;
+  --text-dark-color: #333333;
+}
+
+.welcome-section {
+  margin-bottom: 20px;
+  
+  h2 {
+    margin: 0;
+    font-size: 24px; // Aumentado para mejor legibilidad
+    font-weight: bold;
+    color: var(--ion-color-primary);
+  }
+}
+
+// Para los iconos en los botones
+ion-button ion-icon {
+  margin-right: 8px;
+}
+
+// Estilos para las tarjetas de anuncios
+.announcement-card, .general-info-card {
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background-color: var(--card-bg-color);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  
+  h2 {
+    margin-top: 0;
+    font-weight: bold;
+    font-size: 18px;
+    color: var(--text-dark-color);
+  }
+  
+  p {
+    margin-bottom: 10px;
+    color: var(--text-dark-color);
+  }
+
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: bold;
+  }
+}
+
+// Estilos para los botones del menú
+.menu-option-card {
+  background-color: var(--menu-bg-color);
+  color: white;
+  height: 120px; // Aumentado para más espacio
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  margin: 8px 0;
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  ion-card-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .menu-icon {
+    font-size: 44px; // Iconos más grandes
+    margin-bottom: 10px;
+    color: white !important;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 16px; // Texto más grande
+    text-align: center;
+    color: white;
+    font-weight: bold;
+  }
+}
+
+// Estilos para tarjetas específicas de roles
+.cuotas-card, .admin-card {
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background-color: #E0E0E0; 
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  
+  h2 {
+    color: var(--text-dark-color);
+    font-size: 18px;
+  }
+  
+  p {
+    color: var(--text-dark-color);
+  }
+
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: bold;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  ion-col {
+    padding: 5px;
+  }
+  
+  .menu-option-card {
+    height: 100px;
+    
+    .menu-icon {
+      font-size: 36px;
+    }
+    
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .welcome-section h2 {
+    font-size: 20px;
+  }
+}

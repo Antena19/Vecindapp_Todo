@@ -1,0 +1,137 @@
+:host {
+  --primary-green: #2ecc71;
+  --background-color: #f5f5f5;
+}
+
+ion-content {
+  --background: var(--background-color);
+}
+
+ion-card {
+  margin: 16px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+ion-searchbar {
+  --border-radius: 8px;
+  --box-shadow: none;
+  --background: #ffffff;
+  margin-bottom: 16px;
+}
+
+ion-segment {
+  --background: transparent;
+  margin: 8px 0;
+}
+
+ion-segment-button {
+  --color: #666;
+  --color-checked: var(--primary-green);
+  --indicator-color: var(--primary-green);
+  --border-radius: 8px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+
+.usuario-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    --background: rgba(46, 204, 113, 0.1);
+  }
+
+  ion-avatar {
+    width: 48px;
+    height: 48px;
+    margin-right: 16px;
+  }
+
+  .avatar-icon {
+    font-size: 48px;
+    color: var(--primary-green);
+  }
+
+  ion-label {
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #666;
+      margin: 2px 0;
+
+      &.ultimo-acceso {
+        font-size: 0.8rem;
+        color: #999;
+        font-style: italic;
+      }
+    }
+  }
+
+  ion-badge {
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-weight: 500;
+  }
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    margin: 0;
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  ion-segment {
+    margin: 8px 0;
+  }
+
+  .usuario-item {
+    --padding-start: 12px;
+    --padding-end: 12px;
+
+    ion-avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    .avatar-icon {
+      font-size: 40px;
+    }
+
+    ion-label {
+      h2 {
+        font-size: 1rem;
+      }
+
+      p {
+        font-size: 0.8rem;
+
+        &.ultimo-acceso {
+          font-size: 0.7rem;
+        }
+      }
+    }
+
+    ion-button {
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+} 
