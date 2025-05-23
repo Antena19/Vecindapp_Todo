@@ -165,7 +165,7 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                var mensaje = _directivaService.AprobarCertificado(solicitudId, request.DirectivaRut, request.Observaciones);
+                var mensaje = _directivaService.AprobarCertificado(solicitudId, int.Parse(request.DirectivaRut), request.Observaciones);
                 return Ok(new { mensaje });
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                var mensaje = _directivaService.RechazarCertificado(solicitudId, request.DirectivaRut, request.MotivoRechazo);
+                var mensaje = _directivaService.RechazarCertificado(solicitudId, int.Parse(request.DirectivaRut), request.MotivoRechazo);
                 return Ok(new { mensaje });
             }
             catch (Exception ex)
@@ -195,8 +195,8 @@ namespace REST_VECINDAPP.Controllers
             {
                 var mensaje = _directivaService.ConfigurarTarifaCertificado(
                     tipoCertificadoId,
-                    request.PrecioSocio,
-                    request.PrecioVecino,
+                    Convert.ToDecimal(request.PrecioSocio),
+                    Convert.ToDecimal(request.PrecioVecino),
                     request.MediosPago
                 );
                 return Ok(new { mensaje });
