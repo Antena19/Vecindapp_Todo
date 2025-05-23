@@ -63,8 +63,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<cn_Usuarios>();
 builder.Services.AddScoped<cn_Directiva>();
+builder.Services.AddScoped<cn_Certificados>();
+builder.Services.AddScoped<cn_MercadoPago>();
 
-// Configurar la autenticaci�n con JWT
+// Configurar la autenticacin con JWT
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key no est� configurado"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
