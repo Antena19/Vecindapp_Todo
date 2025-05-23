@@ -28,7 +28,7 @@ namespace REST_VECINDAPP.CapaNegocios
             command.Parameters.AddWithValue("@p_usuario_rut", usuarioId);
             command.Parameters.AddWithValue("@p_tipo_certificado_id", solicitud.TipoCertificadoId);
             command.Parameters.AddWithValue("@p_motivo", solicitud.Motivo);
-            command.Parameters.AddWithValue("@p_documentos", solicitud.DocumentosAdjuntos);
+            command.Parameters.AddWithValue("@p_documentos_adjuntos", solicitud.DocumentosAdjuntos);
             var result = await command.ExecuteNonQueryAsync();
             return result > 0;
         }
@@ -127,12 +127,12 @@ namespace REST_VECINDAPP.CapaNegocios
                     TipoCertificadoId = reader.GetInt32("tipo_certificado_id"),
                     FechaSolicitud = reader.GetDateTime("fecha_solicitud"),
                     Estado = reader.GetString("estado"),
-                    Motivo = reader.GetString("motivo"),
-                    DocumentosAdjuntos = reader.GetString("documentos_adjuntos"),
+                    Motivo = reader.IsDBNull("motivo") ? null : reader.GetString("motivo"),
+                    DocumentosAdjuntos = reader.IsDBNull("documentos_adjuntos") ? null : reader.GetString("documentos_adjuntos"),
                     FechaAprobacion = reader.IsDBNull("fecha_aprobacion") ? null : reader.GetDateTime("fecha_aprobacion"),
                     DirectivaRut = reader.IsDBNull("directiva_rut") ? null : reader.GetInt32("directiva_rut"),
                     Precio = reader.GetDecimal("precio"),
-                    Observaciones = reader.GetString("observaciones")
+                    Observaciones = reader.IsDBNull("observaciones") ? null : reader.GetString("observaciones")
                 });
             }
             return solicitudes;

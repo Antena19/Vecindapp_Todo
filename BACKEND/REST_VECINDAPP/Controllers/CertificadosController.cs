@@ -31,8 +31,7 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                var resultado = await _certificadosService.SolicitarCertificado(userId, solicitud);
+                var resultado = await _certificadosService.SolicitarCertificado(solicitud.UsuarioRut, solicitud);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -42,7 +41,7 @@ namespace REST_VECINDAPP.Controllers
         }
 
         [HttpPost("aprobar")]
-        [Authorize(Roles = "DIRECTIVA")]
+        [Authorize(Roles = "Directiva")]
         public async Task<IActionResult> AprobarCertificado([FromBody] AprobarCertificadoRequest request)
         {
             try
@@ -57,7 +56,7 @@ namespace REST_VECINDAPP.Controllers
         }
 
         [HttpPost("rechazar")]
-        [Authorize(Roles = "DIRECTIVA")]
+        [Authorize(Roles = "Directiva")]
         public async Task<IActionResult> RechazarCertificado([FromBody] RechazarCertificadoRequest request)
         {
             try
@@ -101,7 +100,7 @@ namespace REST_VECINDAPP.Controllers
         }
 
         [HttpGet("pendientes")]
-        [Authorize(Roles = "DIRECTIVA")]
+        [Authorize(Roles = "Directiva")]
         public async Task<IActionResult> ObtenerSolicitudesPendientes()
         {
             try

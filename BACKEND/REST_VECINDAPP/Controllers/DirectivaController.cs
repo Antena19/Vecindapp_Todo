@@ -165,6 +165,11 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
+                if (request.SolicitudId != solicitudId)
+                {
+                    return BadRequest("El ID de la solicitud en la URL no coincide con el del cuerpo de la solicitud");
+                }
+
                 var mensaje = _directivaService.AprobarCertificado(solicitudId, int.Parse(request.DirectivaRut), request.Observaciones);
                 return Ok(new { mensaje });
             }
