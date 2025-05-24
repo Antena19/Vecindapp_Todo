@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Historial de Certificados</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Filtros</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-segment [(ngModel)]="filtroEstado" (ionChange)="filtrarPorEstado($event.detail.value || 'TODOS')">
+        <ion-segment-button value="TODOS">
+          <ion-label>Todos</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="PENDIENTE">
+          <ion-label>Pendientes</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="APROBADO">
+          <ion-label>Aprobados</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="RECHAZADO">
+          <ion-label>Rechazados</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="PAGADO">
+          <ion-label>Pagados</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="EMITIDO">
+          <ion-label>Emitidos</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-list>
+    <ion-item *ngFor="let certificado of certificadosFiltrados" [routerLink]="['/certificados/detalle', certificado.id]">
+      <ion-label>
+        <h2>Certificado #{{certificado.id}}</h2>
+        <p>Solicitado: {{certificado.fechaSolicitud | date:'dd/MM/yyyy'}}</p>
+        <p>Monto: ${{certificado.montoFinal | number}}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="getEstadoColor(certificado.estado)">
+        {{certificado.estado}}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <ion-infinite-scroll>
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando más certificados...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content> 

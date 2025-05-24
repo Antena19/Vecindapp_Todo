@@ -1,0 +1,22 @@
+// Estilos específicos para el componente de solicitud de certificado
+:host {
+  display: block;
+}
+
+ion-card {
+  margin: 16px;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+ion-button {
+  margin-top: 16px;
+}
+
+ion-textarea {
+  --padding-start: 0;
+  --padding-end: 0;
+} 

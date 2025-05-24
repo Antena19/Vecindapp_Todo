@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Mis Certificados</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/certificados/solicitar">
+        <ion-icon name="add-circle-outline"></ion-icon>
+        Nuevo
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item *ngFor="let certificado of certificados" [routerLink]="['/certificados/detalle', certificado.id]">
+      <ion-label>
+        <h2>Certificado de Residencia</h2>
+        <p>Solicitado: {{certificado.fechaSolicitud | date:'dd/MM/yyyy'}}</p>
+        <p>Monto: ${{certificado.montoFinal | number}}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="getEstadoColor(certificado.estado)">
+        {{certificado.estado}}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/certificados/solicitar">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-infinite-scroll>
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Cargando más certificados...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content> 

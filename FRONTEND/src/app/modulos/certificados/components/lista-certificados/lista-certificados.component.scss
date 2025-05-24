@@ -1,0 +1,22 @@
+// Estilos específicos para el componente de lista de certificados
+:host {
+  display: block;
+}
+
+ion-list {
+  padding: 0;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 16px;
+}
+
+ion-badge {
+  margin-left: 8px;
+}
+
+ion-fab {
+  margin: 16px;
+} 

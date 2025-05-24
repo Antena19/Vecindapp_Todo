@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+ion-card {
+  margin: 16px;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+ion-button {
+  margin-top: 16px;
+}
+
+ion-textarea {
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.file-input {
+  margin-top: 8px;
+}
+
+.payment-info {
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+} 

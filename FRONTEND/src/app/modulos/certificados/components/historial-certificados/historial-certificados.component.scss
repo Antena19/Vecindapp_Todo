@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+ion-card {
+  margin: 16px;
+}
+
+ion-list {
+  padding: 0;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+ion-badge {
+  margin-left: 8px;
+}
+
+ion-infinite-scroll {
+  margin-top: 16px;
+}
+
+ion-segment {
+  margin-bottom: 16px;
+}
+
+ion-segment-button {
+  --color: var(--ion-color-medium);
+  --color-checked: var(--ion-color-primary);
+}
+
+ion-card-header {
+  padding-bottom: 0;
+}
+
+ion-card-content {
+  padding-top: 16px;
+} 

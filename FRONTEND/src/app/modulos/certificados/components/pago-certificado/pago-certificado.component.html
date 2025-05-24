@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/certificados/detalle"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Realizar Pago</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="pagoForm" (ngSubmit)="onSubmit()">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Pago de Certificado</ion-card-title>
+        <ion-card-subtitle>Monto a pagar: ${{monto | number}}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="stacked">Método de Pago</ion-label>
+          <ion-select formControlName="metodoPago" placeholder="Seleccione método de pago">
+            <ion-select-option value="TRANSFERENCIA">Transferencia Bancaria</ion-select-option>
+            <ion-select-option value="EFECTIVO">Pago en Efectivo</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item *ngIf="pagoForm.get('metodoPago')?.value === 'TRANSFERENCIA'">
+          <ion-label position="stacked">Comprobante de Transferencia</ion-label>
+          <input type="file" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png">
+          <ion-text color="medium">
+            <p>Adjunte el comprobante de transferencia</p>
+          </ion-text>
+        </ion-item>
+
+        <ion-item *ngIf="pagoForm.get('metodoPago')?.value === 'EFECTIVO'">
+          <ion-label position="stacked">Información de Pago</ion-label>
+          <ion-text color="medium">
+            <p>Diríjase a la oficina de la Junta de Vecinos para realizar el pago en efectivo</p>
+            <p>Horario de atención: Lunes a Viernes de 9:00 a 18:00</p>
+          </ion-text>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Observaciones (opcional)</ion-label>
+          <ion-textarea
+            formControlName="observaciones"
+            rows="4"
+            placeholder="Ingrese observaciones adicionales si lo requiere">
+          </ion-textarea>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="ion-padding">
+      <ion-button expand="block" type="submit" [disabled]="!pagoForm.valid">
+        Realizar Pago
+      </ion-button>
+    </div>
+  </form>
+</ion-content> 

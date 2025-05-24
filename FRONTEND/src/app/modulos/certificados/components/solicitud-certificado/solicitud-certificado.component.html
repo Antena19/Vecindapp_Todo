@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/certificados/lista"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Solicitar Certificado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="solicitudForm" (ngSubmit)="onSubmit()">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Certificado de Residencia</ion-card-title>
+        <ion-card-subtitle *ngIf="isSocio">
+          Precio especial para socios: $5.000
+        </ion-card-subtitle>
+        <ion-card-subtitle *ngIf="!isSocio">
+          Precio normal: $10.000
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="stacked">Documentos Requeridos</ion-label>
+          <ion-text color="medium">
+            <p>Adjunte los siguientes documentos:</p>
+            <ul>
+              <li>Copia de cédula de identidad</li>
+              <li>Comprobante de domicilio (últimos 3 meses)</li>
+            </ul>
+          </ion-text>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Adjuntar Documentos</ion-label>
+          <input type="file" multiple (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png">
+        </ion-item>
+
+        <ion-list *ngIf="documentos.length > 0">
+          <ion-item *ngFor="let doc of documentos; let i = index">
+            <ion-label>{{doc.name}}</ion-label>
+            <ion-button slot="end" fill="clear" color="danger" (click)="removeDocument(i)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+
+        <ion-item>
+          <ion-label position="stacked">Observaciones (opcional)</ion-label>
+          <ion-textarea
+            formControlName="observaciones"
+            rows="4"
+            placeholder="Ingrese observaciones adicionales si lo requiere">
+          </ion-textarea>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="ion-padding">
+      <ion-button expand="block" type="submit" [disabled]="documentos.length === 0">
+        Enviar Solicitud
+      </ion-button>
+    </div>
+  </form>
+</ion-content> 

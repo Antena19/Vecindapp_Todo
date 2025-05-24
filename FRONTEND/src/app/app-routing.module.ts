@@ -42,6 +42,11 @@ const routes: Routes = [
   {
     path: 'mantenedores/gestion-usuarios',
     loadChildren: () => import('./modulos/mantenedores/gestion-usuarios/gestion-usuarios-routing.module').then(m => m.GestionUsuariosRoutingModule)
+  },
+  {
+    path: 'certificados',
+    loadChildren: () => import('./modulos/certificados/certificados-routing.module').then(m => m.CertificadosRoutingModule),
+    canActivate: [AuthGuard]
   }
 ];
 

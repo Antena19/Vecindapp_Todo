@@ -1,0 +1,116 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/certificados/lista"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle del Certificado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card *ngIf="certificado">
+    <ion-card-header>
+      <ion-card-title>Certificado de Residencia</ion-card-title>
+      <ion-card-subtitle>
+        Estado: <ion-badge [color]="getEstadoColor(certificado.estado)">{{certificado.estado}}</ion-badge>
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>
+            <h3>Fecha de Solicitud</h3>
+            <p>{{certificado.fechaSolicitud | date:'dd/MM/yyyy HH:mm'}}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item *ngIf="certificado.fechaAprobacion">
+          <ion-label>
+            <h3>Fecha de Aprobación</h3>
+            <p>{{certificado.fechaAprobacion | date:'dd/MM/yyyy HH:mm'}}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item *ngIf="certificado.fechaPago">
+          <ion-label>
+            <h3>Fecha de Pago</h3>
+            <p>{{certificado.fechaPago | date:'dd/MM/yyyy HH:mm'}}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item *ngIf="certificado.fechaEmision">
+          <ion-label>
+            <h3>Fecha de Emisión</h3>
+            <p>{{certificado.fechaEmision | date:'dd/MM/yyyy HH:mm'}}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <h3>Monto</h3>
+            <p>${{certificado.monto | number}}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item *ngIf="certificado.montoDescuento">
+          <ion-label>
+            <h3>Descuento</h3>
+            <p>${{certificado.montoDescuento | number}}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>
+            <h3>Monto Final</h3>
+            <p>${{certificado.montoFinal | number}}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item *ngIf="certificado.motivoRechazo">
+          <ion-label>
+            <h3>Motivo de Rechazo</h3>
+            <p>{{certificado.motivoRechazo}}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-list *ngIf="certificado.documentos.length > 0">
+        <ion-list-header>
+          <ion-label>Documentos Adjuntos</ion-label>
+        </ion-list-header>
+        <ion-item *ngFor="let doc of certificado.documentos">
+          <ion-label>
+            <h3>{{doc.nombre}}</h3>
+            <p>Subido: {{doc.fechaSubida | date:'dd/MM/yyyy HH:mm'}}</p>
+          </ion-label>
+          <ion-button slot="end" fill="clear" (click)="window.open(doc.url, '_blank')">
+            <ion-icon name="download-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="ion-padding" *ngIf="certificado">
+    <!-- Acciones para Directiva -->
+    <div *ngIf="isDirectiva && certificado.estado === 'PENDIENTE'">
+      <ion-button expand="block" color="success" (click)="aprobarCertificado()">
+        Aprobar Certificado
+      </ion-button>
+      <ion-button expand="block" color="danger" (click)="rechazarCertificado()">
+        Rechazar Certificado
+      </ion-button>
+    </div>
+
+    <!-- Acciones para Usuario -->
+    <div *ngIf="!isDirectiva">
+      <ion-button *ngIf="certificado.estado === 'APROBADO'" expand="block" (click)="realizarPago()">
+        Realizar Pago
+      </ion-button>
+      <ion-button *ngIf="certificado.estado === 'EMITIDO'" expand="block" (click)="descargarCertificado()">
+        Descargar Certificado
+      </ion-button>
+    </div>
+  </div>
+</ion-content> 
