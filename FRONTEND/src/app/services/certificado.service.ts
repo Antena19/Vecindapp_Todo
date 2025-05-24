@@ -8,7 +8,7 @@ import { Certificado } from '../modelos/certificado.interface';
   providedIn: 'root'
 })
 export class CertificadoService {
-  private apiUrl = `${environment.apiUrl}/certificados`;
+  private apiUrl = `${environment.apiUrl}/api/Certificados`;
 
   constructor(private http: HttpClient) {}
 
@@ -20,8 +20,8 @@ export class CertificadoService {
     return this.http.get<Certificado>(`${this.apiUrl}/${id}`);
   }
 
-  solicitarCertificado(formData: FormData): Observable<Certificado> {
-    return this.http.post<Certificado>(this.apiUrl, formData);
+  solicitarCertificado(data: any): Observable<Certificado> {
+    return this.http.post<Certificado>(`${this.apiUrl}/solicitar`, data);
   }
 
   aprobarCertificado(id: number): Observable<Certificado> {
@@ -38,5 +38,9 @@ export class CertificadoService {
 
   descargarCertificado(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/${id}/descargar`, { responseType: 'blob' });
+  }
+
+  obtenerTiposCertificado(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/tipos`);
   }
 } 

@@ -45,7 +45,7 @@ const routes: Routes = [
   },
   {
     path: 'certificados',
-    loadChildren: () => import('./modulos/certificados/certificados-routing.module').then(m => m.CertificadosRoutingModule),
+    loadChildren: () => import('./modulos/certificados/certificados.routes').then(m => m.CERTIFICADOS_ROUTES),
     canActivate: [AuthGuard]
   }
 ];

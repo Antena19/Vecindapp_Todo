@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AutenticacionService } from '../../services/autenticacion.service';
 import { Usuario } from '../../modelos/Usuario';
 import { SociosService } from 'src/app/services/socios.service';
@@ -17,7 +17,8 @@ interface MenuOption {
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, RouterModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomePage implements OnInit {
   usuario: Usuario | null = null;
@@ -172,6 +173,11 @@ export class HomePage implements OnInit {
   }
 
   navigateTo(route: string) {
-    this.router.navigate([route]);
+    console.log('Navegando a:', route);
+    this.router.navigate([route]).then(success => {
+      console.log('¿Navegación exitosa?', success);
+    }).catch(error => {
+      console.error('Error en navegación:', error);
+    });
   }
 }

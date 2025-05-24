@@ -1,7 +1,7 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="secondary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/certificados/lista"></ion-back-button>
+      <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
     <ion-title>Solicitar Certificado</ion-title>
   </ion-toolbar>
@@ -9,58 +9,54 @@
 
 <ion-content class="ion-padding">
   <form [formGroup]="solicitudForm" (ngSubmit)="onSubmit()">
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Certificado de Residencia</ion-card-title>
-        <ion-card-subtitle *ngIf="isSocio">
-          Precio especial para socios: $5.000
-        </ion-card-subtitle>
-        <ion-card-subtitle *ngIf="!isSocio">
-          Precio normal: $10.000
-        </ion-card-subtitle>
+    <ion-card class="ion-margin-vertical">
+      <ion-card-header color="primary" style="text-align: center;">
+        <ion-card-title class="certificado-titulo">Certificado de Residencia</ion-card-title>
       </ion-card-header>
 
       <ion-card-content>
-        <ion-item>
-          <ion-label position="stacked">Documentos Requeridos</ion-label>
+        <ion-item lines="none" color="light">
+          <ion-label position="stacked" color="primary"><b>Documentos Requeridos</b></ion-label>
           <ion-text color="medium">
-            <p>Adjunte los siguientes documentos:</p>
-            <ul>
+            <ul style="margin-top: 8px;">
               <li>Copia de cédula de identidad</li>
-              <li>Comprobante de domicilio (últimos 3 meses)</li>
+              <li>Comprobante de domicilio <span style="color: var(--ion-color-medium);">(boleta luz, agua, etc.)</span></li>
             </ul>
           </ion-text>
         </ion-item>
 
-        <ion-item>
-          <ion-label position="stacked">Adjuntar Documentos</ion-label>
-          <input type="file" multiple (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png">
+        <ion-item lines="full">
+          <ion-label position="stacked" color="primary">Tipo de Certificado</ion-label>
+          <ion-input readonly value="Certificado de Residencia" class="tipo-certificado-select"></ion-input>
         </ion-item>
 
-        <ion-list *ngIf="documentos.length > 0">
-          <ion-item *ngFor="let doc of documentos; let i = index">
-            <ion-label>{{doc.name}}</ion-label>
-            <ion-button slot="end" fill="clear" color="danger" (click)="removeDocument(i)">
-              <ion-icon name="trash-outline"></ion-icon>
-            </ion-button>
-          </ion-item>
-        </ion-list>
+        <ion-item lines="full">
+          <ion-label position="stacked" class="archivo-label">Adjuntar Copia de cédula de identidad</ion-label>
+          <input type="file" (change)="onCedulaSelected($event)" accept=".pdf,.jpg,.jpeg,.png" class="custom-file-input">
+          <span *ngIf="cedulaFile" class="archivo-nombre" style="margin-top: 4px; display: block;">{{ cedulaFile.name }}</span>
+        </ion-item>
 
-        <ion-item>
-          <ion-label position="stacked">Observaciones (opcional)</ion-label>
-          <ion-textarea
-            formControlName="observaciones"
-            rows="4"
-            placeholder="Ingrese observaciones adicionales si lo requiere">
-          </ion-textarea>
+        <ion-item lines="full">
+          <ion-label position="stacked" class="archivo-label">Adjuntar Comprobante de domicilio</ion-label>
+          <input type="file" (change)="onComprobanteSelected($event)" accept=".pdf,.jpg,.jpeg,.png" class="custom-file-input">
+          <span *ngIf="comprobanteFile" class="archivo-nombre" style="margin-top: 4px; display: block;">{{ comprobanteFile.name }}</span>
+        </ion-item>
+
+        <ion-item lines="none" color="light" style="margin-top: 16px;">
+          <ion-label color="primary" style="font-weight: bold;">
+            Certificado {{ isSocio ? 'Socio' : 'Vecino' }}
+            <span style="margin-left: 12px; color: var(--ion-color-success);">${{precio}}</span>
+          </ion-label>
+        </ion-item>
+
+        <ion-item lines="none" style="background: transparent; box-shadow: none; margin-top: 8px;">
+          <ion-label position="stacked" class="observaciones-label">Observaciones (opcional)</ion-label>
+          <ion-textarea formControlName="observaciones" placeholder="Ingrese observaciones adicionales si lo requiere" class="observaciones-textarea"></ion-textarea>
         </ion-item>
       </ion-card-content>
-    </ion-card>
-
-    <div class="ion-padding">
-      <ion-button expand="block" type="submit" [disabled]="documentos.length === 0">
-        Enviar Solicitud
+      <ion-button expand="block" color="primary" type="submit" [disabled]="solicitudForm.invalid || !cedulaFile || !comprobanteFile" style="margin: 16px;">
+        ENVIAR SOLICITUD
       </ion-button>
-    </div>
+    </ion-card>
   </form>
 </ion-content> 

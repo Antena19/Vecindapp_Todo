@@ -19,4 +19,69 @@ ion-button {
 ion-textarea {
   --padding-start: 0;
   --padding-end: 0;
+}
+
+.observaciones-textarea {
+  background: #fff !important;
+  border: 1px solid #ccc !important;
+  border-radius: 6px;
+  min-height: 48px;
+  max-height: 80px;
+  color: #222 !important;
+  padding: 10px;
+  font-size: 1rem;
+  box-shadow: none !important;
+}
+
+.observaciones-label {
+  color: #444 !important;
+  margin-bottom: 6px;
+  display: block;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.archivo-label {
+  font-size: 0.95rem !important;
+  color: #1976d2 !important;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.custom-file-input {
+  width: 100%;
+  font-size: 0.95rem;
+  color: transparent; /* Oculta el nombre nativo */
+}
+
+.custom-file-input::-webkit-file-upload-button {
+  color: initial;
+}
+
+.archivo-nombre {
+  font-size: 0.90rem;
+  color: #333;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.certificado-titulo {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1.3rem;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.tipo-certificado-select {
+  min-width: 220px;
+  font-size: 1rem;
+  white-space: normal;
+  text-align: left;
 } 

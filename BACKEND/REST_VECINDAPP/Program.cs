@@ -17,8 +17,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         builder => builder
-            .WithOrigins("http://localhost:8100", "https://tudominio.com",
-                "capacitor://localhost") // URL de tu app Ionic
+            .WithOrigins(
+                "http://localhost:8100",
+                "https://tudominio.com",
+                "capacitor://localhost",
+                "http://localhost:4205"
+            )
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());

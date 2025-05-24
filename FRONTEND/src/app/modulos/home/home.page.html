@@ -84,17 +84,7 @@
       <ion-col size="6" *ngFor="let option of menuOptions">
         <ion-card class="menu-option-card" (click)="navigateTo(option.route)">
           <ion-card-content class="ion-text-center">
-            <!-- Iconos para todos los tipos de botones -->
-            <ion-icon name="person-outline" class="menu-icon" *ngIf="option.title === 'Mi Perfil'"></ion-icon>
-            <ion-icon name="newspaper-outline" class="menu-icon" *ngIf="option.title === 'Noticias'"></ion-icon>
             <ion-icon name="document-text-outline" class="menu-icon" *ngIf="option.title === 'Certificados'"></ion-icon>
-            <ion-icon name="people-outline" class="menu-icon" *ngIf="option.title === 'Hacerme Socio'"></ion-icon>
-            <ion-icon name="cash-outline" class="menu-icon" *ngIf="option.title === 'Estado de Cuotas'"></ion-icon>
-            <ion-icon name="create-outline" class="menu-icon" *ngIf="option.title === 'Publicar Noticias'"></ion-icon>
-            <ion-icon name="people-circle-outline" class="menu-icon" *ngIf="option.title === 'Gestión de Socios'"></ion-icon>
-            <ion-icon name="people-outline" class="menu-icon" *ngIf="option.title === 'Gestión de Vecinos'"></ion-icon>
-            <ion-icon name="clipboard-outline" class="menu-icon" *ngIf="option.title === 'Solicitudes'"></ion-icon>
-            <ion-icon name="stats-chart-outline" class="menu-icon" *ngIf="option.title === 'Gestión Financiera'"></ion-icon>
             <p>{{option.title}}</p>
           </ion-card-content>
         </ion-card>
