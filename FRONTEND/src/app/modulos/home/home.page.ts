@@ -42,6 +42,11 @@ export class HomePage implements OnInit {
       route: '/certificados'
     },
     { 
+      title: 'Registro de Asistencia', 
+      icon: 'calendar-outline', 
+      route: '/eventos/registro-asistencia'
+    },
+    { 
       title: 'Hacerme Socio', 
       icon: 'people-outline', 
       route: '/mantenedores/gestion-socios/solicitar-membresia'
@@ -65,6 +70,11 @@ export class HomePage implements OnInit {
       route: '/certificados'
     },
     { 
+      title: 'Registro de Asistencia', 
+      icon: 'calendar-outline', 
+      route: '/eventos/registro-asistencia'
+    },
+    { 
       title: 'Estado de Cuotas', 
       icon: 'cash-outline', 
       route: '/estado-cuotas'
@@ -86,6 +96,11 @@ export class HomePage implements OnInit {
       title: 'Certificados', 
       icon: 'document-text-outline', 
       route: '/certificados'
+    },
+    { 
+      title: 'Eventos', 
+      icon: 'calendar-outline', 
+      route: '/eventos'
     },
     { 
       title: 'Gestión de Socios', 

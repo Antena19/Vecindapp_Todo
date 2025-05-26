@@ -1,0 +1,28 @@
+ion-list {
+  margin: 16px 0;
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  --background: var(--ion-color-light);
+}
+
+ion-label h2 {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+ion-label p {
+  color: var(--ion-color-medium);
+  font-size: 0.9em;
+  margin: 2px 0;
+}
+
+.ion-text-center {
+  text-align: center;
+} 

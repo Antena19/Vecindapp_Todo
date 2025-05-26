@@ -1,0 +1,46 @@
+<ion-content>
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/eventos/lista"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Reporte de Eventos</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <form class="ion-padding" (ngSubmit)="generarReporte()">
+    <ion-item>
+      <ion-label position="floating">Fecha inicio</ion-label>
+      <ion-datetime display-format="DD/MM/YYYY" [(ngModel)]="fechaInicio" name="fechaInicio"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Fecha fin</ion-label>
+      <ion-datetime display-format="DD/MM/YYYY" [(ngModel)]="fechaFin" name="fechaFin"></ion-datetime>
+    </ion-item>
+    <ion-button expand="block" type="submit" [disabled]="!fechaInicio || !fechaFin || cargando">
+      <ion-icon name="search-outline" slot="start"></ion-icon>
+      Generar Reporte
+    </ion-button>
+  </form>
+
+  <div class="ion-padding" *ngIf="cargando">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-list *ngIf="!cargando && eventos.length">
+    <ion-item *ngFor="let evento of eventos">
+      <ion-label>
+        <h2>{{evento.titulo}}</h2>
+        <p>{{evento.fechaEvento | date:'dd/MM/yyyy'}} - {{evento.horaEvento}}</p>
+        <p>{{evento.lugar}}</p>
+        <p><strong>Estado:</strong> {{evento.estado}}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <div *ngIf="!cargando && !eventos.length && fechaInicio && fechaFin" class="ion-text-center ion-padding">
+    <ion-text color="medium">
+      No hay eventos en el rango seleccionado.
+    </ion-text>
+  </div>
+</ion-content> 

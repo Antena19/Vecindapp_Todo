@@ -1,0 +1,48 @@
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <ion-button expand="block" color="primary" (click)="crearEvento()" style="margin-bottom: 16px;">
+    <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+    Crear Evento
+  </ion-button>
+
+  <div *ngFor="let evento of eventos">
+    <ion-card class="evento-card">
+      <ion-card-header>
+        <ion-card-title>{{ evento.titulo }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>
+          <ion-icon name="calendar-outline"></ion-icon>
+          {{ evento.fechaEvento | date:'dd/MM/yyyy' }} - {{ evento.horaEvento }}
+        </p>
+        <p>
+          <ion-icon name="location-outline"></ion-icon>
+          {{ evento.lugar }}
+        </p>
+        <p class="descripcion">{{ evento.descripcion }}</p>
+        <ion-badge [color]="evento.estado === 'activo' ? 'success' : 'medium'">
+          {{ evento.estado }}
+        </ion-badge>
+        <ion-button expand="block" fill="clear" color="primary" (click)="verDetalle(evento.id)">
+          <ion-icon name="eye-outline" slot="start"></ion-icon>
+          Ver Detalle
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button [routerLink]="['/eventos/registro-asistencia']">
+      <ion-icon name="qr-code-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- Mensaje cuando no hay eventos -->
+  <div *ngIf="eventos.length === 0" class="ion-padding ion-text-center">
+    <ion-icon name="calendar-outline" style="font-size: 48px; color: var(--ion-color-medium)"></ion-icon>
+    <p>No hay eventos programados</p>
+    <ion-button (click)="crearEvento()">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+      Crear Evento
+    </ion-button>
+  </div>
+</ion-content> 

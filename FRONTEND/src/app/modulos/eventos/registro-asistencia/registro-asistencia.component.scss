@@ -1,0 +1,54 @@
+.scanner-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: 20px 0;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  border: 2px solid var(--ion-color-primary);
+  border-radius: 20px;
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
+}
+
+ion-card {
+  margin: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+ion-card-header {
+  padding: 16px;
+}
+
+ion-card-title {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+ion-card-subtitle {
+  color: var(--ion-color-medium);
+  font-size: 1em;
+}
+
+ion-card-content {
+  padding: 16px;
+
+  ion-button {
+    margin: 8px 0;
+  }
+
+  p {
+    margin-top: 16px;
+    text-align: center;
+  }
+} 

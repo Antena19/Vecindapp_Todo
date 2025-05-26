@@ -16,9 +16,29 @@
     <h2>{{ getBienvenida() }}</h2>
   </div>
 
+  <!-- Botones destacados según el rol -->
+  <ion-grid>
+    <ion-row>
+      <!-- Botón de Registro de Asistencia para Socios y Vecinos -->
+      @if (tipoUsuario === 'socio' || tipoUsuario === 'vecino') {
+        <ion-col size="6">
+          <ion-card button (click)="navigateTo('/eventos/registro-asistencia')">
+            <ion-card-header>
+              <ion-icon name="calendar-outline" size="large"></ion-icon>
+              <ion-card-title>Registro de Asistencia</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              Registra tu asistencia a eventos
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+
   <!-- Tarjetas de información -->
   <ng-container [ngSwitch]="tipoUsuario">
-<!-- Tarjeta de anuncio para Vecino -->
+    <!-- Tarjeta de anuncio para Vecino -->
     <ng-container *ngSwitchCase="'vecino'">
       <ion-card class="announcement-card">
         <ion-card-content>
@@ -95,6 +115,7 @@
             <ion-icon name="people-outline" class="menu-icon" *ngIf="option.title === 'Gestión de Vecinos'"></ion-icon>
             <ion-icon name="clipboard-outline" class="menu-icon" *ngIf="option.title === 'Solicitudes'"></ion-icon>
             <ion-icon name="stats-chart-outline" class="menu-icon" *ngIf="option.title === 'Gestión Financiera'"></ion-icon>
+            <ion-icon name="calendar-outline" class="menu-icon" *ngIf="option.title === 'Eventos'"></ion-icon>
             <p>{{option.title}}</p>
           </ion-card-content>
         </ion-card>

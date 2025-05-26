@@ -1,9 +1,20 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'VecindApp',
-  webDir: 'www'
+  appId: 'com.vecindapp.app',
+  appName: 'Vecindapp',
+  webDir: 'www',
+  server: {
+    androidScheme: 'https'
+  },
+  plugins: {
+    BarcodeScanner: {
+      // Configuración específica del plugin de escaneo
+      formats: ['QR_CODE'],
+      showTorchButton: true,
+      showFlipCameraButton: true
+    }
+  }
 };
 
 export default config;

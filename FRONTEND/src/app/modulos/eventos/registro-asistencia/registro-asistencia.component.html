@@ -1,0 +1,41 @@
+<ion-content>
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/eventos/lista"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Registrar Asistencia</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="ion-padding">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Escanear Código QR</ion-card-title>
+        <ion-card-subtitle>
+          Escanee el código QR del evento para registrar su asistencia
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="scanner-container" *ngIf="escaneando">
+          <div class="scanner-overlay"></div>
+        </div>
+
+        <ion-button expand="block" (click)="iniciarEscaneo()" [disabled]="escaneando">
+          <ion-icon name="scan-outline" slot="start"></ion-icon>
+          {{ escaneando ? 'Escaneando...' : 'Iniciar Escaneo' }}
+        </ion-button>
+
+        <ion-button expand="block" color="danger" (click)="detenerEscaneo()" *ngIf="escaneando">
+          <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+          Detener Escaneo
+        </ion-button>
+
+        <ion-text color="medium" class="ion-text-center" *ngIf="mensaje">
+          <p>{{mensaje}}</p>
+        </ion-text>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content> 

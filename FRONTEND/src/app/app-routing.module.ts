@@ -42,6 +42,10 @@ const routes: Routes = [
   {
     path: 'mantenedores/gestion-usuarios',
     loadChildren: () => import('./modulos/mantenedores/gestion-usuarios/gestion-usuarios-routing.module').then(m => m.GestionUsuariosRoutingModule)
+  },
+  {
+    path: 'eventos',
+    loadChildren: () => import('./modulos/eventos/eventos.module').then(m => m.EventosModule)
   }
 ];
 

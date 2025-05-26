@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "VecindApp API",
         Version = "v1",
-        Description = "API para la aplicaci�n de gesti�n de juntas de vecinos"
+        Description = "API para la aplicacion de gestion de juntas de vecinos"
     });
 
     // Configurar Swagger para usar JWT
@@ -65,6 +65,7 @@ builder.Services.AddScoped<cn_Usuarios>();
 builder.Services.AddScoped<cn_Directiva>();
 builder.Services.AddScoped<cn_Certificados>();
 builder.Services.AddScoped<cn_MercadoPago>();
+builder.Services.AddScoped<cn_Eventos>();
 
 // Configurar la autenticacin con JWT
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key no est� configurado"));
