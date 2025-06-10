@@ -46,6 +46,18 @@ const routes: Routes = [
   {
     path: 'eventos',
     loadChildren: () => import('./modulos/eventos/eventos.module').then(m => m.EventosModule)
+  },
+  {
+    path: 'eventos/crear',
+    loadChildren: () => import('./modulos/eventos/crear-evento/crear-evento.module').then(m => m.CrearEventoModule)
+  },
+  {
+    path: 'eventos/editar/:id',
+    loadChildren: () => import('./modulos/eventos/editar-evento/editar-evento.module').then(m => m.EditarEventoModule)
+  },
+  {
+    path: 'eventos/reporte',
+    loadComponent: () => import('./modulos/eventos/reporte-eventos/reporte-eventos.component').then(m => m.ReporteEventosComponent) 
   }
 ];
 

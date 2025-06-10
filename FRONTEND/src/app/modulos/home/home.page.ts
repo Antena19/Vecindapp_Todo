@@ -116,11 +116,6 @@ export class HomePage implements OnInit {
       title: 'Solicitudes', 
       icon: 'clipboard-outline', 
       route: '/mantenedores/gestion-socios/solicitudes'
-    },
-    { 
-      title: 'Gestión Financiera', 
-      icon: 'stats-chart-outline', 
-      route: '/gestion-financiera'
     }
   ]
 

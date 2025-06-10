@@ -17,7 +17,7 @@ import { AsistenciaEvento } from '../../../modelos/evento.model';
   ]
 })
 export class HistorialAsistenciaComponent implements OnInit {
-  historial: AsistenciaEvento[] = [];
+  asistencias: AsistenciaEvento[] = [];
   cargando = true;
 
   constructor(private eventosService: EventosService) { }
@@ -25,7 +25,7 @@ export class HistorialAsistenciaComponent implements OnInit {
   ngOnInit() {
     this.eventosService.obtenerHistorialAsistencia().subscribe({
       next: (data) => {
-        this.historial = data;
+        this.asistencias = data;
         this.cargando = false;
       },
       error: (error) => {

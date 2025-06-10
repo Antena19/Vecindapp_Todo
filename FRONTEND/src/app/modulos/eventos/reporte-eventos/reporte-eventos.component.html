@@ -1,46 +1,105 @@
-<ion-content>
-  <ion-header>
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/eventos/lista"></ion-back-button>
-      </ion-buttons>
-      <ion-title>Reporte de Eventos</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reporte de Eventos</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-  <form class="ion-padding" (ngSubmit)="generarReporte()">
+<ion-content class="ion-padding">
+
+  <ion-card *ngIf="eventoIdDesdeRuta">
+    <ion-card-header>
+      <ion-card-title>Reporte de Asistencia para el Evento ID: {{eventoIdDesdeRuta}}</ion-card-title>
+    </ion-card-header>
+  </ion-card>
+
+  <form [formGroup]="reporteForm" (ngSubmit)="generarReporte()" *ngIf="!eventoIdDesdeRuta">
     <ion-item>
-      <ion-label position="floating">Fecha inicio</ion-label>
-      <ion-datetime display-format="DD/MM/YYYY" [(ngModel)]="fechaInicio" name="fechaInicio"></ion-datetime>
+      <ion-label position="stacked">Fecha Inicio</ion-label>
+      <ion-input type="date" formControlName="fechaInicio"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label position="floating">Fecha fin</ion-label>
-      <ion-datetime display-format="DD/MM/YYYY" [(ngModel)]="fechaFin" name="fechaFin"></ion-datetime>
+      <ion-label position="stacked">Fecha Fin</ion-label>
+      <ion-input type="date" formControlName="fechaFin"></ion-input>
     </ion-item>
-    <ion-button expand="block" type="submit" [disabled]="!fechaInicio || !fechaFin || cargando">
-      <ion-icon name="search-outline" slot="start"></ion-icon>
+    <ion-button expand="block" type="submit" [disabled]="reporteForm.invalid || cargando">
+      <ion-spinner *ngIf="cargando"></ion-spinner>
       Generar Reporte
     </ion-button>
   </form>
 
-  <div class="ion-padding" *ngIf="cargando">
-    <ion-spinner></ion-spinner>
-  </div>
+  <!-- Sección para mostrar el reporte de un solo evento -->
+  <ion-card *ngIf="!cargando && eventoIdDesdeRuta && reporteEventoUnico && reporteEventoUnico.evento" id="reportContent">
+    <ion-card-header>
+      <ion-card-title>Detalles del Evento</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Título:</strong> {{reporteEventoUnico.evento.titulo}}</p>
+      <p><strong>Descripción:</strong> {{reporteEventoUnico.evento.descripcion}}</p>
+      <p><strong>Fecha:</strong> {{reporteEventoUnico.evento.fechaEvento | date:'dd/MM/yyyy'}}</p>
+      <p><strong>Hora:</strong> {{reporteEventoUnico.evento.horaEvento}}</p>
+      <p><strong>Lugar:</strong> {{reporteEventoUnico.evento.lugar}}</p>
+      <p><strong>Estado:</strong> {{reporteEventoUnico.evento.estado}}</p>
+      <p *ngIf="reporteEventoUnico.evento.notas"><strong>Notas:</strong> {{reporteEventoUnico.evento.notas}}</p>
+      <p><strong>Fecha Creación:</strong> {{reporteEventoUnico.evento.fechaCreacion | date:'dd/MM/yyyy HH:mm'}}</p>
+      <p><strong>Código QR:</strong> {{reporteEventoUnico.evento.codigoQr}}</p>
+      <p><strong>Directiva RUT:</strong> {{reporteEventoUnico.evento.directivaRut}}</p>
+    </ion-card-content>
 
-  <ion-list *ngIf="!cargando && eventos.length">
-    <ion-item *ngFor="let evento of eventos">
-      <ion-label>
-        <h2>{{evento.titulo}}</h2>
-        <p>{{evento.fechaEvento | date:'dd/MM/yyyy'}} - {{evento.horaEvento}}</p>
-        <p>{{evento.lugar}}</p>
-        <p><strong>Estado:</strong> {{evento.estado}}</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+    <ion-card-header>
+      <ion-card-title>Asistentes Registrados (Total: {{reporteEventoUnico.totalAsistentes}})</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list *ngIf="reporteEventoUnico.asistentes.length > 0">
+        <ion-item *ngFor="let asistente of reporteEventoUnico.asistentes">
+          <ion-label>
+            <h2>{{ asistente.nombre }} {{ asistente.apellido }}</h2>
+            <p>RUT: {{ asistente.usuarioRut }}</p>
+            <p>Fecha de Asistencia: {{ asistente.fechaAsistencia | date:'dd/MM/yyyy HH:mm' }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+      <div *ngIf="reporteEventoUnico.asistentes.length === 0">
+        <p>No hay asistentes registrados para este evento.</p>
+      </div>
+    </ion-card-content>
 
-  <div *ngIf="!cargando && !eventos.length && fechaInicio && fechaFin" class="ion-text-center ion-padding">
+    <ion-button expand="block" color="success" (click)="exportReportToPdf()" [disabled]="cargando || !reporteEventoUnico">
+      <ion-icon name="download-outline" slot="start"></ion-icon>
+      Exportar a PDF
+    </ion-button>
+  </ion-card>
+
+  <!-- Sección para mostrar el reporte por rango de fechas -->
+  <ion-card *ngIf="!cargando && !eventoIdDesdeRuta && eventosReporte.length > 0">
+    <ion-card-header>
+      <ion-card-title>Reporte General de Asistencia (Total Asistentes: {{totalAsistentes}})</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let evento of eventosReporte">
+          <ion-label>
+            <h2>{{ evento.titulo }}</h2>
+            <p>Fecha: {{ evento.fechaEvento | date:'dd/MM/yyyy' }}</p>
+            <p>Lugar: {{ evento.lugar }}</p>
+            <p>Asistentes: {{ evento.total_asistentes || 0 }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <div *ngIf="!cargando && !eventoIdDesdeRuta && eventosReporte.length === 0" class="ion-text-center ion-padding">
     <ion-text color="medium">
-      No hay eventos en el rango seleccionado.
+      No hay eventos en el rango de fechas seleccionado.
     </ion-text>
   </div>
+
+  <div class="ion-padding ion-text-center" *ngIf="cargando">
+    <ion-spinner></ion-spinner>
+    <p>Cargando reporte...</p>
+  </div>
+
 </ion-content> 

@@ -1,5 +1,5 @@
 <ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
-  <ion-button expand="block" color="primary" (click)="crearEvento()" style="margin-bottom: 16px;">
+  <ion-button expand="block" color="primary" routerLink="/eventos/crear" style="margin-bottom: 16px;">
     <ion-icon name="add-circle-outline" slot="start"></ion-icon>
     Crear Evento
   </ion-button>
@@ -40,7 +40,7 @@
   <div *ngIf="eventos.length === 0" class="ion-padding ion-text-center">
     <ion-icon name="calendar-outline" style="font-size: 48px; color: var(--ion-color-medium)"></ion-icon>
     <p>No hay eventos programados</p>
-    <ion-button (click)="crearEvento()">
+    <ion-button routerLink="/eventos/crear">
       <ion-icon name="add-circle-outline" slot="start"></ion-icon>
       Crear Evento
     </ion-button>

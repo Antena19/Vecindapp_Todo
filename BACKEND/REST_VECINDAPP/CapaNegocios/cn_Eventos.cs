@@ -114,6 +114,8 @@ namespace REST_VECINDAPP.CapaNegocios
                                     Id = Convert.ToInt32(reader["id"]),
                                     EventoId = Convert.ToInt32(reader["evento_id"]),
                                     UsuarioRut = Convert.ToInt32(reader["usuario_rut"]),
+                                    Nombre = Convert.ToString(reader["nombre"]) ?? string.Empty,
+                                    Apellido = Convert.ToString(reader["apellido"]) ?? string.Empty,
                                     FechaAsistencia = Convert.ToDateTime(reader["fecha_asistencia"])
                                 };
                                 asistentes.Add(asistente);
@@ -202,7 +204,7 @@ namespace REST_VECINDAPP.CapaNegocios
                         cmd.Parameters.AddWithValue("@p_estado", evento.Estado);
 
                         int filasAfectadas = cmd.ExecuteNonQuery();
-                        if (filasAfectadas > 0)
+                        if (filasAfectadas >= 0)
                         {
                             evento.Id = id;
                             return (true, evento, "Evento actualizado exitosamente");

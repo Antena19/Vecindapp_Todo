@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { EventosService } from '../../../services/eventos.service';
 import { QRService } from '../../../services/qr.service';
 import { Evento } from '../../../modelos/evento.model';
@@ -27,7 +27,8 @@ export class DetalleEventoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private eventosService: EventosService,
-    private qrService: QRService
+    private qrService: QRService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -92,5 +93,9 @@ export class DetalleEventoComponent implements OnInit {
         console.error(error);
       }
     });
+  }
+
+  get isChildRouteActive(): boolean {
+    return this.route.children.length > 0;
   }
 } 

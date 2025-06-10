@@ -35,7 +35,7 @@ CREATE TABLE `asistencia_eventos` (
   KEY `usuario_asistencia_rut_idx` (`usuario_rut`),
   CONSTRAINT `evento_id_fk` FOREIGN KEY (`evento_id`) REFERENCES `eventos` (`id`) ON DELETE CASCADE,
   CONSTRAINT `usuario_asistencia_rut` FOREIGN KEY (`usuario_rut`) REFERENCES `usuarios` (`rut`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,6 +44,7 @@ CREATE TABLE `asistencia_eventos` (
 
 LOCK TABLES `asistencia_eventos` WRITE;
 /*!40000 ALTER TABLE `asistencia_eventos` DISABLE KEYS */;
+INSERT INTO `asistencia_eventos` VALUES (1,6,25592802,'2025-06-09 00:00:00');
 /*!40000 ALTER TABLE `asistencia_eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -189,14 +190,14 @@ CREATE TABLE `eventos` (
   `hora_evento` time NOT NULL,
   `lugar` varchar(255) NOT NULL,
   `directiva_rut` int NOT NULL,
-  `estado` varchar(20) NOT NULL DEFAULT 'activo',
+  `estado` varchar(20) NOT NULL DEFAULT 'activo' COMMENT '''activo, inactivo, realizado,cancelado''',
   `codigo_qr` varchar(255) NOT NULL,
   `fecha_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `notas` text,
   PRIMARY KEY (`id`),
   KEY `directiva_evento_rut_idx` (`directiva_rut`),
   CONSTRAINT `directiva_evento_rut_fk` FOREIGN KEY (`directiva_rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -205,7 +206,7 @@ CREATE TABLE `eventos` (
 
 LOCK TABLES `eventos` WRITE;
 /*!40000 ALTER TABLE `eventos` DISABLE KEYS */;
-INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2024-03-25','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2024-03-30','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.');
+INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2024-03-25','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2024-03-30','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.'),(6,'Test Editar 3','Test prueba editar 3','2025-06-09','20:00:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.3');
 /*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1090,10 +1091,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_ASISTENTES`(
     IN p_evento_id INT
 )
 BEGIN
-    SELECT 
-        u.rut,
+    SELECT
+        ae.id,                     
+        ae.evento_id,              
+        ae.usuario_rut,            
         u.nombre,
-        u.apellido,
+        CONCAT(u.apellido_paterno, ' ', u.apellido_materno) AS apellido,
         ae.fecha_asistencia
     FROM asistencia_eventos ae
     INNER JOIN usuarios u ON ae.usuario_rut = u.rut
@@ -3077,4 +3080,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-26 16:45:13
+-- Dump completed on 2025-06-09 22:57:51

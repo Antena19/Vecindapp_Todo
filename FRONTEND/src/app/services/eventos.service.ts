@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Evento, AsistenciaEvento } from '../modelos/evento.model';
+import { Observable, forkJoin } from 'rxjs';
+import { Evento, AsistenciaEvento, EventoReporte } from '../modelos/evento.model';
 import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
 
@@ -43,7 +43,8 @@ export class EventosService {
   }
 
   obtenerAsistentes(eventoId: number): Observable<AsistenciaEvento[]> {
-    return this.http.get<AsistenciaEvento[]>(`${this.apiUrl}/${eventoId}/asistentes`);
+    return this.http.get<{ mensaje: string, asistentes: AsistenciaEvento[] }>(`${this.apiUrl}/${eventoId}/asistentes`)
+      .pipe(map(response => response.asistentes));
   }
 
   obtenerHistorialAsistencia(): Observable<AsistenciaEvento[]> {
@@ -57,5 +58,20 @@ export class EventosService {
         fechaFin: fechaFin.toISOString()
       }
     });
+  }
+
+  // Nuevo método para generar reporte de asistencia por un ID de evento específico
+  generarReporteAsistenciaPorEventoId(eventoId: number): Observable<EventoReporte> {
+    // Combina la llamada para obtener el evento y la llamada para obtener sus asistentes
+    return forkJoin({
+      evento: this.getEvento(eventoId),
+      asistentes: this.obtenerAsistentes(eventoId)
+    }).pipe(
+      map(results => ({
+        evento: results.evento,
+        asistentes: results.asistentes,
+        totalAsistentes: results.asistentes.length
+      }))
+    );
   }
 } 

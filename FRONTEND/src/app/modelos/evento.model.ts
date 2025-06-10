@@ -10,11 +10,20 @@ export interface Evento {
   codigoQr: string;
   fechaCreacion: string;
   notas?: string;
+  total_asistentes?: number;
 }
 
 export interface AsistenciaEvento {
   id: number;
-  evento_id: number;
-  usuario_rut: number;
-  fecha_asistencia: Date;
+  eventoId: number;
+  usuarioRut: number;
+  nombre: string;
+  apellido: string;
+  fechaAsistencia: Date;
+}
+
+export interface EventoReporte {
+  evento: Evento;
+  asistentes: AsistenciaEvento[];
+  totalAsistentes: number;
 } 

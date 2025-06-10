@@ -12,16 +12,18 @@
     <ion-spinner></ion-spinner>
   </div>
 
-  <ion-list *ngIf="!cargando && historial.length">
-    <ion-item *ngFor="let asistencia of historial">
-      <ion-label>
-        <h2>Evento ID: {{asistencia.evento_id}}</h2>
-        <p>Fecha: {{asistencia.fecha_asistencia | date:'dd/MM/yyyy HH:mm'}}</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+  <ion-card *ngIf="!cargando && asistencias.length > 0">
+    <ion-list>
+      <ion-item *ngFor="let asistencia of asistencias">
+        <ion-label>
+          <h2>Evento ID: {{asistencia.eventoId}}</h2>
+          <p>Fecha: {{asistencia.fechaAsistencia | date:'dd/MM/yyyy HH:mm'}}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-card>
 
-  <div *ngIf="!cargando && !historial.length" class="ion-text-center ion-padding">
+  <div *ngIf="!cargando && !asistencias.length" class="ion-text-center ion-padding">
     <ion-text color="medium">
       No hay registros de asistencia.
     </ion-text>

@@ -18,7 +18,13 @@ export const routes: Routes = [
       },
       {
         path: 'detalle/:id',
-        loadComponent: () => import('./detalle-evento/detalle-evento.component').then(m => m.DetalleEventoComponent)
+        loadComponent: () => import('./detalle-evento/detalle-evento.component').then(m => m.DetalleEventoComponent),
+        children: [
+          {
+            path: 'asistentes',
+            loadComponent: () => import('./detalle-asistentes/detalle-asistentes.component').then(m => m.DetalleAsistentesComponent)
+          }
+        ]
       },
       {
         path: 'registro-asistencia',
@@ -27,10 +33,6 @@ export const routes: Routes = [
       {
         path: 'historial',
         loadComponent: () => import('./historial-asistencia/historial-asistencia.component').then(m => m.HistorialAsistenciaComponent)
-      },
-      {
-        path: 'reporte',
-        loadComponent: () => import('./reporte-eventos/reporte-eventos.component').then(m => m.ReporteEventosComponent)
       }
     ]
   }
