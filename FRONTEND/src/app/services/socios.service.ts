@@ -79,7 +79,7 @@ export class SociosService {
         return this.http.put<{ mensaje: string }>(`${this.apiUrlDirectiva}/socios/${idSocio}/estado`, body);
     }
 
-    consultarEstadoSolicitudSocio(): Observable<any> {
-        return this.http.get(`${this.apiUrlSocios}/solicitud/estado`);
+    consultarEstadoSolicitudSocio(): Observable<SolicitudSocioDTO> {
+        return this.http.get<SolicitudSocioDTO>(`${this.apiUrlSocios}/solicitud/estado`);
     }
 }

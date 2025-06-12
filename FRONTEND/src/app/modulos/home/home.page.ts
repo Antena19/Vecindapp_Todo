@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AutenticacionService } from '../../services/autenticacion.service';
 import { Usuario } from '../../modelos/Usuario';
 import { SociosService } from 'src/app/services/socios.service';
+import { SolicitudSocioDTO } from '../../modelos/DTOs/solicitud-socio.dto';
 
 interface MenuOption {
   title: string;
@@ -23,6 +24,7 @@ export class HomePage implements OnInit {
   usuario: Usuario | null = null;
   tipoUsuario: string = 'vecino';
   solicitudSocioEstado: string | null = null;
+  detallesSolicitud: SolicitudSocioDTO | null = null;
 
   // Menús específicos por rol
   private menuVecino: MenuOption[] = [
@@ -73,11 +75,6 @@ export class HomePage implements OnInit {
       title: 'Registro de Asistencia', 
       icon: 'calendar-outline', 
       route: '/eventos/registro-asistencia'
-    },
-    { 
-      title: 'Estado de Cuotas', 
-      icon: 'cash-outline', 
-      route: '/estado-cuotas'
     }
   ];
 
@@ -106,11 +103,6 @@ export class HomePage implements OnInit {
       title: 'Gestión de Socios', 
       icon: 'people-circle-outline', 
       route: '/mantenedores/gestion-socios'
-    },
-    { 
-      title: 'Gestión de Vecinos', 
-      icon: 'people-outline', 
-      route: '/mantenedores/gestion-usuarios'
     },
     { 
       title: 'Solicitudes', 
@@ -142,7 +134,6 @@ export class HomePage implements OnInit {
           break;
         default: // 'vecino'
           this.menuOptions = this.menuVecino.filter(option => {
-            // Si es la opción "Hacerme Socio", solo mostrarla si no hay solicitud pendiente o aprobada
             if (option.title === 'Hacerme Socio') {
               return this.solicitudSocioEstado !== 'pendiente' && this.solicitudSocioEstado !== 'aprobada';
             }
@@ -159,8 +150,15 @@ export class HomePage implements OnInit {
 
   consultarEstadoSolicitudSocio() {
     this.sociosService.consultarEstadoSolicitudSocio().subscribe({
-      next: (resp: any) => {
-        this.solicitudSocioEstado = resp?.estadoSolicitud || resp?.estado_solicitud || 'ninguna';
+      next: (resp: SolicitudSocioDTO) => {
+        if (resp) {
+          this.detallesSolicitud = resp;
+          this.solicitudSocioEstado = resp.estadoSolicitud;
+        } else {
+          this.solicitudSocioEstado = 'ninguna';
+          this.detallesSolicitud = null;
+        }
+        
         // Actualizar el menú cuando cambie el estado de la solicitud
         if (this.tipoUsuario === 'vecino') {
           this.menuOptions = this.menuVecino.filter(option => {
@@ -171,8 +169,22 @@ export class HomePage implements OnInit {
           });
         }
       },
-      error: () => {
-        this.solicitudSocioEstado = null;
+      error: (error) => {
+        console.error('Error al consultar estado de solicitud:', error);
+        
+        // Si el error es porque no existe el procedimiento, mostramos un mensaje más específico
+        if (error.error?.error?.includes('does not exist')) {
+          console.error('El procedimiento almacenado no existe en la base de datos');
+        }
+        
+        // En caso de error, asumimos que no hay solicitud
+        this.solicitudSocioEstado = 'ninguna';
+        this.detallesSolicitud = null;
+        
+        // Actualizar el menú
+        if (this.tipoUsuario === 'vecino') {
+          this.menuOptions = this.menuVecino;
+        }
       }
     });
   }

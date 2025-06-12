@@ -40,7 +40,6 @@ export class AppComponent implements OnInit {
     { title: 'Noticias', url: '/noticias', icon: 'newspaper' },
     { title: 'Certificados', url: '/certificados', icon: 'document-text' },
     { title: 'Registro de Asistencia', url: '/eventos/registro-asistencia', icon: 'calendar' },
-    { title: 'Estado de Cuotas', url: '/estado-cuotas', icon: 'cash' },
   ];
   
   private menuDirectiva: MenuOption[] = [
@@ -50,8 +49,6 @@ export class AppComponent implements OnInit {
     { title: 'Certificados', url: '/certificados', icon: 'document-text' },
     { title: 'Eventos', url: '/eventos', icon: 'calendar' },
     { title: 'Gestión de Socios', url: '/mantenedores/gestion-socios', icon: 'people-circle' },
-    { title: 'Gestión de Vecinos', url: '/mantenedores/gestion-usuarios', icon: 'people' },
-    { title: 'Gestión Financiera', url: '/gestion-financiera', icon: 'stats-chart' },
   ];
 
   constructor(

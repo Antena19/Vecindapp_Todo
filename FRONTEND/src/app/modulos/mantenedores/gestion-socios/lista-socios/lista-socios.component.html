@@ -12,14 +12,18 @@
 
 <ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
   <!-- Título de la página -->
-  <h1 class="page-title">Socios</h1>
+  <h1 class="page-title">Socios de la Junta Vecinal</h1>
 
   <div class="container">
     <!-- Botón Agregar Socio -->
-    <ion-button expand="block" color="primary" class="add-button" routerLink="/mantenedores/gestion-socios/agregar-socio">
-      <ion-icon name="person-add-outline" slot="start"></ion-icon>
-      Agregar Nuevo Socio
-    </ion-button>
+    <ion-col size="12" size-md="6" size-lg="4" class="add-socio-button">
+      <ion-card class="menu-option-card" [routerLink]="['/mantenedores/gestion-socios/agregar-socio']">
+        <ion-card-content class="ion-text-center">
+          <ion-icon name="person-add-outline" class="menu-icon"></ion-icon>
+          <p>Agregar Socio</p>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
 
     <!-- Barra de búsqueda y filtros -->
     <div class="search-container">
@@ -41,15 +45,6 @@
           <ion-label>N° Socio</ion-label>
         </ion-segment-button>
       </ion-segment>
-
-      <ion-item lines="none" class="estado-toggle">
-        <ion-toggle 
-          [checked]="filtroEstado === 'todos'"
-          (ionChange)="cambiarFiltroEstado($event)"
-          color="primary">
-          <small>Ver socios inactivos</small>
-        </ion-toggle>
-      </ion-item>
     </div>
 
     <!-- Loading spinner -->
@@ -67,10 +62,12 @@
 
     <!-- Lista de socios -->
     <ion-list *ngIf="!loading && !error">
-      <ion-item *ngFor="let socio of sociosFiltrados" class="socio-item">
+      <ion-item *ngFor="let socio of sociosFiltrados" 
+                class="socio-item"
+                [ngClass]="{'socio-inactivo': !socio.estado}">
         <ion-label>
           <h2>
-            <ion-text color="primary">N° Socio: {{ socio.idSocio }}</ion-text>
+            <ion-text [color]="socio.estado ? 'primary' : 'medium'">N° Socio: {{ socio.num_socio }}</ion-text>
           </h2>
           <h3>{{ socio.nombreCompleto }}</h3>
           <p>RUT: {{ formatearRut(socio.rut, socio.dvRut) }}</p>

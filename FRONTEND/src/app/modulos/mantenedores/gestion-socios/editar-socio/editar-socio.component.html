@@ -44,15 +44,14 @@
       <!-- Estado del socio -->
       <ion-card>
         <ion-card-header>
-          <ion-card-title>Estado del Socio</ion-card-title>
+          <ion-card-title>Modificar estado del socio</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-item>
-            <ion-label>Estado</ion-label>
+          <ion-item [class.active-state]="estadoActual.estado" [class.inactive-state]="!estadoActual.estado">
+            <ion-label>Estado: {{ estadoActual.estado ? 'Activo' : 'Inactivo' }}</ion-label>
             <ion-toggle
               [(ngModel)]="estadoActual.estado"
               color="primary">
-              {{ estadoActual.estado ? 'Activo' : 'Inactivo' }}
             </ion-toggle>
           </ion-item>
 

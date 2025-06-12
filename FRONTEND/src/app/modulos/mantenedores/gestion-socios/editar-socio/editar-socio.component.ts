@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { SociosService } from 'src/app/services/socios.service';
@@ -31,7 +31,8 @@ export class EditarSocioComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sociosService: SociosService
+    private sociosService: SociosService,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
@@ -46,14 +47,15 @@ export class EditarSocioComponent implements OnInit {
 
   cargarSocio(id: number) {
     this.loading = true;
-    // Usamos listarSociosActivos con incluirInactivos = true para obtener todos los socios
-    this.sociosService.listarSociosActivos().subscribe({
+    // Usamos listarTodosSocios para obtener todos los socios, incluyendo inactivos
+    this.sociosService.listarTodosSocios().subscribe({
       next: (socios) => {
         const socioEncontrado = socios.find(s => s.idSocio === id);
         if (socioEncontrado) {
           this.socio = socioEncontrado;
+          console.log('Valor de socioEncontrado.estado en editar-socio:', socioEncontrado.estado, typeof socioEncontrado.estado);
           // Establecemos el estado actual basado en el estado del socio
-          this.estadoActual.estado = socioEncontrado.activo;
+          this.estadoActual.estado = socioEncontrado.estado;
           this.estadoActual.motivo = socioEncontrado.motivoDesactivacion;
         } else {
           this.error = 'Socio no encontrado';
@@ -76,7 +78,10 @@ export class EditarSocioComponent implements OnInit {
       // Requerimos motivo tanto para activar como para desactivar
       if (!this.estadoActual.motivo) {
         const accion = this.estadoActual.estado ? 'activar' : 'desactivar';
-        throw new Error(`Debe proporcionar un motivo para ${accion} al socio`);
+        const errorMessage = `Debe proporcionar un motivo para ${accion} al socio`;
+        await this.presentToast(errorMessage, 'danger');
+        this.guardando = false;
+        return;
       }
 
       this.sociosService.actualizarEstadoSocio(
@@ -84,18 +89,32 @@ export class EditarSocioComponent implements OnInit {
         this.estadoActual.estado,
         this.estadoActual.motivo
       ).subscribe({
-        next: () => {
+        next: async () => {
+          await this.presentToast('Estado del socio actualizado correctamente', 'success');
           this.router.navigate(['/mantenedores/gestion-socios/detalle', this.socio?.idSocio]);
         },
-        error: (error) => {
-          this.error = error.error?.mensaje || 'Error al actualizar el estado del socio';
+        error: async (error) => {
+          const errorMessage = error.error?.mensaje || 'Error al actualizar el estado del socio';
+          await this.presentToast(errorMessage, 'danger');
+          console.error('Error al actualizar el estado del socio:', error);
           this.guardando = false;
         }
       });
     } catch (error: any) {
-      this.error = error.message || 'Error al guardar los cambios';
+      const errorMessage = error.message || 'Error al guardar los cambios';
+      await this.presentToast(errorMessage, 'danger');
       this.guardando = false;
     }
+  }
+
+  async presentToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom',
+      color: color,
+    });
+    toast.present();
   }
 
   formatearRut(rut: number, dv: string): string {

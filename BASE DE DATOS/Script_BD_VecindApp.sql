@@ -400,7 +400,7 @@ CREATE TABLE `socios` (
   UNIQUE KEY `num_socio` (`num_socio`),
   KEY `rut_idx` (`rut`),
   CONSTRAINT `rut` FOREIGN KEY (`rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -409,7 +409,7 @@ CREATE TABLE `socios` (
 
 LOCK TABLES `socios` WRITE;
 /*!40000 ALTER TABLE `socios` DISABLE KEYS */;
-INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23',NULL,'pendiente',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',0,NULL,NULL);
+INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23',NULL,'pendiente',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',0,NULL,NULL),(3,201,19037466,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,0,'Cambio Domicilio','2025-06-11 23:01:06');
 /*!40000 ALTER TABLE `socios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -581,7 +581,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva','cfd0d89c946588d802cde8fe7a48e6c0','2025-04-19 20:32:06'),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','00a684800a2e6ab0b17fbc343478846f3ca4fdaf81ea81fc6422e582d35e4064','2025-05-23',1,'vecino',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'vecino',NULL,NULL);
+INSERT INTO `usuarios` VALUES (11402302,'7','Cecilia','Yañez','Parraguez','ceciyan67@gmail.com','+56956587637','Avenida Austral 1343','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-06-11',1,'vecino',NULL,NULL),(17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva',NULL,NULL),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-05-23',1,'socio',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'vecino',NULL,NULL);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1149,6 +1149,35 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_ESTADO_SOLICITUD` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_ESTADO_SOLICITUD`(IN p_rut INT)
+BEGIN
+    SELECT 
+        s.rut,
+        u.nombre,
+        u.apellido_paterno,
+        u.apellido_materno,
+        s.fecha_solicitud,
+        s.estado_solicitud,
+        s.motivo_rechazo
+    FROM socios s
+    INNER JOIN usuarios u ON s.rut = u.rut
+    WHERE s.rut = p_rut;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_EVENTO` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1459,7 +1488,9 @@ BEGIN
             u.apellido_materno,
             s.fecha_solicitud,
             s.estado_solicitud,
-            s.motivo_rechazo
+            s.motivo_rechazo,
+            s.documento_identidad,
+            s.documento_domicilio
         FROM socios s
         JOIN usuarios u ON s.rut = u.rut
         ORDER BY s.fecha_solicitud;
@@ -1472,7 +1503,9 @@ BEGIN
             u.apellido_materno,
             s.fecha_solicitud,
             s.estado_solicitud,
-            s.motivo_rechazo
+            s.motivo_rechazo,
+            s.documento_identidad,
+            s.documento_domicilio
         FROM socios s
         JOIN usuarios u ON s.rut = u.rut
         WHERE s.estado_solicitud = p_estado_solicitud
@@ -2102,6 +2135,7 @@ BEGIN
         u.direccion,
         u.fecha_registro,
         s.idsocio,
+        s.num_socio,
         s.fecha_solicitud,
         s.fecha_aprobacion,
         s.estado,
@@ -2315,6 +2349,79 @@ BEGIN
     WHERE rut = p_rut;
 
     SELECT 'Solicitud de socio rechazada exitosamente' AS mensaje;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_RECUPERAR_CONTRASENA_SIMPLE` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_RECUPERAR_CONTRASENA_SIMPLE`(
+    IN p_rut INT,
+    IN p_nombre_completo VARCHAR(255),
+    IN p_nueva_password VARCHAR(255)
+)
+BEGIN
+    DECLARE v_usuario_existe INT DEFAULT 0;
+    DECLARE v_nombre_db VARCHAR(45);
+    DECLARE v_apellido_paterno_db VARCHAR(45);
+    DECLARE v_apellido_materno_db VARCHAR(45);
+    DECLARE v_nombre_completo_concatenado_db VARCHAR(255);
+
+    -- 1. Verificar si el usuario existe
+    SELECT COUNT(*)
+    INTO v_usuario_existe
+    FROM usuarios
+    WHERE rut = p_rut;
+
+    -- Si el usuario no existe
+    IF v_usuario_existe = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Usuario no encontrado';
+    END IF;
+
+    -- 2. Si el usuario existe, obtener sus datos de nombre
+    SELECT
+        nombre,
+        apellido_paterno,
+        COALESCE(apellido_materno, '') -- COALESCE para manejar NULL en apellido_materno
+    INTO
+        v_nombre_db,
+        v_apellido_paterno_db,
+        v_apellido_materno_db
+    FROM usuarios
+    WHERE rut = p_rut;
+
+    -- Concatenar el nombre completo de la base de datos
+    SET v_nombre_completo_concatenado_db = LOWER(CONCAT_WS(' ', v_nombre_db, v_apellido_paterno_db, v_apellido_materno_db));
+
+    -- 3. Validar que el nombre completo proporcionado coincida con el de la DB
+    -- Hacemos la comparación insensible a mayúsculas/minúsculas también para el input
+    IF v_nombre_completo_concatenado_db != LOWER(p_nombre_completo) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El nombre completo no coincide con el registrado para este RUT';
+    END IF;
+
+    -- 4. Si todo es válido, actualizar la contraseña y limpiar el token de recuperación
+    UPDATE usuarios
+    SET
+        password = p_nueva_password,
+        token_recuperacion = NULL,
+        fecha_token_recuperacion = NULL
+    WHERE rut = p_rut;
+
+    -- Devolver mensaje de éxito
+    SELECT 'Contraseña restablecida exitosamente' AS mensaje;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3080,4 +3187,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-09 22:57:51
+-- Dump completed on 2025-06-11 23:46:45

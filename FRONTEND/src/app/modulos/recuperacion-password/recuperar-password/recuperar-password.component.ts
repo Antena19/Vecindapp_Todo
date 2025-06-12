@@ -22,6 +22,7 @@ export class RecuperarPasswordComponent implements OnInit {
   recuperacionForm!: FormGroup;
   isSubmitted = false;
   cargando = false;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -172,5 +173,9 @@ export class RecuperarPasswordComponent implements OnInit {
 
   volver() {
     this.router.navigate(['/login']);
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 }

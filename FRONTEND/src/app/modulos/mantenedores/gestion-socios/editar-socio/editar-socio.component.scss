@@ -81,7 +81,7 @@ ion-toggle {
 }
 
 ion-textarea {
-  --background: var(--ion-color-light);
+  --background: #ffffff;
   --padding-start: 8px;
   --padding-end: 8px;
   --padding-top: 8px;
@@ -156,6 +156,16 @@ ion-card {
 
         &.item-has-focus {
           --highlight-background: var(--ion-color-primary);
+        }
+
+        &.active-state {
+          --background: var(--ion-color-success-tint); /* Fondo verde claro para activo */
+          border: 1px solid var(--ion-color-success); /* Borde verde para activo */
+        }
+
+        &.inactive-state {
+          --background: var(--ion-color-danger-tint); /* Fondo rojo claro para inactivo */
+          border: 1px solid var(--ion-color-danger); /* Borde rojo para inactivo */
         }
       }
     }

@@ -410,6 +410,7 @@ namespace REST_VECINDAPP.CapaNegocios
                                 socios.Add(new SocioActivoDTO
                                 {
                                     IdSocio = Convert.ToInt32(reader["idsocio"]),
+                                    num_socio = reader["num_socio"] != DBNull.Value ? Convert.ToInt32(reader["num_socio"]) : 0,
                                     Rut = Convert.ToInt32(reader["rut"]),
                                     DvRut = reader["dv_rut"].ToString(),
                                     NombreCompleto = $"{nombre} {apellidoPaterno} {apellidoMaterno}".Trim(),
