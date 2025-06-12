@@ -1,13 +1,17 @@
 ion-content {
   --background: var(--ion-color-light);
   background: var(--ion-color-light) !important;
-  min-height: 100vh;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .detalle-container {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  padding: 16px;
+  padding-bottom: 48px;
+  min-height: 100%;
 }
 
 .evento-card {
@@ -41,14 +45,16 @@ ion-badge {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 180px;
+  min-height: 300px;
   background-color: var(--ion-color-light);
   border-radius: 8px;
   margin: 16px 0;
   padding: 16px;
+  
   img {
-    max-width: 100%;
-    height: auto;
+    width: 280px;
+    height: 280px;
+    object-fit: contain;
   }
 }
 
@@ -62,4 +68,51 @@ ion-badge {
 
 ion-button {
   margin: 16px 0 0 0;
+}
+
+.codigos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+}
+
+.qr-section, .codigo-numerico-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+
+  h3 {
+    margin: 0;
+    color: var(--ion-color-dark);
+  }
+}
+
+.codigo-numerico-container {
+  width: 280px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.codigo-numerico {
+  font-size: 2.5rem;
+  font-weight: bold;
+  letter-spacing: 0.5rem;
+  color: var(--ion-color-primary);
 } 

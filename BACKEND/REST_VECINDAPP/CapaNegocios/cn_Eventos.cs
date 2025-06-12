@@ -40,6 +40,7 @@ namespace REST_VECINDAPP.CapaNegocios
                             {
                                 evento.Id = Convert.ToInt32(reader["id_evento"]);
                                 evento.CodigoQr = Convert.ToString(reader["codigo_qr"]);
+                                evento.CodigoNumerico = Convert.ToString(reader["codigo_numerico"]);
                                 return (true, evento, "Evento creado exitosamente");
                             }
                         }
@@ -57,10 +58,15 @@ namespace REST_VECINDAPP.CapaNegocios
             }
         }
 
-        public (bool Exito, string Mensaje) RegistrarAsistencia(string codigoQr, int usuarioRut)
+        public (bool Exito, string Mensaje) RegistrarAsistencia(string? codigoQr, string? codigoNumerico, int usuarioRut)
         {
             try
             {
+                if (string.IsNullOrEmpty(codigoQr) && string.IsNullOrEmpty(codigoNumerico))
+                {
+                    return (false, "Se requiere un código QR o un código numérico");
+                }
+
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
                     conn.Open();
@@ -68,7 +74,8 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.AddWithValue("@p_codigo_qr", codigoQr);
+                        cmd.Parameters.AddWithValue("@p_codigo_qr", codigoQr ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@p_codigo_numerico", codigoNumerico ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@p_usuario_rut", usuarioRut);
 
                         using (var reader = cmd.ExecuteReader())
@@ -334,6 +341,8 @@ namespace REST_VECINDAPP.CapaNegocios
                                     DirectivaRut = Convert.ToInt32(reader["directiva_rut"]),
                                     Estado = Convert.ToString(reader["estado"]),
                                     CodigoQr = Convert.ToString(reader["codigo_qr"]),
+                                    CodigoNumerico = reader["codigo_numerico"] != DBNull.Value ? 
+                                        Convert.ToString(reader["codigo_numerico"]) : null,
                                     FechaCreacion = Convert.ToDateTime(reader["fecha_creacion"]),
                                     Notas = reader["notas"] != DBNull.Value ? Convert.ToString(reader["notas"]) : null
                                 };
@@ -366,14 +375,49 @@ namespace REST_VECINDAPP.CapaNegocios
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@p_evento_id", eventoId);
 
-                        int filasAfectadas = cmd.ExecuteNonQuery();
-                        if (filasAfectadas > 0)
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            return (true, "Evento cancelado exitosamente");
+                            if (reader.Read())
+                            {
+                                return (true, Convert.ToString(reader["mensaje"]));
+                            }
                         }
                     }
                 }
-                return (false, "No se pudo cancelar el evento");
+                return (false, "Error al cancelar el evento");
+            }
+            catch (MySqlException ex)
+            {
+                return (false, $"Error de base de datos: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error inesperado: {ex.Message}");
+            }
+        }
+
+        public (bool Exito, string Mensaje) EliminarEvento(int eventoId)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (MySqlCommand cmd = new MySqlCommand("SP_ELIMINAR_EVENTO", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@p_evento_id", eventoId);
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                return (true, Convert.ToString(reader["mensaje"]));
+                            }
+                        }
+                    }
+                }
+                return (false, "Error al eliminar el evento");
             }
             catch (MySqlException ex)
             {

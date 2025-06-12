@@ -1,79 +1,111 @@
-<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
-  <div *ngIf="!isChildRouteActive">
-    <div class="detalle-container" *ngIf="!cargando && evento">
-      <ion-card class="evento-card">
-        <ion-card-header>
-          <ion-card-title>{{evento.titulo}}</ion-card-title>
-          <ion-card-subtitle>
-            <ion-icon name="calendar-outline"></ion-icon>
-            {{evento.fechaEvento | date:'dd/MM/yyyy'}} - {{evento.horaEvento}}
-          </ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <p><strong>ID:</strong> {{evento.id}}</p>
-          <p>
-            <ion-icon name="location-outline"></ion-icon>
-            <span>{{evento.lugar}}</span>
-          </p>
-          <p><strong>Directiva RUT:</strong> {{evento.directivaRut}}</p>
-          <p><strong>Estado:</strong> <ion-badge [color]="evento.estado === 'activo' ? 'success' : 'medium'">{{evento.estado}}</ion-badge></p>
-          <p><strong>Descripción:</strong> {{evento.descripcion}}</p>
-          <p *ngIf="evento.notas"><strong>Notas:</strong> {{evento.notas}}</p>
-          <p><strong>Fecha creación:</strong> {{evento.fechaCreacion | date:'dd/MM/yyyy HH:mm'}}</p>
-          <p *ngIf="evento.codigoQr"><strong>Código QR:</strong> {{evento.codigoQr}}</p>
-        </ion-card-content>
-        <ion-card-content>
-          <ion-button expand="block" color="primary" (click)="editarEvento()">
-            <ion-icon name="create-outline" slot="start"></ion-icon>
-            Editar Evento
-          </ion-button>
-          <ion-button expand="block" color="danger" (click)="eliminarEvento()" [disabled]="eliminando">
-            <ion-icon name="trash-outline" slot="start"></ion-icon>
-            Eliminar Evento
-          </ion-button>
-          <ion-button expand="block" color="secondary" [routerLink]="['asistentes']" *ngIf="evento.id">
-            <ion-icon name="people-outline" slot="start"></ion-icon>
-            Ver Asistentes
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/eventos" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle del Evento</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="editarEvento()" *ngIf="evento?.directivaRut === usuarioRut">
+        <ion-icon name="create-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="eliminarEvento()" *ngIf="evento?.directivaRut === usuarioRut">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-      <ion-card *ngIf="evento.codigoQr" class="evento-card">
-        <ion-card-header>
-          <ion-card-title>Código QR del Evento</ion-card-title>
-          <ion-card-subtitle>
-            Escanee este código para registrar su asistencia
-          </ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="qr-container">
-            <div *ngIf="generandoQR" class="qr-loading">
-              <ion-spinner></ion-spinner>
-            </div>
-            <img *ngIf="codigoQR && !generandoQR" [src]="codigoQR" alt="Código QR del evento">
+<ion-content [fullscreen]="true" class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <div class="detalle-container" *ngIf="!cargando && evento">
+    <ion-card class="evento-card">
+      <ion-card-header>
+        <ion-card-title>{{evento.titulo}}</ion-card-title>
+        <ion-card-subtitle>
+          <ion-icon name="calendar-outline"></ion-icon>
+          {{evento.fechaEvento | date:'dd/MM/yyyy'}} - {{evento.horaEvento}}
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>ID:</strong> {{evento.id}}</p>
+        <p>
+          <ion-icon name="location-outline"></ion-icon>
+          <span>{{evento.lugar}}</span>
+        </p>
+        <p><strong>Directiva RUT:</strong> {{evento.directivaRut}}</p>
+        <p><strong>Estado:</strong> <ion-badge [color]="evento.estado === 'activo' ? 'success' : 'medium'">{{evento.estado}}</ion-badge></p>
+        <p><strong>Descripción:</strong> {{evento.descripcion}}</p>
+        <p *ngIf="evento.notas"><strong>Notas:</strong> {{evento.notas}}</p>
+        <p><strong>Fecha creación:</strong> {{evento.fechaCreacion | date:'dd/MM/yyyy HH:mm'}}</p>
+        <p *ngIf="evento.codigoQr"><strong>Código QR:</strong> {{evento.codigoQr}}</p>
+        <p *ngIf="evento.codigoNumerico"><strong>Código Numérico:</strong> {{evento.codigoNumerico}}</p>
+      </ion-card-content>
+      <ion-card-content>
+        <ion-button expand="block" color="primary" (click)="editarEvento()">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Editar Evento
+        </ion-button>
+        <ion-button expand="block" color="danger" (click)="eliminarEvento()" [disabled]="eliminando">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          Eliminar Evento
+        </ion-button>
+        <ion-button expand="block" color="secondary" [routerLink]="['/eventos/detalle', evento.id, 'asistentes']" *ngIf="evento.id">
+          <ion-icon name="people-outline" slot="start"></ion-icon>
+          Ver Asistentes
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="evento.codigoQr" class="evento-card">
+      <ion-card-header>
+        <ion-card-title>Código QR del Evento</ion-card-title>
+        <ion-card-subtitle>
+          Escanee este código para registrar su asistencia
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="qr-container">
+          <div *ngIf="generandoQR" class="qr-loading">
+            <ion-spinner></ion-spinner>
           </div>
-          <ion-button expand="block" (click)="compartirQR()" [disabled]="!codigoQR">
-            <ion-icon name="share-outline" slot="start"></ion-icon>
-            Compartir Código QR
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+          <img *ngIf="codigoQR && !generandoQR" [src]="codigoQR" alt="Código QR del evento">
+        </div>
+        <ion-button expand="block" (click)="compartirQR()" [disabled]="!codigoQR">
+          <ion-icon name="share-outline" slot="start"></ion-icon>
+          Compartir Código QR
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
 
-      <ion-button expand="block" color="tertiary" class="ion-margin-bottom" [routerLink]="['/eventos/reporte']" [queryParams]="{ eventoId: evento.id }" *ngIf="evento.id">
-        <ion-icon name="document-text-outline" slot="start"></ion-icon>
-        Generar Reporte
-      </ion-button>
+    <ion-card *ngIf="evento.codigoNumerico" class="evento-card">
+      <ion-card-header>
+        <ion-card-title>Código Numérico del Evento</ion-card-title>
+        <ion-card-subtitle>
+          Use este código como alternativa al QR
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="codigo-numerico-container">
+          <ion-text class="codigo-numerico">{{evento.codigoNumerico}}</ion-text>
+        </div>
+        <ion-button expand="block" (click)="copiarCodigoNumerico()">
+          <ion-icon name="copy-outline" slot="start"></ion-icon>
+          Copiar Código
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
 
-      <ion-button expand="block" color="primary" class="ion-margin" [routerLink]="['/eventos/registro-asistencia']">
-        <ion-icon name="qr-code-outline" slot="start"></ion-icon>
-        Registrar Asistencia
-      </ion-button>
-    </div>
+    <ion-button expand="block" color="tertiary" class="ion-margin-bottom" [routerLink]="['/eventos/reporte']" [queryParams]="{ eventoId: evento.id }" *ngIf="evento.id">
+      <ion-icon name="document-text-outline" slot="start"></ion-icon>
+      Generar Reporte
+    </ion-button>
 
-    <div class="ion-padding ion-text-center" *ngIf="cargando">
-      <ion-spinner></ion-spinner>
-    </div>
+    <ion-button expand="block" color="primary" class="ion-margin" [routerLink]="['/eventos/registro-asistencia']">
+      <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+      Registrar Asistencia
+    </ion-button>
   </div>
 
-  <router-outlet></router-outlet>
+  <div class="ion-padding ion-text-center" *ngIf="cargando">
+    <ion-spinner></ion-spinner>
+  </div>
 </ion-content> 

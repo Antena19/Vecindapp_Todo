@@ -1,3 +1,15 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Lista de Eventos</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
   <ion-button expand="block" color="primary" routerLink="/eventos/crear" style="margin-bottom: 16px;">
     <ion-icon name="add-circle-outline" slot="start"></ion-icon>
@@ -5,7 +17,7 @@
   </ion-button>
 
   <div *ngFor="let evento of eventos">
-    <ion-card class="evento-card">
+    <ion-card class="evento-card" [ngClass]="{'evento-pasado': eventoPasado(evento)}">
       <ion-card-header>
         <ion-card-title>{{ evento.titulo }}</ion-card-title>
       </ion-card-header>
@@ -29,12 +41,6 @@
       </ion-card-content>
     </ion-card>
   </div>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button [routerLink]="['/eventos/registro-asistencia']">
-      <ion-icon name="qr-code-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 
   <!-- Mensaje cuando no hay eventos -->
   <div *ngIf="eventos.length === 0" class="ion-padding ion-text-center">

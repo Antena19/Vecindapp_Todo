@@ -4,6 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { EventosService } from '../../../services/eventos.service';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-registro-asistencia',
@@ -13,22 +14,23 @@ import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
   imports: [
     CommonModule,
     IonicModule,
-    RouterModule
+    RouterModule,
+    FormsModule
   ]
 })
 export class RegistroAsistenciaComponent implements OnInit, OnDestroy {
   escaneando = false;
   mensaje = '';
+  codigoManual = '';
+  mostrarInputManual = false;
 
   constructor(private eventosService: EventosService) { }
 
   ngOnInit() {
-    // Solicitar permisos de cámara al iniciar
     this.solicitarPermisos();
   }
 
   ngOnDestroy() {
-    // Detener el escáner al salir del componente
     this.detenerEscaneo();
   }
 
@@ -74,8 +76,24 @@ export class RegistroAsistenciaComponent implements OnInit, OnDestroy {
     }
   }
 
-  private registrarAsistencia(codigoQr: string) {
-    this.eventosService.registrarAsistencia(codigoQr).subscribe({
+  toggleInputManual() {
+    this.mostrarInputManual = !this.mostrarInputManual;
+    if (this.mostrarInputManual) {
+      this.detenerEscaneo();
+    }
+  }
+
+  registrarCodigoManual() {
+    if (this.codigoManual.trim()) {
+      this.registrarAsistencia(this.codigoManual);
+      this.codigoManual = ''; // Limpiar el input después de registrar
+    } else {
+      this.mensaje = 'Por favor, ingrese un código';
+    }
+  }
+
+  private registrarAsistencia(codigo: string) {
+    this.eventosService.registrarAsistencia(codigo).subscribe({
       next: () => {
         this.mensaje = 'Asistencia registrada correctamente';
       },

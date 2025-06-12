@@ -31,4 +31,11 @@ export class EventosService {
   eliminarEvento(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  registrarAsistencia(codigoQr: string | null, codigoNumerico: string | null): Observable<any> {
+    return this.http.post(`${this.apiUrl}/asistencia`, {
+      codigoQr,
+      codigoNumerico
+    });
+  }
 } 

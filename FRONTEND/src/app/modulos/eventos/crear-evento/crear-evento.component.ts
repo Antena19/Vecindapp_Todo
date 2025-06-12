@@ -6,6 +6,7 @@ import { EventosService } from '../eventos.service';
 import { Evento } from 'src/app/modelos/evento.model';
 import { Router } from '@angular/router';
 import { AutenticacionService } from 'src/app/services/autenticacion.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-crear-evento',
@@ -63,20 +64,30 @@ export class CrearEventoComponent implements OnInit {
 
       this.eventosService.crearEvento(evento).subscribe({
         next: async () => {
+          // Primero mostramos el mensaje de éxito
           const toast = await this.toastController.create({
             message: 'Evento creado exitosamente',
             duration: 2000,
-            color: 'success'
+            color: 'success',
+            position: 'top'
           });
-          toast.present();
-          this.router.navigate(['/eventos/lista']);
+          await toast.present();
+
+          // Esperamos a que el toast se cierre
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Navegamos directamente a la lista
+          this.router.navigate(['/eventos/lista'], { 
+            queryParams: { refresh: new Date().getTime() }
+          });
         },
-        error: async (error) => {
+        error: async (error: HttpErrorResponse) => {
           console.error('Error al crear el evento:', error);
           const toast = await this.toastController.create({
             message: 'Error al crear el evento',
             duration: 2000,
-            color: 'danger'
+            color: 'danger',
+            position: 'top'
           });
           toast.present();
         }

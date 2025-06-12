@@ -25,30 +25,29 @@ export class DetalleAsistentesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.parent!.paramMap.subscribe(params => {
+    console.log('Iniciando componente de asistentes');
+    this.route.paramMap.subscribe(params => {
       const id = params.get('id');
+      console.log('ID del evento recibido:', id);
       if (id) {
         this.eventoId = +id;
+        console.log('Cargando asistentes para el evento:', this.eventoId);
         this.cargarAsistentes(this.eventoId);
       } else {
+        console.error('No se proporcionó ID de evento');
         this.presentToast('ID de evento no proporcionado.', 'danger');
-        this.router.navigate(['/eventos/lista']); // Redirigir si no hay ID
+        this.router.navigate(['/eventos/lista']);
       }
     });
   }
 
   cargarAsistentes(eventoId: number) {
+    console.log('Iniciando carga de asistentes para evento:', eventoId);
     this.cargando = true;
     this.eventosService.obtenerAsistentes(eventoId).subscribe({
-      next: (data: any) => {
-        console.log('Datos recibidos del backend:', data);
-        if (data && data.asistentes) {
-          this.asistentes = data.asistentes;
-          console.log('Asistentes asignados:', this.asistentes);
-        } else {
-          console.warn('La respuesta del backend no contiene la propiedad "asistentes".', data);
-          this.asistentes = [];
-        }
+      next: (asistentes: AsistenciaEvento[]) => {
+        console.log('Asistentes recibidos:', asistentes);
+        this.asistentes = asistentes;
         this.cargando = false;
       },
       error: (error) => {

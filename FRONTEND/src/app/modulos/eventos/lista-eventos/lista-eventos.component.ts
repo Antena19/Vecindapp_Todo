@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { EventosService } from '../../../services/eventos.service';
 import { Evento } from '../../../modelos/evento.model';
 
@@ -21,6 +21,7 @@ export class ListaEventosComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private eventosService: EventosService
   ) { }
 
@@ -28,10 +29,17 @@ export class ListaEventosComponent implements OnInit {
     this.cargarEventos();
   }
 
+  ionViewWillEnter() {
+    // Se ejecuta cada vez que la vista está a punto de entrar
+    this.cargarEventos();
+  }
+
   cargarEventos() {
     this.eventosService.getEventos().subscribe({
       next: (eventos) => {
-        this.eventos = eventos;
+        console.log('Eventos antes de ordenar:', eventos);
+        this.eventos = this.ordenarEventos(eventos);
+        console.log('Eventos después de ordenar:', this.eventos);
       },
       error: (error) => {
         console.error('Error al cargar eventos:', error);
@@ -40,9 +48,22 @@ export class ListaEventosComponent implements OnInit {
     });
   }
 
+  ordenarEventos(eventos: Evento[]): Evento[] {
+    return eventos.sort((a, b) => {
+      const fechaA = new Date(a.fechaEvento);
+      const fechaB = new Date(b.fechaEvento);
+      return fechaA.getTime() - fechaB.getTime();
+    });
+  }
+
+  eventoPasado(evento: Evento): boolean {
+    const fechaEvento = new Date(evento.fechaEvento);
+    const hoy = new Date();
+    return fechaEvento < hoy;
+  }
+
   crearEvento() {
-    // TODO: Implementar la navegación al formulario de creación
-    console.log('Crear nuevo evento');
+    this.router.navigate(['/eventos/crear']);
   }
 
   verDetalle(id: number) {

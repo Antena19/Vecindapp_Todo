@@ -12,6 +12,7 @@
         public int DirectivaRut { get; set; }
         public string Estado { get; set; } = "activo";
         public string CodigoQr { get; set; }
+        public string? CodigoNumerico { get; set; }
         public DateTime FechaCreacion { get; set; }
         public string Notas { get; set; }
     }

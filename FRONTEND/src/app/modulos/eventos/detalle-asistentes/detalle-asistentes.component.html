@@ -7,12 +7,10 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-card *ngIf="cargando">
-    <ion-card-content>
-      <ion-spinner name="crescent"></ion-spinner> Cargando asistentes...
-    </ion-card-content>
-  </ion-card>
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <div *ngIf="cargando" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent"></ion-spinner> Cargando asistentes...
+  </div>
 
   <ion-card *ngIf="!cargando && asistentes.length === 0">
     <ion-card-content>
@@ -25,7 +23,7 @@
       <ion-label>
         <h2>{{ asistente.nombre }} {{ asistente.apellido }}</h2>
         <p>RUT: {{ asistente.usuarioRut }}</p>
-        <p>Fecha de Asistencia: {{ asistente.fechaAsistencia | date:'medium' }}</p>
+        <p>Registrado el: {{ asistente.fechaAsistencia | date:'dd/MM/yyyy HH:mm' }}</p>
       </ion-label>
     </ion-item>
   </ion-list>

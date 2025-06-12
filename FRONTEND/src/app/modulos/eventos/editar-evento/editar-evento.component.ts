@@ -92,8 +92,12 @@ export class EditarEventoComponent implements OnInit {
       this.eventosService.actualizarEvento(this.evento.id, eventoParaActualizar).subscribe({
         next: async () => {
           this.presentToast('Evento editado exitosamente', 'success');
-          console.log('Evento editado exitosamente, navegando a detalle.');
-          this.router.navigate(['/eventos/detalle', this.evento.id]);
+          console.log('Evento editado exitosamente, navegando a la lista.');
+          if (this.evento && this.evento.id) {
+            this.router.navigate(['/eventos/detalle', this.evento.id]);
+          } else {
+            this.router.navigate(['/eventos']);
+          }
         },
         error: async (error) => {
           console.error('Error al editar el evento:', error);

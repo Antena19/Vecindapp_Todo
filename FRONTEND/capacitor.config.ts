@@ -13,6 +13,16 @@ const config: CapacitorConfig = {
       formats: ['QR_CODE'],
       showTorchButton: true,
       showFlipCameraButton: true
+    },
+    Share: {
+      // Configuración para compartir archivos
+      shareOptions: {
+        dialogTitle: 'Compartir código QR',
+        chooserTitle: 'Compartir con'
+      }
+    },
+    Camera: {
+      permissions: ['camera']
     }
   }
 };

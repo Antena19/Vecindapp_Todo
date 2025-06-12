@@ -31,7 +31,7 @@ export class EventosService {
   }
 
   eliminarEvento(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.post<void>(`${this.apiUrl}/${id}/eliminar`, {});
   }
 
   cancelarEvento(id: number): Observable<any> {

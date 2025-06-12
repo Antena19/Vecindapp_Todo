@@ -62,7 +62,7 @@ namespace REST_VECINDAPP.Controllers
             }
 
             var rut = int.Parse(User.FindFirst("rut")?.Value ?? "0");
-            var (exito, mensaje) = _eventosService.RegistrarAsistencia(request.CodigoQr, rut);
+            var (exito, mensaje) = _eventosService.RegistrarAsistencia(request.CodigoQr, request.CodigoNumerico, rut);
 
             if (exito)
             {
@@ -199,10 +199,25 @@ namespace REST_VECINDAPP.Controllers
 
             return BadRequest(new { mensaje });
         }
+
+        [HttpPost("{id}/eliminar")]
+        [Authorize(Roles = "Directiva")]
+        public IActionResult EliminarEvento(int id)
+        {
+            var (exito, mensaje) = _eventosService.EliminarEvento(id);
+
+            if (exito)
+            {
+                return Ok(new { mensaje = "Evento eliminado exitosamente" });
+            }
+
+            return BadRequest(new { mensaje });
+        }
     }
 
     public class AsistenciaRequest
     {
-        public string CodigoQr { get; set; }
+        public string? CodigoQr { get; set; }
+        public string? CodigoNumerico { get; set; }
     }
 }
