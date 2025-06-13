@@ -26,6 +26,7 @@ export class RegistroVecinoComponent implements OnInit {
   registroForm!: FormGroup;
   isSubmitted = false;
   cargando = false;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -157,6 +158,8 @@ export class RegistroVecinoComponent implements OnInit {
           });
           
           await alert.present();
+          this.registroForm.reset();
+          this.isSubmitted = false;
         },
         error: async (error) => {
           this.cargando = false;
@@ -181,5 +184,9 @@ export class RegistroVecinoComponent implements OnInit {
           await alert.present();
         }
       });
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 }

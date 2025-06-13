@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="'/eventos/detalle/' + eventoId"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Asistentes del Evento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <div *ngIf="cargando" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent"></ion-spinner> Cargando asistentes...
+  </div>
+
+  <ion-card *ngIf="!cargando && asistentes.length === 0">
+    <ion-card-content>
+      <p>No hay asistentes registrados para este evento.</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-list *ngIf="!cargando && asistentes.length > 0">
+    <ion-item *ngFor="let asistente of asistentes">
+      <ion-label>
+        <h2>{{ asistente.nombre }} {{ asistente.apellido }}</h2>
+        <p>RUT: {{ asistente.usuarioRut }}</p>
+        <p>Registrado el: {{ asistente.fechaAsistencia | date:'dd/MM/yyyy HH:mm' }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content> 

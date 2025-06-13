@@ -1,0 +1,137 @@
+ion-content {
+  --background: #F5F5DC;
+}
+
+ion-card {
+  --background: #F5F5DC;
+  margin: 16px 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+ion-card-header {
+  --background: #F5F5DC;
+}
+
+ion-card-content {
+  --background: #F5F5DC;
+}
+
+ion-item {
+  --background: white;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+}
+
+ion-label h2 {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+ion-label p {
+  color: var(--ion-color-medium);
+  font-size: 0.9em;
+  margin: 2px 0;
+}
+
+.ion-text-center {
+  text-align: center;
+}
+
+form {
+  margin-bottom: 16px;
+}
+
+ion-button {
+  margin-top: 12px;
+}
+
+.reporte-section {
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  
+  h3 {
+    color: var(--ion-color-primary);
+    border-bottom: 2px solid var(--ion-color-primary);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.detalle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  
+  .detalle-item {
+    background: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    
+    strong {
+      color: var(--ion-color-dark);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    p {
+      margin: 0;
+      color: var(--ion-color-medium);
+      overflow-wrap: break-word;
+      overflow-x: hidden;
+      white-space: normal;
+      max-width: 100%;
+    }
+  }
+}
+
+.asistentes-list {
+  .asistente-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    
+    .asistente-info {
+      strong {
+        color: var(--ion-color-dark);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      
+      p {
+        margin: 0.25rem 0;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// Estilos específicos para el PDF
+@media print {
+  .reporte-section {
+    page-break-inside: avoid;
+    background: white;
+  }
+  
+  .detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .asistentes-list {
+    .asistente-item {
+      break-inside: avoid;
+      background: white;
+    }
+  }
+} 

@@ -52,6 +52,7 @@ export class DetalleSocioComponent implements OnInit {
         const socioEncontrado = socios.find(s => s.idSocio === id);
         if (socioEncontrado) {
           this.socio = socioEncontrado;
+          console.log('Valor de socio.estado recibido:', this.socio.estado);
         } else {
           this.error = 'Socio no encontrado';
         }

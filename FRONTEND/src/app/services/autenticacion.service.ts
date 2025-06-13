@@ -11,6 +11,7 @@ import { Usuario } from '../modelos/Usuario';
 export class AutenticacionService {
   private _usuario = new BehaviorSubject<Usuario | null>(null);
   private _token = new BehaviorSubject<string | null>(null);
+  private _sesionCerrada = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {
     console.log('Inicializando AutenticacionService');
@@ -31,6 +32,10 @@ export class AutenticacionService {
 
   get isAuthenticated(): boolean {
     return !!this._token.value;
+  }
+
+  get sesionCerrada(): Observable<boolean> {
+    return this._sesionCerrada.asObservable();
   }
   
 
@@ -93,6 +98,7 @@ export class AutenticacionService {
     // Resetear BehaviorSubjects
     this._token.next(null);
     this._usuario.next(null);
+    this._sesionCerrada.next(true);
   }
 
   // Método para obtener los headers con el token de autorización

@@ -1,0 +1,50 @@
+/* Estilos para detalle-asistentes.component.scss */
+
+ion-header {
+  --background: var(--ion-color-secondary);
+  ion-toolbar {
+    --background: var(--ion-color-secondary);
+    ion-title {
+      color: white;
+      font-weight: bold;
+    }
+    ion-back-button {
+      --color: white;
+    }
+  }
+}
+
+ion-content {
+  --background: var(--ion-color-light);
+}
+
+ion-card {
+  margin-top: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+ion-spinner {
+  margin-right: 10px;
+}
+
+ion-list {
+  background: transparent;
+  ion-item {
+    --background: white;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    ion-label {
+      h2 {
+        font-weight: bold;
+        color: var(--ion-color-primary);
+        margin-bottom: 5px;
+      }
+      p {
+        color: #666;
+        font-size: 0.9em;
+      }
+    }
+  }
+} 

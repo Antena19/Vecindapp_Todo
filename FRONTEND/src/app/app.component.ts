@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
     { title: 'Mi Perfil', url: '/mi-perfil', icon: 'person' },
     { title: 'Noticias', url: '/noticias', icon: 'newspaper' },
     { title: 'Certificados', url: '/certificados', icon: 'document-text' },
+    { title: 'Registro de Asistencia', url: '/eventos/registro-asistencia', icon: 'calendar' },
     { title: 'Solicitar Membresía', url: '/mantenedores/gestion-socios/solicitar-membresia', icon: 'people' },
   ];
   
@@ -38,7 +39,7 @@ export class AppComponent implements OnInit {
     { title: 'Mi Perfil', url: '/mi-perfil', icon: 'person' },
     { title: 'Noticias', url: '/noticias', icon: 'newspaper' },
     { title: 'Certificados', url: '/certificados', icon: 'document-text' },
-    { title: 'Estado de Cuotas', url: '/estado-cuotas', icon: 'cash' },
+    { title: 'Registro de Asistencia', url: '/eventos/registro-asistencia', icon: 'calendar' },
   ];
   
   private menuDirectiva: MenuOption[] = [
@@ -46,9 +47,8 @@ export class AppComponent implements OnInit {
     { title: 'Mi Perfil', url: '/mi-perfil', icon: 'person' },
     { title: 'Noticias', url: '/noticias', icon: 'newspaper' },
     { title: 'Certificados', url: '/certificados', icon: 'document-text' },
+    { title: 'Eventos', url: '/eventos', icon: 'calendar' },
     { title: 'Gestión de Socios', url: '/mantenedores/gestion-socios', icon: 'people-circle' },
-    { title: 'Gestión de Vecinos', url: '/mantenedores/gestion-usuarios', icon: 'people' },
-    { title: 'Gestión Financiera', url: '/gestion-financiera', icon: 'stats-chart' },
   ];
 
   constructor(

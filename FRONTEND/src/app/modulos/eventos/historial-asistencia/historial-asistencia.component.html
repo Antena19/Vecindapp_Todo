@@ -1,0 +1,31 @@
+<ion-content>
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/eventos/lista"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Historial de Asistencia</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="ion-padding" *ngIf="cargando">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-card *ngIf="!cargando && asistencias.length > 0">
+    <ion-list>
+      <ion-item *ngFor="let asistencia of asistencias">
+        <ion-label>
+          <h2>Evento ID: {{asistencia.eventoId}}</h2>
+          <p>Fecha: {{asistencia.fechaAsistencia | date:'dd/MM/yyyy HH:mm'}}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-card>
+
+  <div *ngIf="!cargando && !asistencias.length" class="ion-text-center ion-padding">
+    <ion-text color="medium">
+      No hay registros de asistencia.
+    </ion-text>
+  </div>
+</ion-content> 

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SociosService } from 'src/app/services/socios.service';
 import { SocioActivoDTO } from 'src/app/modelos/DTOs/socio-activo.dto';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-lista-socios',
@@ -20,7 +21,6 @@ export class ListaSociosComponent implements OnInit {
   error: string = '';
   terminoBusqueda: string = '';
   tipoBusqueda: 'id' | 'rut' | 'nombre' = 'nombre';
-  filtroEstado: 'todos' | 'activos' = 'activos';
 
   constructor(private sociosService: SociosService) { }
 
@@ -28,9 +28,8 @@ export class ListaSociosComponent implements OnInit {
     this.cargarSocios();
   }
 
-  cambiarFiltroEstado(event: any) {
-    console.log('Toggle changed:', event.detail.checked);
-    this.filtroEstado = event.detail.checked ? 'todos' : 'activos';
+  ionViewWillEnter() {
+    // Recargar los socios cada vez que la página entre en la vista
     this.cargarSocios();
   }
 
@@ -39,7 +38,7 @@ export class ListaSociosComponent implements OnInit {
     this.sociosService.listarTodosSocios().subscribe({
       next: (data) => {
         this.socios = data;
-        this.sociosFiltrados = data;
+        this.aplicarFiltro();
         this.loading = false;
       },
       error: (error) => {
@@ -73,7 +72,7 @@ export class ListaSociosComponent implements OnInit {
     this.sociosFiltrados = this.socios.filter(socio => {
       switch (this.tipoBusqueda) {
         case 'id':
-          return socio.idSocio.toString().includes(this.terminoBusqueda);
+          return socio.num_socio.toString().includes(this.terminoBusqueda);
         case 'rut':
           const rutCompleto = `${socio.rut}${socio.dvRut}`;
           return rutCompleto.includes(this.terminoBusqueda);

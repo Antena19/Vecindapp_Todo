@@ -16,19 +16,43 @@ ion-card {
 }
 
 .socio-item {
-  --background: #ffffff;
-  --border-radius: 8px;
   margin-bottom: 8px;
+  border-radius: 8px;
+  --background: #ffffff;
+  --border-color: var(--ion-color-light-shade);
+  --border-width: 1px;
+  --border-style: solid;
   --padding-start: 16px;
   --padding-end: 16px;
   --padding-top: 12px;
   --padding-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
     --background: rgba(0, 137, 123, 0.05);
+  }
+
+  &.socio-inactivo {
+    --background: var(--ion-color-light-tint);
+    opacity: 0.8;
+    position: relative;
+    box-shadow: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: var(--ion-color-medium);
+      border-radius: 4px 0 0 4px;
+    }
+
+    &:hover {
+      --background: var(--ion-color-light-tint);
+    }
   }
 
   .socio-icon {
@@ -42,7 +66,6 @@ ion-card {
       font-size: 1.1rem;
       font-weight: 600;
       margin-bottom: 8px;
-      color: var(--ion-color-primary);
     }
 
     h3 {

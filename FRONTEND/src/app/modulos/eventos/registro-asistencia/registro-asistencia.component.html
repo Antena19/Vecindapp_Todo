@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/eventos/lista" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>VecindApp</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <h1 class="page-title">Registrar Asistencia</h1>
+  
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Registro de Asistencia</ion-card-title>
+      <ion-card-subtitle>Escanee el código QR del evento o ingrese el código manualmente</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <div class="ion-text-center">
+        <ion-button expand="block" (click)="iniciarEscaneo()" [disabled]="escaneando">
+          <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+          Iniciar Escaneo
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" (click)="toggleInputManual()" class="ion-margin-top">
+          <ion-icon name="keypad-outline" slot="start"></ion-icon>
+          {{ mostrarInputManual ? 'Ocultar Ingreso Manual' : 'Ingresar Código Manualmente' }}
+        </ion-button>
+
+        <div *ngIf="mostrarInputManual" class="ion-margin-top">
+          <ion-item>
+            <ion-input 
+              type="text" 
+              [(ngModel)]="codigoManual" 
+              placeholder="Ingrese el código del evento"
+              (keyup.enter)="registrarCodigoManual()">
+            </ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="registrarCodigoManual()" class="ion-margin-top">
+            Registrar Asistencia
+          </ion-button>
+        </div>
+
+        <ion-text color="medium" *ngIf="mensaje" class="ion-margin-top">
+          <p>{{ mensaje }}</p>
+        </ion-text>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

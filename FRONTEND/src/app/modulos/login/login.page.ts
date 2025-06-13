@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule, AlertController, LoadingController } from '@ionic/angular';
@@ -12,7 +12,7 @@ import { AutenticacionService } from '../../services/autenticacion.service';
   standalone: true,
   imports: [IonicModule, CommonModule, ReactiveFormsModule]
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   isLoading = false;
   showPassword = false;
@@ -27,6 +27,19 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
     this.initForm();
+    this.limpiarFormulario();
+
+    // Suscribirse al evento de cierre de sesión
+    this.autenticacionService.sesionCerrada.subscribe(cerrada => {
+      if (cerrada) {
+        this.limpiarFormulario();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    // Limpiar el formulario al destruir el componente
+    this.limpiarFormulario();
   }
 
   initForm() {
@@ -35,6 +48,13 @@ export class LoginPage implements OnInit {
       dv_rut: ['', [Validators.required, Validators.pattern(/^[0-9kK]$/)]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
+  }
+
+  limpiarFormulario() {
+    if (this.loginForm) {
+      this.loginForm.reset();
+      this.showPassword = false;
+    }
   }
 
   togglePassword() {

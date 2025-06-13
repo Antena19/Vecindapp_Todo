@@ -13,66 +13,100 @@ ion-title {
 }
 
 .page-title {
-  color: var(--ion-color-primary);
+  color: var(--ion-color-dark);
   font-size: 24px;
   font-weight: 600;
-  margin: 16px 0;
-  padding: 0 16px;
+  margin-bottom: 20px;
   text-align: center;
 }
 
 .container {
-  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
-.general-info-card, ion-card {
-  margin-bottom: 16px;
-  border-radius: 10px;
-  background-color: var(--card-bg-color);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-ion-item {
-  --background: var(--ion-color-light);
-  --border-radius: 8px;
-  margin-bottom: 2px;
-}
-
-ion-segment {
-  margin: 16px 0 8px 0;
-  --background: var(--ion-color-light);
-}
-
-ion-segment-button {
-  --background: var(--ion-color-light);
-  --background-checked: var(--ion-color-primary);
-  --color: var(--ion-color-medium);
-  --color-checked: var(--ion-color-light);
-  --indicator-color: transparent;
-}
-
-ion-button {
-  font-weight: 500;
+.general-info-card {
+  margin: 16px 0;
   border-radius: 12px;
-  margin-bottom: 8px;
-}
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: white;
+  transition: transform 0.2s ease-in-out;
 
-ion-button[color="success"] {
-  --background: var(--ion-color-success);
-  --background-activated: var(--ion-color-success-shade);
-  --color: var(--ion-color-success-contrast);
-}
+  &:hover {
+    transform: translateY(-2px);
+  }
 
-ion-button[color="danger"] {
-  --background: var(--ion-color-danger);
-  --background-activated: var(--ion-color-danger-shade);
-  --color: var(--ion-color-danger-contrast);
-}
+  ion-card-header {
+    background: var(--ion-color-light);
+    border-radius: 12px 12px 0 0;
+    padding: 16px;
 
-ion-spinner {
-  margin: 16px auto;
-  width: 48px;
-  height: 48px;
+    ion-card-subtitle {
+      color: var(--ion-color-medium);
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    ion-card-title {
+      color: var(--ion-color-dark);
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+
+  ion-card-content {
+    padding: 16px;
+
+    ion-list {
+      background: transparent;
+      padding: 0;
+    }
+
+    ion-item {
+      --background: transparent;
+      --padding-start: 0;
+      --inner-padding-end: 0;
+      margin-bottom: 12px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      ion-label {
+        h3 {
+          color: var(--ion-color-medium);
+          font-size: 14px;
+          margin-bottom: 4px;
+        }
+
+        p {
+          color: var(--ion-color-dark);
+          font-size: 16px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  ion-button {
+    margin-top: 16px;
+    --border-radius: 8px;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    height: 48px;
+
+    &[color="success"] {
+      --background: var(--ion-color-success);
+      --background-hover: var(--ion-color-success-shade);
+    }
+
+    &[color="danger"] {
+      --background: var(--ion-color-danger);
+      --background-hover: var(--ion-color-danger-shade);
+    }
+  }
 }
 
 .loading-container {
@@ -80,37 +114,89 @@ ion-spinner {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 32px;
+  text-align: center;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
 }
 
 .error-container {
-  padding: 16px;
   text-align: center;
-  background-color: var(--ion-color-danger-tint);
+  padding: 32px;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  margin: 16px 0;
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+.success-message {
+  background: var(--ion-color-success-tint);
+  color: var(--ion-color-success);
+  padding: 12px 16px;
   border-radius: 8px;
   margin: 16px 0;
-  color: white;
+  text-align: center;
+
+  ion-note {
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
 
-.error-container p, .error-container ion-text, .error-container ion-label {
-  color: white !important;
+// Estilos para las imágenes de documentos
+img {
+  border-radius: 8px;
+  margin-top: 8px;
+  border: 1px solid var(--ion-color-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-ion-note.success-message {
-  color: var(--ion-color-success);
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-ion-note.error-message {
-  color: var(--ion-color-danger);
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
+// Estilos para el modal de rechazo
 ion-modal {
-  --background: #ffffff;
   --height: auto;
+  --border-radius: 16px;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  ion-header {
+    ion-toolbar {
+      --background: var(--ion-color-light);
+      --border-radius: 16px 16px 0 0;
+    }
+  }
+
+  ion-content {
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+  }
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 16px;
+  }
+
+  ion-textarea {
+    --background: var(--ion-color-light);
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
 }
 
 @media (max-width: 576px) {

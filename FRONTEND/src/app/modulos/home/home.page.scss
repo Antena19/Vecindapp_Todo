@@ -3,6 +3,8 @@
   --menu-bg-color: #00897B;
   --card-bg-color: #F5F5DC;
   --text-dark-color: #333333;
+  --highlight-card-color: #ffffff; /* Oro para "Quieres ser Socio?" */
+  --info-card-color: #ADD8E6;     /* Azul claro para "Próxima reunión vecinal" */
 }
 
 .welcome-section {
@@ -46,11 +48,19 @@ ion-button ion-icon {
   }
 }
 
+.member-request-card {
+  background-color: var(--highlight-card-color);
+}
+
+.general-info-card {
+  background-color: var(--info-card-color);
+}
+
 // Estilos para los botones del menú
 .menu-option-card {
   background-color: var(--menu-bg-color);
   color: white;
-  height: 120px; // Aumentado para más espacio
+  height: 150px; /* Aumentado para mayor espacio vertical para texto de dos líneas */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,9 +82,14 @@ ion-button ion-icon {
   }
   
   .menu-icon {
-    font-size: 44px; // Iconos más grandes
-    margin-bottom: 10px;
+    font-size: 44px !important; // Iconos más grandes
+    width: 44px !important;     /* Asegura el ancho del ícono */
+    height: 44px !important;    /* Asegura la altura del ícono */
+    margin-bottom: 10px; /* Margen inferior para separar el ícono del texto */
     color: white !important;
+    display: flex; /* Asegura un contenedor flexible */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
   }
   
   p {
@@ -83,6 +98,7 @@ ion-button ion-icon {
     text-align: center;
     color: white;
     font-weight: bold;
+    line-height: 1.2; /* Ajusta la altura de línea para texto de dos líneas */
   }
 }
 
@@ -108,6 +124,54 @@ ion-button ion-icon {
   }
 }
 
+.solicitud-pendiente, .solicitud-aprobada, .solicitud-rechazada {
+  text-align: center;
+  padding: 16px;
+  
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    margin: 8px 0;
+    font-size: 16px;
+  }
+
+  .estado-detalle {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+
+  .fecha-detalle {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin-top: 8px;
+  }
+}
+
+.solicitud-pendiente {
+  background-color: var(--ion-color-warning-tint);
+  border-radius: 8px;
+}
+
+.solicitud-aprobada {
+  background-color: var(--ion-color-success-tint);
+  border-radius: 8px;
+}
+
+.solicitud-rechazada {
+  background-color: var(--ion-color-danger-tint);
+  border-radius: 8px;
+}
+
+.estado-pendiente {
+  color: var(--ion-color-warning);
+  font-weight: 500;
+  text-align: center;
+  padding: 8px;
+}
+
 // Responsive adjustments
 @media (max-width: 576px) {
   ion-col {
@@ -115,14 +179,21 @@ ion-button ion-icon {
   }
   
   .menu-option-card {
-    height: 100px;
+    height: 120px; /* Aumentado para pantallas pequeñas también */
     
     .menu-icon {
-      font-size: 36px;
+      font-size: 36px !important; /* Mantiene el tamaño para pantallas pequeñas */
+      width: 36px !important;     /* Asegura el ancho del ícono */
+      height: 36px !important;    /* Asegura la altura del ícono */
+      margin-bottom: 8px; /* Ajusta el margen para pantallas pequeñas */
+      display: flex; /* Asegura un contenedor flexible */
+      justify-content: center; /* Centra horizontalmente */
+      align-items: center; /* Centra verticalmente */
     }
     
     p {
       font-size: 14px;
+      line-height: 1.2; /* Ajusta la altura de línea para texto de dos líneas */
     }
   }
 

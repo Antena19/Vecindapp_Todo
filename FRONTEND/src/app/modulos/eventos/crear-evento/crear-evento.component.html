@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/eventos/lista" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Crear Evento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [style.--background]="'var(--ion-color-light)'">
+  <ion-card>
+    <ion-card-content>
+      <form [formGroup]="eventoForm" (ngSubmit)="onSubmit()">
+        <!-- Título -->
+        <ion-item>
+          <ion-label position="stacked">Título <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="titulo" type="text"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="eventoForm.get('titulo')?.touched && eventoForm.get('titulo')?.invalid">
+          <ion-text color="danger" *ngIf="eventoForm.get('titulo')?.errors?.['required']">
+            El título es obligatorio
+          </ion-text>
+        </div>
+
+        <!-- Descripción -->
+        <ion-item>
+          <ion-label position="stacked">Descripción <ion-text color="danger">*</ion-text></ion-label>
+          <ion-textarea formControlName="descripcion" rows="3"></ion-textarea>
+        </ion-item>
+        <div class="error-container" *ngIf="eventoForm.get('descripcion')?.touched && eventoForm.get('descripcion')?.invalid">
+          <ion-text color="danger" *ngIf="eventoForm.get('descripcion')?.errors?.['required']">
+            La descripción es obligatoria
+          </ion-text>
+        </div>
+
+        <!-- Fecha y Hora -->
+        <ion-row>
+          <ion-col size="6">
+            <ion-item>
+              <ion-label position="stacked">Fecha <ion-text color="danger">*</ion-text></ion-label>
+              <ion-input formControlName="fechaEvento" type="date"></ion-input>
+            </ion-item>
+            <div class="error-container" *ngIf="eventoForm.get('fechaEvento')?.touched && eventoForm.get('fechaEvento')?.invalid">
+              <ion-text color="danger" *ngIf="eventoForm.get('fechaEvento')?.errors?.['required']">
+                La fecha es obligatoria
+              </ion-text>
+            </div>
+          </ion-col>
+          <ion-col size="6">
+            <ion-item>
+              <ion-label position="stacked">Hora <ion-text color="danger">*</ion-text></ion-label>
+              <ion-input formControlName="horaEvento" type="time"></ion-input>
+            </ion-item>
+            <div class="error-container" *ngIf="eventoForm.get('horaEvento')?.touched && eventoForm.get('horaEvento')?.invalid">
+              <ion-text color="danger" *ngIf="eventoForm.get('horaEvento')?.errors?.['required']">
+                La hora es obligatoria
+              </ion-text>
+            </div>
+          </ion-col>
+        </ion-row>
+
+        <!-- Lugar -->
+        <ion-item>
+          <ion-label position="stacked">Lugar <ion-text color="danger">*</ion-text></ion-label>
+          <ion-input formControlName="lugar" type="text"></ion-input>
+        </ion-item>
+        <div class="error-container" *ngIf="eventoForm.get('lugar')?.touched && eventoForm.get('lugar')?.invalid">
+          <ion-text color="danger" *ngIf="eventoForm.get('lugar')?.errors?.['required']">
+            El lugar es obligatorio
+          </ion-text>
+        </div>
+
+        <!-- Notas Adicionales -->
+        <ion-item>
+          <ion-label position="stacked">Notas Adicionales</ion-label>
+          <ion-textarea formControlName="notas" rows="2"></ion-textarea>
+        </ion-item>
+
+        <!-- Botón de crear -->
+        <div class="ion-padding-top">
+          <ion-button expand="block" type="submit">
+            Crear Evento
+          </ion-button>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

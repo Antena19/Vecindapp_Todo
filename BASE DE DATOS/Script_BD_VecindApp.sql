@@ -18,6 +18,37 @@ USE `vecindapp_bd`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `asistencia_eventos`
+--
+
+DROP TABLE IF EXISTS `asistencia_eventos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `asistencia_eventos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `evento_id` int NOT NULL,
+  `usuario_rut` int NOT NULL,
+  `fecha_asistencia` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `evento_usuario_UNIQUE` (`evento_id`,`usuario_rut`),
+  KEY `evento_id_idx` (`evento_id`),
+  KEY `usuario_asistencia_rut_idx` (`usuario_rut`),
+  CONSTRAINT `evento_id_fk` FOREIGN KEY (`evento_id`) REFERENCES `eventos` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `usuario_asistencia_rut` FOREIGN KEY (`usuario_rut`) REFERENCES `usuarios` (`rut`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `asistencia_eventos`
+--
+
+LOCK TABLES `asistencia_eventos` WRITE;
+/*!40000 ALTER TABLE `asistencia_eventos` DISABLE KEYS */;
+INSERT INTO `asistencia_eventos` VALUES (1,6,25592802,'2025-06-09 00:00:00'),(2,3,11402302,'2025-06-12 20:45:18'),(3,3,17144575,'2025-06-12 21:05:47');
+/*!40000 ALTER TABLE `asistencia_eventos` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `certificados`
 --
 
@@ -142,6 +173,42 @@ CREATE TABLE `dispositivos_usuario` (
 LOCK TABLES `dispositivos_usuario` WRITE;
 /*!40000 ALTER TABLE `dispositivos_usuario` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dispositivos_usuario` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `eventos`
+--
+
+DROP TABLE IF EXISTS `eventos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `eventos` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(200) NOT NULL,
+  `descripcion` text NOT NULL,
+  `fecha_evento` date NOT NULL,
+  `hora_evento` time NOT NULL,
+  `lugar` varchar(255) NOT NULL,
+  `directiva_rut` int NOT NULL,
+  `estado` varchar(20) NOT NULL DEFAULT 'activo' COMMENT '''activo, inactivo, realizado,cancelado''',
+  `codigo_qr` varchar(255) NOT NULL,
+  `fecha_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `notas` text,
+  `codigo_numerico` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `directiva_evento_rut_idx` (`directiva_rut`),
+  CONSTRAINT `directiva_evento_rut_fk` FOREIGN KEY (`directiva_rut`) REFERENCES `usuarios` (`rut`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `eventos`
+--
+
+LOCK TABLES `eventos` WRITE;
+/*!40000 ALTER TABLE `eventos` DISABLE KEYS */;
+INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2025-06-28','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.','2342'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2025-06-21','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.','1994'),(6,'Test Editar 4','Test prueba editar 3','2025-06-14','23:02:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.4','4343');
+/*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -334,7 +401,7 @@ CREATE TABLE `socios` (
   UNIQUE KEY `num_socio` (`num_socio`),
   KEY `rut_idx` (`rut`),
   CONSTRAINT `rut` FOREIGN KEY (`rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -343,7 +410,7 @@ CREATE TABLE `socios` (
 
 LOCK TABLES `socios` WRITE;
 /*!40000 ALTER TABLE `socios` DISABLE KEYS */;
-INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23',NULL,'pendiente',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',0,NULL,NULL);
+INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23','2025-06-12','aprobada',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',1,NULL,NULL),(3,201,19037466,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,0,'Cambio Domicilio','2025-06-11 23:01:06'),(6,NULL,11402302,'2025-06-12',NULL,'pendiente',NULL,'/archivos/identidad_11402302_638853596404018582.png','/archivos/domicilio_11402302_638853596404066740.png',0,NULL,NULL);
 /*!40000 ALTER TABLE `socios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -515,7 +582,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva','cfd0d89c946588d802cde8fe7a48e6c0','2025-04-19 20:32:06'),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','00a684800a2e6ab0b17fbc343478846f3ca4fdaf81ea81fc6422e582d35e4064','2025-05-23',1,'vecino',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'vecino',NULL,NULL);
+INSERT INTO `usuarios` VALUES (11402302,'7','Cecilia','Yañez','Parraguez','ceciyan67@gmail.com','+56956587637','Avenida Austral 1343','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-06-11',1,'vecino',NULL,NULL),(17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva',NULL,NULL),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-05-23',1,'socio',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'socio',NULL,NULL);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -658,6 +725,45 @@ BEGIN
 
         SELECT v_mensaje as mensaje;
     END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_EVENTO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_EVENTO`(
+    IN p_evento_id INT,
+    IN p_titulo VARCHAR(200),
+    IN p_descripcion TEXT,
+    IN p_fecha_evento DATE,
+    IN p_hora_evento TIME,
+    IN p_lugar VARCHAR(255),
+    IN p_notas TEXT,
+    IN p_estado VARCHAR(20)
+)
+BEGIN
+    UPDATE eventos
+    SET 
+        titulo = p_titulo,
+        descripcion = p_descripcion,
+        fecha_evento = p_fecha_evento,
+        hora_evento = p_hora_evento,
+        lugar = p_lugar,
+        notas = p_notas,
+        estado = p_estado
+    WHERE id = p_evento_id;
+    
+    SELECT ROW_COUNT() AS filas_actualizadas;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -842,6 +948,31 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CANCELAR_EVENTO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CANCELAR_EVENTO`(
+    IN p_evento_id INT
+)
+BEGIN
+    UPDATE eventos
+    SET estado = 'cancelado'
+    WHERE id = p_evento_id;
+    
+    SELECT ROW_COUNT() AS filas_actualizadas;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_CONFIGURAR_TARIFA_CERTIFICADO` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -947,6 +1078,37 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_ASISTENTES` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_ASISTENTES`(
+    IN p_evento_id INT
+)
+BEGIN
+    SELECT
+        ae.id,                     
+        ae.evento_id,              
+        ae.usuario_rut,            
+        u.nombre,
+        CONCAT(u.apellido_paterno, ' ', u.apellido_materno) AS apellido,
+        ae.fecha_asistencia
+    FROM asistencia_eventos ae
+    INNER JOIN usuarios u ON ae.usuario_rut = u.rut
+    WHERE ae.evento_id = p_evento_id
+    ORDER BY ae.fecha_asistencia;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_ESTADO_PAGOS` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -982,6 +1144,159 @@ BEGIN
     AND (p_tipo IS NULL OR p.tipo = p_tipo)
     AND (p_estado IS NULL OR p.estado = p_estado)
     ORDER BY p.fecha_pago DESC;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_ESTADO_SOLICITUD` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_ESTADO_SOLICITUD`(IN p_rut INT)
+BEGIN
+    SELECT 
+        s.rut,
+        u.nombre,
+        u.apellido_paterno,
+        u.apellido_materno,
+        s.fecha_solicitud,
+        s.estado_solicitud,
+        s.motivo_rechazo
+    FROM socios s
+    INNER JOIN usuarios u ON s.rut = u.rut
+    WHERE s.rut = p_rut;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_EVENTO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_EVENTO`(
+    IN p_evento_id INT
+)
+BEGIN
+    SELECT 
+        e.*,
+        u.nombre as nombre_directiva,
+        u.apellido_paterno as apellido_directiva,
+        COUNT(ae.usuario_rut) as total_asistentes
+    FROM eventos e
+    LEFT JOIN usuarios u ON e.directiva_rut = u.rut
+    LEFT JOIN asistencia_eventos ae ON e.id = ae.evento_id
+    WHERE e.id = p_evento_id
+    GROUP BY e.id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_EVENTOS` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_EVENTOS`(
+    IN p_usuario_rut INT
+)
+BEGIN
+    DECLARE v_es_directiva BOOLEAN;
+    
+    -- Verificar si el usuario es directiva
+    SELECT EXISTS(
+        SELECT 1 FROM usuarios 
+        WHERE rut = p_usuario_rut 
+        AND tipo_usuario = 'directiva'
+    ) INTO v_es_directiva;
+    
+    IF v_es_directiva THEN
+        -- Directiva ve todos los eventos
+        SELECT 
+            id,
+            titulo,
+            descripcion,
+            fecha_evento,
+            hora_evento,
+            lugar,
+            directiva_rut,
+            estado,
+            codigo_qr,
+            fecha_creacion,
+            notas
+        FROM eventos
+        ORDER BY fecha_evento DESC, hora_evento DESC;
+    ELSE
+        -- Vecinos/socios ven solo eventos activos
+        SELECT 
+            id,
+            titulo,
+            descripcion,
+            fecha_evento,
+            hora_evento,
+            lugar,
+            directiva_rut,
+            estado,
+            codigo_qr,
+            fecha_creacion,
+            notas
+        FROM eventos
+        WHERE estado = 'activo'
+        ORDER BY fecha_evento DESC, hora_evento DESC;
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_HISTORIAL_ASISTENCIA` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_HISTORIAL_ASISTENCIA`(
+    IN p_usuario_rut INT
+)
+BEGIN
+    SELECT 
+        e.id,
+        e.titulo,
+        e.fecha_evento,
+        e.hora_evento,
+        e.lugar,
+        ae.fecha_asistencia
+    FROM asistencia_eventos ae
+    INNER JOIN eventos e ON ae.evento_id = e.id
+    WHERE ae.usuario_rut = p_usuario_rut
+    ORDER BY e.fecha_evento DESC, e.hora_evento DESC;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1174,7 +1489,9 @@ BEGIN
             u.apellido_materno,
             s.fecha_solicitud,
             s.estado_solicitud,
-            s.motivo_rechazo
+            s.motivo_rechazo,
+            s.documento_identidad,
+            s.documento_domicilio
         FROM socios s
         JOIN usuarios u ON s.rut = u.rut
         ORDER BY s.fecha_solicitud;
@@ -1187,11 +1504,114 @@ BEGIN
             u.apellido_materno,
             s.fecha_solicitud,
             s.estado_solicitud,
-            s.motivo_rechazo
+            s.motivo_rechazo,
+            s.documento_identidad,
+            s.documento_domicilio
         FROM socios s
         JOIN usuarios u ON s.rut = u.rut
         WHERE s.estado_solicitud = p_estado_solicitud
         ORDER BY s.fecha_solicitud;
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CREAR_EVENTO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CREAR_EVENTO`(
+    IN p_titulo VARCHAR(200),
+    IN p_descripcion TEXT,
+    IN p_fecha_evento DATE,
+    IN p_hora_evento TIME,
+    IN p_lugar VARCHAR(255),
+    IN p_directiva_rut INT,
+    IN p_notas TEXT
+)
+BEGIN
+    DECLARE v_codigo_qr VARCHAR(255);
+    DECLARE v_codigo_numerico VARCHAR(4);
+    
+    -- Generar código único para el QR
+    SET v_codigo_qr = CONCAT('EVENT-', FLOOR(RAND() * 1000000));
+    
+    -- Generar código numérico de 4 dígitos
+    SET v_codigo_numerico = LPAD(FLOOR(RAND() * 10000), 4, '0');
+    
+    INSERT INTO eventos (
+        titulo, 
+        descripcion, 
+        fecha_evento, 
+        hora_evento, 
+        lugar, 
+        directiva_rut, 
+        codigo_qr,
+        codigo_numerico,
+        notas,
+        estado
+    ) VALUES (
+        p_titulo,
+        p_descripcion,
+        p_fecha_evento,
+        p_hora_evento,
+        p_lugar,
+        p_directiva_rut,
+        v_codigo_qr,
+        v_codigo_numerico,
+        p_notas,
+        'activo'
+    );
+    
+    SELECT LAST_INSERT_ID() AS id_evento, v_codigo_qr AS codigo_qr, v_codigo_numerico AS codigo_numerico;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_ELIMINAR_EVENTO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ELIMINAR_EVENTO`(
+    IN p_evento_id INT
+)
+BEGIN
+    DECLARE v_existe INT;
+    DECLARE v_mensaje VARCHAR(255);
+
+    -- Verificar si el evento existe
+    SELECT COUNT(*) INTO v_existe
+    FROM eventos
+    WHERE id = p_evento_id;
+
+    IF v_existe = 0 THEN
+        SET v_mensaje = 'El evento no existe';
+        SELECT v_mensaje AS mensaje;
+    ELSE
+        -- Eliminar registros relacionados primero
+        DELETE FROM asistencia_eventos WHERE evento_id = p_evento_id;
+        
+        -- Eliminar el evento
+        DELETE FROM eventos WHERE id = p_evento_id;
+        
+        SET v_mensaje = 'Evento eliminado exitosamente';
+        SELECT v_mensaje AS mensaje;
     END IF;
 END ;;
 DELIMITER ;
@@ -1333,6 +1753,39 @@ BEGIN
     WHERE s.estado = 1;
 
     SELECT 'Cuotas mensuales generadas exitosamente' AS mensaje;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_GENERAR_REPORTE_ASISTENCIA` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GENERAR_REPORTE_ASISTENCIA`(
+    IN p_fecha_inicio DATE,
+    IN p_fecha_fin DATE
+)
+BEGIN
+    SELECT 
+        e.id,
+        e.titulo,
+        e.fecha_evento,
+        e.hora_evento,
+        e.lugar,
+        COUNT(ae.usuario_rut) as total_asistentes
+    FROM eventos e
+    LEFT JOIN asistencia_eventos ae ON e.id = ae.evento_id
+    WHERE e.fecha_evento BETWEEN p_fecha_inicio AND p_fecha_fin
+    GROUP BY e.id
+    ORDER BY e.fecha_evento DESC, e.hora_evento DESC;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1730,6 +2183,7 @@ BEGIN
         u.direccion,
         u.fecha_registro,
         s.idsocio,
+        s.num_socio,
         s.fecha_solicitud,
         s.fecha_aprobacion,
         s.estado,
@@ -1943,6 +2397,131 @@ BEGIN
     WHERE rut = p_rut;
 
     SELECT 'Solicitud de socio rechazada exitosamente' AS mensaje;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_RECUPERAR_CONTRASENA_SIMPLE` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_RECUPERAR_CONTRASENA_SIMPLE`(
+    IN p_rut INT,
+    IN p_nombre_completo VARCHAR(255),
+    IN p_nueva_password VARCHAR(255)
+)
+BEGIN
+    DECLARE v_usuario_existe INT DEFAULT 0;
+    DECLARE v_nombre_db VARCHAR(45);
+    DECLARE v_apellido_paterno_db VARCHAR(45);
+    DECLARE v_apellido_materno_db VARCHAR(45);
+    DECLARE v_nombre_completo_concatenado_db VARCHAR(255);
+
+    -- 1. Verificar si el usuario existe
+    SELECT COUNT(*)
+    INTO v_usuario_existe
+    FROM usuarios
+    WHERE rut = p_rut;
+
+    -- Si el usuario no existe
+    IF v_usuario_existe = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Usuario no encontrado';
+    END IF;
+
+    -- 2. Si el usuario existe, obtener sus datos de nombre
+    SELECT
+        nombre,
+        apellido_paterno,
+        COALESCE(apellido_materno, '') -- COALESCE para manejar NULL en apellido_materno
+    INTO
+        v_nombre_db,
+        v_apellido_paterno_db,
+        v_apellido_materno_db
+    FROM usuarios
+    WHERE rut = p_rut;
+
+    -- Concatenar el nombre completo de la base de datos
+    SET v_nombre_completo_concatenado_db = LOWER(CONCAT_WS(' ', v_nombre_db, v_apellido_paterno_db, v_apellido_materno_db));
+
+    -- 3. Validar que el nombre completo proporcionado coincida con el de la DB
+    -- Hacemos la comparación insensible a mayúsculas/minúsculas también para el input
+    IF v_nombre_completo_concatenado_db != LOWER(p_nombre_completo) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El nombre completo no coincide con el registrado para este RUT';
+    END IF;
+
+    -- 4. Si todo es válido, actualizar la contraseña y limpiar el token de recuperación
+    UPDATE usuarios
+    SET
+        password = p_nueva_password,
+        token_recuperacion = NULL,
+        fecha_token_recuperacion = NULL
+    WHERE rut = p_rut;
+
+    -- Devolver mensaje de éxito
+    SELECT 'Contraseña restablecida exitosamente' AS mensaje;
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_REGISTRAR_ASISTENCIA` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_REGISTRAR_ASISTENCIA`(
+    IN p_codigo_qr VARCHAR(255),
+    IN p_codigo_numerico VARCHAR(255),
+    IN p_usuario_rut INT
+)
+BEGIN
+    DECLARE v_evento_id INT;
+    
+    -- Verificar que el evento existe y está activo
+    SELECT id INTO v_evento_id
+    FROM eventos
+    WHERE (
+        (p_codigo_qr IS NOT NULL AND codigo_qr = p_codigo_qr) OR
+        (p_codigo_numerico IS NOT NULL AND codigo_numerico = p_codigo_numerico)
+    )
+    AND estado = 'activo';
+    
+    IF v_evento_id IS NOT NULL THEN
+        -- Verificar que no haya asistencia previa
+        IF NOT EXISTS (
+            SELECT 1 FROM asistencia_eventos 
+            WHERE evento_id = v_evento_id 
+            AND usuario_rut = p_usuario_rut
+        ) THEN
+            INSERT INTO asistencia_eventos (evento_id, usuario_rut)
+            VALUES (v_evento_id, p_usuario_rut);
+            
+            SELECT 'Asistencia registrada exitosamente' AS mensaje;
+        ELSE
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Ya existe un registro de asistencia para este usuario';
+        END IF;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Código inválido o evento inactivo';
+    END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2660,4 +3239,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-23 19:09:43
+-- Dump completed on 2025-06-12 21:30:34

@@ -1,0 +1,73 @@
+:host {
+  --card-bg-color: var(--ion-color-light);
+  --text-dark-color: #333333;
+}
+
+ion-header ion-toolbar {
+  --background: var(--ion-color-secondary);
+  --color: white;
+}
+
+ion-title {
+  color: white !important;
+}
+
+.page-title {
+  color: var(--ion-color-dark);
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+.scanner-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: 1em 0;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 1000;
+}
+
+ion-content {
+  --background: var(--ion-color-light);
+  background: var(--ion-color-light) !important;
+  min-height: 100vh;
+}
+
+// Estilos para cuando la cámara está activa
+:host ::ng-deep {
+  .camera-active {
+    display: none !important;
+  }
+}
+
+ion-card {
+  background: #fff !important;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  margin-bottom: 1em;
+}
+
+ion-card-title {
+  font-weight: bold;
+  color: #2C3E50;
+  font-size: 1.15em;
+}
+
+ion-card-subtitle {
+  color: var(--ion-color-medium);
+  font-size: 1em;
+}
+
+ion-button {
+  margin: 16px 0 0 0;
+} 
