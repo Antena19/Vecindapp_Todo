@@ -45,7 +45,8 @@ const routes: Routes = [
   },
   {
     path: 'eventos',
-    loadChildren: () => import('./modulos/eventos/eventos-routing.module').then(m => m.EventosRoutingModule)
+    loadChildren: () => import('./modulos/eventos/eventos.module').then(m => m.EventosModule),
+    canActivate: [AuthGuard]
   }
 ];
 

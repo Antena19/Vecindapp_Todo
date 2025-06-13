@@ -146,6 +146,13 @@ export class HomePage implements OnInit {
         this.consultarEstadoSolicitudSocio();
       }
     });
+
+    // Suscribirse a los eventos de navegación para actualizar el estado
+    this.router.events.subscribe(() => {
+      if (this.tipoUsuario === 'vecino' && this.usuario) {
+        this.consultarEstadoSolicitudSocio();
+      }
+    });
   }
 
   consultarEstadoSolicitudSocio() {
@@ -171,17 +178,9 @@ export class HomePage implements OnInit {
       },
       error: (error) => {
         console.error('Error al consultar estado de solicitud:', error);
-        
-        // Si el error es porque no existe el procedimiento, mostramos un mensaje más específico
-        if (error.error?.error?.includes('does not exist')) {
-          console.error('El procedimiento almacenado no existe en la base de datos');
-        }
-        
-        // En caso de error, asumimos que no hay solicitud
         this.solicitudSocioEstado = 'ninguna';
         this.detallesSolicitud = null;
         
-        // Actualizar el menú
         if (this.tipoUsuario === 'vecino') {
           this.menuOptions = this.menuVecino;
         }

@@ -113,19 +113,70 @@ export class ReporteEventosComponent implements OnInit {
   exportReportToPdf() {
     const element = document.getElementById('reportContent');
     if (element) {
+      console.log('Elemento reportContent encontrado:', element);
+      console.log('Contenido HTML del elemento:', element.innerHTML);
       this.cargando = true;
+      
+      // Configuración de opciones para html2pdf
+      const opt = {
+        margin: 1,
+        filename: 'reporte_evento_' + this.eventoIdDesdeRuta + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          letterRendering: true,
+          logging: true
+        },
+        jsPDF: { 
+          unit: 'cm', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        }
+      };
+
+      // Crear un contenedor temporal para el contenido del PDF
+      const pdfContentContainer = document.createElement('div');
+      pdfContentContainer.style.padding = '20px';
+      pdfContentContainer.style.backgroundColor = 'white';
+      pdfContentContainer.style.color = 'black';
+      pdfContentContainer.style.width = '21cm'; // Ancho A4
+      pdfContentContainer.style.boxSizing = 'border-box';
+
+      // Extraer y añadir el título y subtítulo
+      const cardHeader = element.querySelector('ion-card-header');
+      if (cardHeader) {
+        const title = cardHeader.querySelector('ion-card-title');
+        const subtitle = cardHeader.querySelector('ion-card-subtitle');
+        if (title) pdfContentContainer.appendChild(title.cloneNode(true));
+        if (subtitle) pdfContentContainer.appendChild(subtitle.cloneNode(true));
+      }
+
+      // Extraer y añadir el contenido principal
+      const cardContent = element.querySelector('ion-card-content');
+      if (cardContent) {
+        pdfContentContainer.appendChild(cardContent.cloneNode(true));
+      }
+
+      // Añadir el contenedor temporal al cuerpo del documento (fuera de la vista)
+      document.body.appendChild(pdfContentContainer);
+      console.log('Contenedor temporal HTML antes de generar PDF:', pdfContentContainer.outerHTML);
+
+      // Generar el PDF con un pequeño retraso
       setTimeout(() => {
-        console.log('Contenido del elemento para exportar (dentro de setTimeout):', element.innerHTML);
-        html2pdf().from(element).save('reporte_evento_' + this.eventoIdDesdeRuta + '.pdf').then(() => {
+        html2pdf().set(opt).from(pdfContentContainer).save().then(() => {
           this.cargando = false;
+          this.presentToast('PDF generado exitosamente', 'success');
+          document.body.removeChild(pdfContentContainer); // Eliminar el contenedor temporal
         }).catch((error: any) => {
           console.error('Error al generar el PDF:', error);
-          this.presentToast('Error al generar el PDF.', 'danger');
+          this.presentToast('Error al generar el PDF', 'danger');
           this.cargando = false;
+          document.body.removeChild(pdfContentContainer); // Eliminar el contenedor temporal incluso en error
         });
-      }, 500);
+      }, 1000); // Retraso de 1000ms
     } else {
-      this.presentToast('No se encontró el contenido del reporte para exportar.', 'warning');
+      this.presentToast('No se encontró el contenido del reporte para exportar', 'warning');
     }
   }
 

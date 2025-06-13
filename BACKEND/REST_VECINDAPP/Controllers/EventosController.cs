@@ -61,15 +61,25 @@ namespace REST_VECINDAPP.Controllers
                 });
             }
 
-            var rut = int.Parse(User.FindFirst("rut")?.Value ?? "0");
-            var (exito, mensaje) = _eventosService.RegistrarAsistencia(request.CodigoQr, request.CodigoNumerico, rut);
-
-            if (exito)
+            try
             {
-                return Ok(new { mensaje });
-            }
+                var rut = int.Parse(User.FindFirst("rut")?.Value ?? "0");
+                Console.WriteLine($"Intentando registrar asistencia - Código: {request.CodigoNumerico}, RUT: {rut}");
+                
+                var (exito, mensaje) = _eventosService.RegistrarAsistencia(request.CodigoQr, request.CodigoNumerico, rut);
 
-            return BadRequest(new { mensaje });
+                if (exito)
+                {
+                    return Ok(new { mensaje });
+                }
+
+                return BadRequest(new { mensaje });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al registrar asistencia: {ex.Message}");
+                return BadRequest(new { mensaje = $"Error al registrar asistencia: {ex.Message}" });
+            }
         }
 
         [HttpGet("{eventoId}/asistentes")]

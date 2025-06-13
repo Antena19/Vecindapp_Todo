@@ -90,9 +90,11 @@ export class SolicitarMembresiaComponent implements OnInit {
     try {
       const response = await this.sociosService.solicitarMembresia(this.solicitud).toPromise();
       if (response) {
-        this.mensaje = 'Solicitud enviada exitosamente. El sistema ha generado su ID de socio automáticamente.';
+        this.mensaje = '¡Solicitud enviada exitosamente! Será notificado cuando su solicitud sea revisada.';
         this.limpiarFormulario();
-        this.router.navigate(['/home'], { state: { mensaje: 'Solicitud enviada exitosamente. Espere aprobación.' } });
+        setTimeout(() => {
+          this.router.navigate(['/home']);
+        }, 2000);
       }
     } catch (error: any) {
       console.error('Error al enviar solicitud:', error);

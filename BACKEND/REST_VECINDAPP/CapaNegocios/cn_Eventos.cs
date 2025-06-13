@@ -62,10 +62,19 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             try
             {
+                // Validar que al menos uno de los códigos esté presente
                 if (string.IsNullOrEmpty(codigoQr) && string.IsNullOrEmpty(codigoNumerico))
                 {
                     return (false, "Se requiere un código QR o un código numérico");
                 }
+
+                // Validar que el código numérico sea numérico si está presente
+                if (!string.IsNullOrEmpty(codigoNumerico) && !codigoNumerico.All(char.IsDigit))
+                {
+                    return (false, "El código numérico debe contener solo dígitos");
+                }
+
+                Console.WriteLine($"Verificando evento - Código QR: {codigoQr}, Código Numérico: {codigoNumerico}");
 
                 using (MySqlConnection conn = new MySqlConnection(_connectionString))
                 {
@@ -78,11 +87,15 @@ namespace REST_VECINDAPP.CapaNegocios
                         cmd.Parameters.AddWithValue("@p_codigo_numerico", codigoNumerico ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@p_usuario_rut", usuarioRut);
 
+                        Console.WriteLine($"Ejecutando SP con parámetros - Código Numérico: {codigoNumerico}, RUT: {usuarioRut}");
+
                         using (var reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                return (true, Convert.ToString(reader["mensaje"]));
+                                var mensaje = Convert.ToString(reader["mensaje"]);
+                                Console.WriteLine($"SP retornó mensaje: {mensaje}");
+                                return (true, mensaje);
                             }
                         }
                     }
@@ -91,10 +104,12 @@ namespace REST_VECINDAPP.CapaNegocios
             }
             catch (MySqlException ex)
             {
+                Console.WriteLine($"Error de base de datos: {ex.Message}");
                 return (false, $"Error de base de datos: {ex.Message}");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error inesperado: {ex.Message}");
                 return (false, $"Error inesperado: {ex.Message}");
             }
         }

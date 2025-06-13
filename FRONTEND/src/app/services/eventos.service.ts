@@ -38,8 +38,13 @@ export class EventosService {
     return this.http.post(`${this.apiUrl}/${id}/cancelar`, {});
   }
 
-  registrarAsistencia(codigoQr: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/asistencia`, { codigoQr });
+  registrarAsistencia(codigo: string, esCodigoQr: boolean = false): Observable<any> {
+    const payload = {
+      codigoQr: esCodigoQr ? codigo : null,
+      codigoNumerico: esCodigoQr ? null : codigo
+    };
+    console.log('Payload enviado al backend:', JSON.stringify(payload, null, 2));
+    return this.http.post(`${this.apiUrl}/asistencia`, payload);
   }
 
   obtenerAsistentes(eventoId: number): Observable<AsistenciaEvento[]> {

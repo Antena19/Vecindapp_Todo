@@ -35,7 +35,7 @@ CREATE TABLE `asistencia_eventos` (
   KEY `usuario_asistencia_rut_idx` (`usuario_rut`),
   CONSTRAINT `evento_id_fk` FOREIGN KEY (`evento_id`) REFERENCES `eventos` (`id`) ON DELETE CASCADE,
   CONSTRAINT `usuario_asistencia_rut` FOREIGN KEY (`usuario_rut`) REFERENCES `usuarios` (`rut`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `asistencia_eventos` (
 
 LOCK TABLES `asistencia_eventos` WRITE;
 /*!40000 ALTER TABLE `asistencia_eventos` DISABLE KEYS */;
-INSERT INTO `asistencia_eventos` VALUES (1,6,25592802,'2025-06-09 00:00:00');
+INSERT INTO `asistencia_eventos` VALUES (1,6,25592802,'2025-06-09 00:00:00'),(2,3,11402302,'2025-06-12 20:45:18'),(3,3,17144575,'2025-06-12 21:05:47');
 /*!40000 ALTER TABLE `asistencia_eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -194,10 +194,11 @@ CREATE TABLE `eventos` (
   `codigo_qr` varchar(255) NOT NULL,
   `fecha_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `notas` text,
+  `codigo_numerico` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `directiva_evento_rut_idx` (`directiva_rut`),
   CONSTRAINT `directiva_evento_rut_fk` FOREIGN KEY (`directiva_rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -206,7 +207,7 @@ CREATE TABLE `eventos` (
 
 LOCK TABLES `eventos` WRITE;
 /*!40000 ALTER TABLE `eventos` DISABLE KEYS */;
-INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2024-03-25','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2024-03-30','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.'),(6,'Test Editar 3','Test prueba editar 3','2025-06-09','20:00:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.3');
+INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2025-06-28','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.','2342'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2025-06-21','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.','1994'),(6,'Test Editar 4','Test prueba editar 3','2025-06-14','23:02:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.4','4343');
 /*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -400,7 +401,7 @@ CREATE TABLE `socios` (
   UNIQUE KEY `num_socio` (`num_socio`),
   KEY `rut_idx` (`rut`),
   CONSTRAINT `rut` FOREIGN KEY (`rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -409,7 +410,7 @@ CREATE TABLE `socios` (
 
 LOCK TABLES `socios` WRITE;
 /*!40000 ALTER TABLE `socios` DISABLE KEYS */;
-INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23',NULL,'pendiente',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',0,NULL,NULL),(3,201,19037466,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,0,'Cambio Domicilio','2025-06-11 23:01:06');
+INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23','2025-06-12','aprobada',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',1,NULL,NULL),(3,201,19037466,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,0,'Cambio Domicilio','2025-06-11 23:01:06'),(6,NULL,11402302,'2025-06-12',NULL,'pendiente',NULL,'/archivos/identidad_11402302_638853596404018582.png','/archivos/domicilio_11402302_638853596404066740.png',0,NULL,NULL);
 /*!40000 ALTER TABLE `socios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -581,7 +582,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (11402302,'7','Cecilia','Yañez','Parraguez','ceciyan67@gmail.com','+56956587637','Avenida Austral 1343','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-06-11',1,'vecino',NULL,NULL),(17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva',NULL,NULL),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-05-23',1,'socio',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'vecino',NULL,NULL);
+INSERT INTO `usuarios` VALUES (11402302,'7','Cecilia','Yañez','Parraguez','ceciyan67@gmail.com','+56956587637','Avenida Austral 1343','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-06-11',1,'vecino',NULL,NULL),(17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva',NULL,NULL),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-05-23',1,'socio',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'socio',NULL,NULL);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1538,9 +1539,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CREAR_EVENTO`(
 )
 BEGIN
     DECLARE v_codigo_qr VARCHAR(255);
+    DECLARE v_codigo_numerico VARCHAR(4);
     
     -- Generar código único para el QR
     SET v_codigo_qr = CONCAT('EVENT-', FLOOR(RAND() * 1000000));
+    
+    -- Generar código numérico de 4 dígitos
+    SET v_codigo_numerico = LPAD(FLOOR(RAND() * 10000), 4, '0');
     
     INSERT INTO eventos (
         titulo, 
@@ -1550,6 +1555,7 @@ BEGIN
         lugar, 
         directiva_rut, 
         codigo_qr,
+        codigo_numerico,
         notas,
         estado
     ) VALUES (
@@ -1560,11 +1566,53 @@ BEGIN
         p_lugar,
         p_directiva_rut,
         v_codigo_qr,
+        v_codigo_numerico,
         p_notas,
         'activo'
     );
     
-    SELECT LAST_INSERT_ID() AS id_evento, v_codigo_qr AS codigo_qr;
+    SELECT LAST_INSERT_ID() AS id_evento, v_codigo_qr AS codigo_qr, v_codigo_numerico AS codigo_numerico;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_ELIMINAR_EVENTO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ELIMINAR_EVENTO`(
+    IN p_evento_id INT
+)
+BEGIN
+    DECLARE v_existe INT;
+    DECLARE v_mensaje VARCHAR(255);
+
+    -- Verificar si el evento existe
+    SELECT COUNT(*) INTO v_existe
+    FROM eventos
+    WHERE id = p_evento_id;
+
+    IF v_existe = 0 THEN
+        SET v_mensaje = 'El evento no existe';
+        SELECT v_mensaje AS mensaje;
+    ELSE
+        -- Eliminar registros relacionados primero
+        DELETE FROM asistencia_eventos WHERE evento_id = p_evento_id;
+        
+        -- Eliminar el evento
+        DELETE FROM eventos WHERE id = p_evento_id;
+        
+        SET v_mensaje = 'Evento eliminado exitosamente';
+        SELECT v_mensaje AS mensaje;
+    END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -2440,6 +2488,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_REGISTRAR_ASISTENCIA`(
     IN p_codigo_qr VARCHAR(255),
+    IN p_codigo_numerico VARCHAR(255),
     IN p_usuario_rut INT
 )
 BEGIN
@@ -2448,7 +2497,10 @@ BEGIN
     -- Verificar que el evento existe y está activo
     SELECT id INTO v_evento_id
     FROM eventos
-    WHERE codigo_qr = p_codigo_qr
+    WHERE (
+        (p_codigo_qr IS NOT NULL AND codigo_qr = p_codigo_qr) OR
+        (p_codigo_numerico IS NOT NULL AND codigo_numerico = p_codigo_numerico)
+    )
     AND estado = 'activo';
     
     IF v_evento_id IS NOT NULL THEN
@@ -2468,7 +2520,7 @@ BEGIN
         END IF;
     ELSE
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Código QR inválido o evento inactivo';
+        SET MESSAGE_TEXT = 'Código inválido o evento inactivo';
     END IF;
 END ;;
 DELIMITER ;
@@ -3187,4 +3239,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-11 23:46:45
+-- Dump completed on 2025-06-12 21:30:34

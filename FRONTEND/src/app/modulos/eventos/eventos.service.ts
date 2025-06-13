@@ -32,10 +32,14 @@ export class EventosService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  registrarAsistencia(codigoQr: string | null, codigoNumerico: string | null): Observable<any> {
-    return this.http.post(`${this.apiUrl}/asistencia`, {
-      codigoQr,
-      codigoNumerico
-    });
+  registrarAsistencia(codigo: string): Observable<any> {
+    // Asegurarnos de que el código sea string sin restricciones de longitud
+    const codigoNumerico = String(codigo).trim();
+    const payload = {
+      codigoQr: null,
+      codigoNumerico: codigoNumerico
+    };
+    console.log('Payload enviado al backend:', JSON.stringify(payload, null, 2));
+    return this.http.post(`${this.apiUrl}/asistencia`, payload);
   }
 } 
