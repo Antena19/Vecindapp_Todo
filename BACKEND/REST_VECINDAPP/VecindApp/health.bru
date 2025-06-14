@@ -1,0 +1,15 @@
+meta {
+  name: health
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:5032/api/Health
+  body: none
+  auth: inherit
+}
+
+headers {
+  accept: */*
+}

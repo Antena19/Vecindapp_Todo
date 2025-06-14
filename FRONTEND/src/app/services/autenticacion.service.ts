@@ -69,6 +69,7 @@ export class AutenticacionService {
 
   iniciarSesion(rut: number, dv_rut: string, password: string): Observable<any> {
     const url = `${Constantes.API_URL}/api/Autenticacion/login`;
+    console.log('URL del login:', url);
     const body = {
       username: rut.toString(),
       password: password
@@ -76,6 +77,7 @@ export class AutenticacionService {
     
     return this.http.post<any>(url, body).pipe(
       tap(response => {
+        console.log('Respuesta del login:', response);
         if (response && response.token) {
           // Guardar token
           this._token.next(response.token);
@@ -83,9 +85,13 @@ export class AutenticacionService {
           
           // Guardar usuario si existe
           if (response.usuario) {
-            this._usuario.next(response.usuario);
-            localStorage.setItem('usuario', JSON.stringify(response.usuario));
+            const usuario = response.usuario;
+            this._usuario.next(usuario);
+            localStorage.setItem('usuario', JSON.stringify(usuario));
+            console.log('Usuario guardado:', usuario);
           }
+        } else {
+          console.error('Respuesta del login sin token:', response);
         }
       })
     );

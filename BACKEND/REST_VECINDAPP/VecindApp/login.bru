@@ -1,0 +1,20 @@
+meta {
+  name: login
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:5032/api/Autenticacion/login
+  body: json
+  auth: inherit
+}
+
+headers {
+  accept: */*
+  Content-Type: application/json
+}
+
+body:json {
+  {\"username\":\"17144575\",\"password\":\"Antena19.duoc\"}
+}

@@ -2,7 +2,6 @@
 export class Constantes{
 
     public static get API_URL(): string {
-        return "https://localhost:7287";
-
-    }
+        return "http://localhost:8080";
+    }
 }
