@@ -9,15 +9,17 @@ WORKDIR /src
 # Limpiar la caché de NuGet
 RUN dotnet nuget locals all --clear
 
+# Crear directorios necesarios
+RUN mkdir -p /src/BACKEND/REST_VECINDAPP
+
 # Copiar primero el archivo de proyecto y restaurar dependencias
-COPY ["BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj", "BACKEND/REST_VECINDAPP/"]
+COPY ["BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj", "/src/BACKEND/REST_VECINDAPP/"]
 RUN dotnet restore "/src/BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj"
 
 # Copiar el resto de los archivos
-COPY . .
+COPY . /src/
 
-# Establecer el directorio de trabajo y compilar
-WORKDIR "/src/BACKEND/REST_VECINDAPP"
+# Compilar
 RUN dotnet build "/src/BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj" -c Release -o /app/build
 
 FROM build AS publish
