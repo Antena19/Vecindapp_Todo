@@ -6,6 +6,10 @@ using REST_VECINDAPP.Modelos;
 using System.Data;
 using REST_VECINDAPP.Modelos.DTOs;
 using Microsoft.Extensions.Configuration;
+using System.IO;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 
 namespace REST_VECINDAPP.CapaNegocios
 {
@@ -175,6 +179,145 @@ namespace REST_VECINDAPP.CapaNegocios
             command.Parameters.AddWithValue("@p_preferencia_id", preferenciaId);
             var result = await command.ExecuteScalarAsync();
             return result?.ToString();
+        }
+
+        public async Task<(bool Exito, string Mensaje)> ProcesarPagoCertificado(int solicitudId, string preferenciaId)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                await connection.OpenAsync();
+                using var command = new MySqlCommand("SP_PROCESAR_PAGO_CERTIFICADO", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+                command.Parameters.AddWithValue("@p_preferencia_id", preferenciaId);
+                var result = await command.ExecuteNonQueryAsync();
+                return (result > 0, "Pago procesado correctamente");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al procesar el pago: {ex.Message}");
+            }
+        }
+
+        public async Task<Certificado> ObtenerCertificado(int solicitudId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+            using var command = new MySqlCommand("SP_OBTENER_CERTIFICADO", connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return new Certificado
+                {
+                    id = reader.GetInt32("id"),
+                    codigo_verificacion = reader.GetString("codigo_verificacion"),
+                    fecha_emision = reader.GetDateTime("fecha_emision"),
+                    archivo_pdf = reader.GetString("archivo_pdf"),
+                    estado = reader.GetString("estado"),
+                    solicitud = new SolicitudCertificado
+                    {
+                        id = reader.GetInt32("solicitud_id"),
+                        usuario_rut = reader.GetInt32("usuario_rut"),
+                        tipo_certificado_id = reader.GetInt32("tipo_certificado_id"),
+                        fecha_solicitud = reader.GetDateTime("fecha_solicitud"),
+                        estado = reader.GetString("solicitud_estado"),
+                        motivo = reader.GetString("motivo"),
+                        documentos_adjuntos = reader.GetString("documentos_adjuntos")
+                    }
+                };
+            }
+            return null;
+        }
+
+        public async Task<(bool Exito, string Mensaje)> GenerarPDFCertificado(int solicitudId)
+        {
+            try
+            {
+                var certificado = await ObtenerCertificado(solicitudId);
+                if (certificado == null)
+                {
+                    return (false, "No se encontró el certificado");
+                }
+
+                string rutaArchivo = Path.Combine("Certificados", $"certificado_{certificado.id}.pdf");
+                Directory.CreateDirectory("Certificados");
+
+                using var writer = new PdfWriter(rutaArchivo);
+                using var pdf = new PdfDocument(writer);
+                using var document = new Document(pdf);
+
+                document.Add(new Paragraph($"Certificado #{certificado.id}"));
+                document.Add(new Paragraph($"Código de Verificación: {certificado.codigo_verificacion}"));
+                document.Add(new Paragraph($"Fecha de Emisión: {certificado.fecha_emision:dd/MM/yyyy}"));
+                document.Add(new Paragraph($"Estado: {certificado.estado}"));
+
+                document.Close();
+
+                using var connection = new MySqlConnection(_connectionString);
+                await connection.OpenAsync();
+                using var command = new MySqlCommand("SP_ACTUALIZAR_RUTA_CERTIFICADO", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@p_certificado_id", certificado.id);
+                command.Parameters.AddWithValue("@p_ruta_archivo", rutaArchivo);
+                await command.ExecuteNonQueryAsync();
+
+                return (true, "Certificado generado correctamente");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al generar el certificado: {ex.Message}");
+            }
+        }
+
+        public async Task<List<Certificado>> ObtenerHistorialCertificados(int usuarioRut)
+        {
+            var certificados = new List<Certificado>();
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+            using var command = new MySqlCommand("SP_OBTENER_HISTORIAL_CERTIFICADOS", connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@p_usuario_rut", usuarioRut);
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                certificados.Add(new Certificado
+                {
+                    id = reader.GetInt32("id"),
+                    codigo_verificacion = reader.GetString("codigo_verificacion"),
+                    fecha_emision = reader.GetDateTime("fecha_emision"),
+                    archivo_pdf = reader.GetString("archivo_pdf"),
+                    estado = reader.GetString("estado"),
+                    solicitud = new SolicitudCertificado
+                    {
+                        id = reader.GetInt32("solicitud_id"),
+                        usuario_rut = reader.GetInt32("usuario_rut"),
+                        tipo_certificado_id = reader.GetInt32("tipo_certificado_id"),
+                        fecha_solicitud = reader.GetDateTime("fecha_solicitud"),
+                        estado = reader.GetString("solicitud_estado"),
+                        motivo = reader.GetString("motivo"),
+                        documentos_adjuntos = reader.GetString("documentos_adjuntos")
+                    }
+                });
+            }
+            return certificados;
+        }
+
+        public async Task<(bool Exito, string Mensaje)> VerificarCertificado(string codigoVerificacion)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+            using var command = new MySqlCommand("SP_VERIFICAR_CERTIFICADO", connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@p_codigo_verificacion", codigoVerificacion);
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return (true, "Certificado válido");
+            }
+            return (false, "Certificado no encontrado o inválido");
         }
     }
 } 

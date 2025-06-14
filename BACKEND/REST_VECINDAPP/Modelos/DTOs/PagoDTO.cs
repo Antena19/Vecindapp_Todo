@@ -15,5 +15,8 @@ namespace REST_VECINDAPP.Modelos.DTOs
 
         [Required(ErrorMessage = "La URL base es obligatoria")]
         public string UrlBase { get; set; }
+
+        // Nueva propiedad para identificar la preferencia de pago
+        public string? PreferenciaId { get; set; }
     }
 } 

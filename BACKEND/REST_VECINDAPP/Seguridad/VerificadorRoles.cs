@@ -37,5 +37,28 @@ namespace REST_VECINDAPP.Seguridad
             // Verificar si el tipo de usuario está en los roles permitidos
             return rolesPermitidos.Contains(usuario.tipo_usuario);
         }
+
+        public bool EsDirectiva()
+        {
+            // Obtener el RUT del usuario desde el token JWT
+            var rutClaim = _httpContextAccessor.HttpContext?.User?.Claims?
+                .FirstOrDefault(c => c.Type == "Rut")?.Value;
+
+            if (string.IsNullOrEmpty(rutClaim) || !int.TryParse(rutClaim, out int rut))
+            {
+                return false;
+            }
+
+            // Usar cn_Usuarios para obtener el tipo de usuario
+            var (exito, usuario, _) = _cnUsuarios.ObtenerDatosUsuario(rut);
+
+            if (!exito || usuario == null)
+            {
+                return false;
+            }
+
+            // Verificar si el usuario es de tipo directiva
+            return usuario.tipo_usuario == "DIRECTIVA";
+        }
     }
 }

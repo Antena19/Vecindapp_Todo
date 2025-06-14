@@ -178,8 +178,7 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                var resultado = await _certificadosService.ProcesarPagoCertificado(solicitudId, userId, pago);
+                var resultado = await _certificadosService.ProcesarPagoCertificado(solicitudId, pago.PreferenciaId);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -199,11 +198,13 @@ namespace REST_VECINDAPP.Controllers
                 if (certificado == null)
                     return NotFound(new { mensaje = "Certificado no encontrado" });
 
-                if (certificado.solicitud.usuario_id != userId && !await _verificadorRoles.EsDirectiva(userId))
+                if (certificado.solicitud.usuario_rut != userId && !_verificadorRoles.EsDirectiva())
                     return Forbid();
 
-                var archivo = await _certificadosService.GenerarPDFCertificado(certificadoId);
-                return File(archivo, "application/pdf", $"certificado_{certificadoId}.pdf");
+                var resultado = await _certificadosService.GenerarPDFCertificado(certificadoId);
+                if (!resultado.Exito)
+                    return BadRequest(new { mensaje = resultado.Mensaje });
+                return Ok(new { mensaje = "Certificado generado correctamente" });
             }
             catch (Exception ex)
             {
@@ -213,19 +214,11 @@ namespace REST_VECINDAPP.Controllers
 
         [HttpGet("historial")]
         [Authorize(Roles = "Directiva")]
-        public async Task<IActionResult> ObtenerHistorialCertificados(
-            [FromQuery] DateTime? fechaInicio,
-            [FromQuery] DateTime? fechaFin,
-            [FromQuery] string? estado,
-            [FromQuery] int? usuarioId)
+        public async Task<IActionResult> ObtenerHistorialCertificados([FromQuery] int? usuarioId)
         {
             try
             {
-                var historial = await _certificadosService.ObtenerHistorialCertificados(
-                    fechaInicio,
-                    fechaFin,
-                    estado,
-                    usuarioId);
+                var historial = await _certificadosService.ObtenerHistorialCertificados(usuarioId ?? 0);
                 return Ok(historial);
             }
             catch (Exception ex)
