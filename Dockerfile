@@ -6,13 +6,13 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj", "BACKEND/REST_VECINDAPP/"]
-RUN dotnet restore "BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj"
+RUN dotnet restore "BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj" --verbosity detailed
 COPY . .
 WORKDIR "/src/BACKEND/REST_VECINDAPP"
-RUN dotnet build "REST_VECINDAPP.csproj" -c Release -o /app/build
+RUN dotnet build "REST_VECINDAPP.csproj" -c Release -o /app/build --verbosity detailed
 
 FROM build AS publish
-RUN dotnet publish "REST_VECINDAPP.csproj" -c Release -o /app/publish
+RUN dotnet publish "REST_VECINDAPP.csproj" -c Release -o /app/publish --verbosity detailed
 
 FROM base AS final
 WORKDIR /app
