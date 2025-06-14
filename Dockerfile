@@ -11,17 +11,17 @@ RUN dotnet nuget locals all --clear
 
 # Copiar primero el archivo de proyecto y restaurar dependencias
 COPY ["BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj", "BACKEND/REST_VECINDAPP/"]
-RUN dotnet restore "BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj" --verbosity detailed
+RUN dotnet restore "/src/BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj"
 
 # Copiar el resto de los archivos
 COPY . .
 
 # Establecer el directorio de trabajo y compilar
 WORKDIR "/src/BACKEND/REST_VECINDAPP"
-RUN dotnet build "REST_VECINDAPP.csproj" -c Release -o /app/build --verbosity detailed
+RUN dotnet build "/src/BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "REST_VECINDAPP.csproj" -c Release -o /app/publish --verbosity detailed
+RUN dotnet publish "/src/BACKEND/REST_VECINDAPP/REST_VECINDAPP.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
