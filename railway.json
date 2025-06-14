@@ -2,10 +2,10 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "mkdir -p /app/BACKEND/REST_VECINDAPP && cp -r BACKEND/REST_VECINDAPP/* /app/BACKEND/REST_VECINDAPP/ && cd /app/BACKEND/REST_VECINDAPP && dotnet restore REST_VECINDAPP.sln && dotnet build REST_VECINDAPP.sln"
+        "buildCommand": "cp -r BACKEND/REST_VECINDAPP /app/ && cd /app/REST_VECINDAPP && dotnet restore REST_VECINDAPP.sln && dotnet build REST_VECINDAPP.sln"
     },
     "deploy": {
-        "startCommand": "cd /app/BACKEND/REST_VECINDAPP && dotnet run --project REST_VECINDAPP.csproj",
+        "startCommand": "cd /app/REST_VECINDAPP && dotnet run --project REST_VECINDAPP.csproj",
         "restartPolicyType": "ON_FAILURE",
         "restartPolicyMaxRetries": 10
     }
