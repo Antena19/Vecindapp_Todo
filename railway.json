@@ -2,7 +2,7 @@
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
         "builder": "NIXPACKS",
-        "buildCommand": "cd BACKEND/REST_VECINDAPP && dotnet restore REST_VECINDAPP.sln && dotnet build REST_VECINDAPP.sln"
+        "buildCommand": "ls -la && cd BACKEND/REST_VECINDAPP && ls -la && dotnet restore REST_VECINDAPP.sln && dotnet build REST_VECINDAPP.sln"
     },
     "deploy": {
         "startCommand": "cd BACKEND/REST_VECINDAPP && dotnet run --project REST_VECINDAPP.csproj",
