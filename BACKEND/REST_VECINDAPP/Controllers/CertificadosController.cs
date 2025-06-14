@@ -172,6 +172,81 @@ namespace REST_VECINDAPP.Controllers
                 return BadRequest(new { mensaje = ex.Message });
             }
         }
+
+        [HttpPost("pagar/{solicitudId}")]
+        public async Task<IActionResult> PagarCertificado(int solicitudId, [FromBody] PagoCertificadoDTO pago)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var resultado = await _certificadosService.ProcesarPagoCertificado(solicitudId, userId, pago);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("descargar/{certificadoId}")]
+        public async Task<IActionResult> DescargarCertificado(int certificadoId)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var certificado = await _certificadosService.ObtenerCertificado(certificadoId);
+                
+                if (certificado == null)
+                    return NotFound(new { mensaje = "Certificado no encontrado" });
+
+                if (certificado.solicitud.usuario_id != userId && !await _verificadorRoles.EsDirectiva(userId))
+                    return Forbid();
+
+                var archivo = await _certificadosService.GenerarPDFCertificado(certificadoId);
+                return File(archivo, "application/pdf", $"certificado_{certificadoId}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("historial")]
+        [Authorize(Roles = "Directiva")]
+        public async Task<IActionResult> ObtenerHistorialCertificados(
+            [FromQuery] DateTime? fechaInicio,
+            [FromQuery] DateTime? fechaFin,
+            [FromQuery] string? estado,
+            [FromQuery] int? usuarioId)
+        {
+            try
+            {
+                var historial = await _certificadosService.ObtenerHistorialCertificados(
+                    fechaInicio,
+                    fechaFin,
+                    estado,
+                    usuarioId);
+                return Ok(historial);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("verificar/{codigoVerificacion}")]
+        public async Task<IActionResult> VerificarCertificado(string codigoVerificacion)
+        {
+            try
+            {
+                var resultado = await _certificadosService.VerificarCertificado(codigoVerificacion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
     }
 
     public class WebhookNotification
