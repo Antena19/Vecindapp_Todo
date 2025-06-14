@@ -88,6 +88,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<REST_VECINDAPP.Seguridad.VerificadorRoles>();
+
+// Configurar el puerto 8080
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(8080);
+});
+
 // Agregar el servicio de almacenamiento de archivos
 builder.Services.AddScoped<FileStorageService>();
 // Configurar el tama�o m�ximo de archivos (opcional)
@@ -122,5 +129,8 @@ app.MapControllers();
 
 // Agregar soporte para archivos est�ticos
 app.UseStaticFiles();
+
+// Agregar endpoint de healthcheck
+app.MapGet("/", () => Results.Ok("API is healthy"));
 
 app.Run();
