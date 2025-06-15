@@ -1,0 +1,28 @@
+{
+	"appId": "com.vecindapp.app",
+	"appName": "Vecindapp",
+	"webDir": "www",
+	"server": {
+		"androidScheme": "https"
+	},
+	"plugins": {
+		"BarcodeScanner": {
+			"formats": [
+				"QR_CODE"
+			],
+			"showTorchButton": true,
+			"showFlipCameraButton": true
+		},
+		"Share": {
+			"shareOptions": {
+				"dialogTitle": "Compartir código QR",
+				"chooserTitle": "Compartir con"
+			}
+		},
+		"Camera": {
+			"permissions": [
+				"camera"
+			]
+		}
+	}
+}
