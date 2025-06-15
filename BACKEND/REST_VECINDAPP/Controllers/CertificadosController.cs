@@ -4,6 +4,8 @@ using REST_VECINDAPP.CapaNegocios;
 using REST_VECINDAPP.Modelos.DTOs;
 using REST_VECINDAPP.Seguridad;
 using System.Security.Claims;
+using Transbank.Webpay.WebpayPlus;
+using Transbank.Webpay.Common;
 
 namespace REST_VECINDAPP.Controllers
 {
@@ -13,16 +15,13 @@ namespace REST_VECINDAPP.Controllers
     public class CertificadosController : ControllerBase
     {
         private readonly cn_Certificados _certificadosService;
-        private readonly cn_MercadoPago _mercadoPagoService;
         private readonly VerificadorRoles _verificadorRoles;
 
         public CertificadosController(
             cn_Certificados certificadosService,
-            cn_MercadoPago mercadoPagoService,
             VerificadorRoles verificadorRoles)
         {
             _certificadosService = certificadosService;
-            _mercadoPagoService = mercadoPagoService;
             _verificadorRoles = verificadorRoles;
         }
 
@@ -115,20 +114,22 @@ namespace REST_VECINDAPP.Controllers
         }
 
         [HttpPost("pago/iniciar")]
-        public async Task<IActionResult> IniciarPago([FromBody] PagoCertificadoDTO pago)
+        public async Task<IActionResult> IniciarPago([FromBody] PagoTransbankRequest request)
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                var solicitud = await _certificadosService.ObtenerDetalleSolicitud(pago.SolicitudId);
+                // Implementación temporal mientras se configura Transbank
+                var token = Guid.NewGuid().ToString();
+                var url = "https://webpay3gint.transbank.cl/webpayserver/initTransaction";
+                
+                // Guardar el token en la base de datos para su posterior verificación
+                await _certificadosService.GuardarTokenPago(request.SolicitudId, token);
 
-                if (solicitud == null || solicitud.UsuarioRut != userId)
+                return Ok(new
                 {
-                    return BadRequest(new { mensaje = "Solicitud no encontrada o no autorizada" });
-                }
-
-                var preferencia = await _mercadoPagoService.CrearPreferenciaPago(pago);
-                return Ok(preferencia);
+                    url = url,
+                    token = token
+                });
             }
             catch (Exception ex)
             {
@@ -142,15 +143,7 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                if (notification.Type == "payment" && notification.Action == "payment.updated")
-                {
-                    var preferenciaId = notification.Data.Id;
-                    var estado = notification.Data.Status;
-
-                    _mercadoPagoService.ActualizarEstadoPago(preferenciaId, estado);
-                    return Ok();
-                }
-
+                // TODO: Implementar lógica de webhook para Transbank
                 return Ok();
             }
             catch (Exception ex)
@@ -159,13 +152,17 @@ namespace REST_VECINDAPP.Controllers
             }
         }
 
-        [HttpGet("pago/estado/{preferenciaId}")]
-        public async Task<IActionResult> VerificarEstadoPago(string preferenciaId)
+        [HttpGet("pago/estado/{token}")]
+        public async Task<IActionResult> VerificarEstadoPago(string token)
         {
             try
             {
-                var estado = await _certificadosService.ObtenerEstadoPago(preferenciaId);
-                return Ok(new { estado });
+                // TODO: Implementar verificación de estado con Transbank
+                return Ok(new { 
+                    estado = "PENDIENTE",
+                    monto = 0,
+                    fecha = DateTime.Now
+                });
             }
             catch (Exception ex)
             {
@@ -174,11 +171,11 @@ namespace REST_VECINDAPP.Controllers
         }
 
         [HttpPost("pagar/{solicitudId}")]
-        public async Task<IActionResult> PagarCertificado(int solicitudId, [FromBody] PagoCertificadoDTO pago)
+        public async Task<IActionResult> PagarCertificado(int solicitudId, [FromBody] PagoTransbankRequest pago)
         {
             try
             {
-                var resultado = await _certificadosService.ProcesarPagoCertificado(solicitudId, pago.PreferenciaId);
+                var resultado = await _certificadosService.ProcesarPagoCertificado(solicitudId, pago.Token);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -251,7 +248,7 @@ namespace REST_VECINDAPP.Controllers
 
     public class WebhookData
     {
-        public string Id { get; set; }
+        public string Token { get; set; }
         public string Status { get; set; }
     }
 }

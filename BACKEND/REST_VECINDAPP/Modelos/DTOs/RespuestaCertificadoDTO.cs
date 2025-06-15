@@ -10,7 +10,7 @@ namespace REST_VECINDAPP.Modelos.DTOs
         public DateTime FechaSolicitud { get; set; }
         public string Estado { get; set; }
         public string Motivo { get; set; }
-        public string DocumentosAdjuntos { get; set; }
+        public string? DocumentosAdjuntos { get; set; }
         public DateTime? FechaAprobacion { get; set; }
         public int? DirectivaRut { get; set; }
         public decimal Precio { get; set; }

@@ -32,7 +32,8 @@ namespace REST_VECINDAPP.CapaNegocios
             command.Parameters.AddWithValue("@p_usuario_rut", usuarioId);
             command.Parameters.AddWithValue("@p_tipo_certificado_id", solicitud.TipoCertificadoId);
             command.Parameters.AddWithValue("@p_motivo", solicitud.Motivo);
-            command.Parameters.AddWithValue("@p_documentos_adjuntos", solicitud.DocumentosAdjuntos);
+            command.Parameters.AddWithValue("@p_documentos_adjuntos", solicitud.DocumentosAdjuntos ?? string.Empty);
+            command.Parameters.AddWithValue("@p_precio", solicitud.Precio);
             var result = await command.ExecuteNonQueryAsync();
             return result > 0;
         }
@@ -318,6 +319,19 @@ namespace REST_VECINDAPP.CapaNegocios
                 return (true, "Certificado válido");
             }
             return (false, "Certificado no encontrado o inválido");
+        }
+
+        public async Task GuardarTokenPago(int solicitudId, string token)
+        {
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using var command = new MySqlCommand("SP_GUARDAR_TOKEN_PAGO", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+                command.Parameters.AddWithValue("@p_token", token);
+                await command.ExecuteNonQueryAsync();
+            }
         }
     }
 } 
