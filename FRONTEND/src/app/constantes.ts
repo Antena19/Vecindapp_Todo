@@ -1,8 +1,7 @@
-//VALORES CONSTANTES QUE USAREMOS EN TODA LA APP
-export class Constantes{
+import { environment } from '../environments/environment';
 
-    public static get API_URL(): string {
-        return "https://localhost:7287";
-
-    }
+export class Constantes {
+  public static get API_URL(): string {
+    return environment.apiUrl;
+  }
 }
