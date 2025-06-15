@@ -190,6 +190,7 @@ namespace REST_VECINDAPP.Controllers
                     usuario = new
                     {
                         rut = usuario.rut,
+                        dv_rut = usuario.dv_rut,
                         nombre = usuario.nombre,
                         apellido_paterno = usuario.apellido_paterno,
                         apellido_materno = usuario.apellido_materno,

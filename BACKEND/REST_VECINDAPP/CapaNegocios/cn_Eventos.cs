@@ -33,6 +33,7 @@ namespace REST_VECINDAPP.CapaNegocios
                         cmd.Parameters.AddWithValue("@p_lugar", evento.Lugar);
                         cmd.Parameters.AddWithValue("@p_directiva_rut", evento.DirectivaRut);
                         cmd.Parameters.AddWithValue("@p_notas", evento.Notas ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@p_estado", evento.Estado ?? "activo");
 
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -157,7 +158,7 @@ namespace REST_VECINDAPP.CapaNegocios
             }
         }
 
-        public (bool Exito, List<Evento>? Eventos, string Mensaje) ConsultarEventos(int usuarioRut)
+        public (bool Exito, List<Evento>? Eventos, string Mensaje) ConsultarEventos(int usuarioRut, DateTime? fechaDesde = null, DateTime? fechaHasta = null)
         {
             try
             {
@@ -169,6 +170,8 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@p_usuario_rut", usuarioRut);
+                        cmd.Parameters.AddWithValue("@p_fecha_desde", fechaDesde ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@p_fecha_hasta", fechaHasta ?? (object)DBNull.Value);
 
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -180,7 +183,7 @@ namespace REST_VECINDAPP.CapaNegocios
                                     Titulo = Convert.ToString(reader["titulo"]),
                                     Descripcion = Convert.ToString(reader["descripcion"]),
                                     FechaEvento = Convert.ToDateTime(reader["fecha_evento"]),
-                                    HoraEvento = ((TimeSpan)reader["hora_evento"]),
+                                    HoraEvento = ((TimeSpan)reader["hora_evento"]).ToString(@"hh\:mm"),
                                     Lugar = Convert.ToString(reader["lugar"]),
                                     DirectivaRut = Convert.ToInt32(reader["directiva_rut"]),
                                     Estado = Convert.ToString(reader["estado"]),
@@ -223,7 +226,7 @@ namespace REST_VECINDAPP.CapaNegocios
                         cmd.Parameters.AddWithValue("@p_hora_evento", evento.HoraEvento);
                         cmd.Parameters.AddWithValue("@p_lugar", evento.Lugar);
                         cmd.Parameters.AddWithValue("@p_notas", evento.Notas ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@p_estado", evento.Estado);
+                        cmd.Parameters.AddWithValue("@p_estado", evento.Estado ?? "activo");
 
                         int filasAfectadas = cmd.ExecuteNonQuery();
                         if (filasAfectadas >= 0)
@@ -309,7 +312,7 @@ namespace REST_VECINDAPP.CapaNegocios
                                     Id = Convert.ToInt32(reader["id"]),
                                     Titulo = Convert.ToString(reader["titulo"]),
                                     FechaEvento = Convert.ToDateTime(reader["fecha_evento"]),
-                                    HoraEvento = ((TimeSpan)reader["hora_evento"]),
+                                    HoraEvento = ((TimeSpan)reader["hora_evento"]).ToString(@"hh\:mm"),
                                     Lugar = Convert.ToString(reader["lugar"])
                                 };
                                 eventos.Add(evento);
@@ -351,7 +354,7 @@ namespace REST_VECINDAPP.CapaNegocios
                                     Titulo = Convert.ToString(reader["titulo"]),
                                     Descripcion = Convert.ToString(reader["descripcion"]),
                                     FechaEvento = Convert.ToDateTime(reader["fecha_evento"]),
-                                    HoraEvento = ((TimeSpan)reader["hora_evento"]),
+                                    HoraEvento = ((TimeSpan)reader["hora_evento"]).ToString(@"hh\:mm"),
                                     Lugar = Convert.ToString(reader["lugar"]),
                                     DirectivaRut = Convert.ToInt32(reader["directiva_rut"]),
                                     Estado = Convert.ToString(reader["estado"]),

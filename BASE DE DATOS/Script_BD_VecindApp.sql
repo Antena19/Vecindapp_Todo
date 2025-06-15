@@ -1220,7 +1220,9 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_EVENTOS`(
-    IN p_usuario_rut INT
+    IN p_usuario_rut INT,
+    IN p_fecha_desde DATE,
+    IN p_fecha_hasta DATE
 )
 BEGIN
     DECLARE v_es_directiva BOOLEAN;
@@ -1247,6 +1249,8 @@ BEGIN
             fecha_creacion,
             notas
         FROM eventos
+        WHERE (p_fecha_desde IS NULL OR fecha_evento >= p_fecha_desde)
+        AND (p_fecha_hasta IS NULL OR fecha_evento <= p_fecha_hasta)
         ORDER BY fecha_evento DESC, hora_evento DESC;
     ELSE
         -- Vecinos/socios ven solo eventos activos
@@ -1264,6 +1268,8 @@ BEGIN
             notas
         FROM eventos
         WHERE estado = 'activo'
+        AND (p_fecha_desde IS NULL OR fecha_evento >= p_fecha_desde)
+        AND (p_fecha_hasta IS NULL OR fecha_evento <= p_fecha_hasta)
         ORDER BY fecha_evento DESC, hora_evento DESC;
     END IF;
 END ;;
@@ -1535,7 +1541,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CREAR_EVENTO`(
     IN p_hora_evento TIME,
     IN p_lugar VARCHAR(255),
     IN p_directiva_rut INT,
-    IN p_notas TEXT
+    IN p_notas TEXT,
+    IN p_estado VARCHAR(20)
 )
 BEGIN
     DECLARE v_codigo_qr VARCHAR(255);
@@ -1568,7 +1575,7 @@ BEGIN
         v_codigo_qr,
         v_codigo_numerico,
         p_notas,
-        'activo'
+        p_estado
     );
     
     SELECT LAST_INSERT_ID() AS id_evento, v_codigo_qr AS codigo_qr, v_codigo_numerico AS codigo_numerico;
@@ -2801,7 +2808,7 @@ BEGIN
         correo_electronico, 
         telefono, 
         direccion, 
-        password, 
+        password,  -- Nota: Idealmente esto debería ser un hash de contraseña
         fecha_registro, 
         estado, 
         tipo_usuario

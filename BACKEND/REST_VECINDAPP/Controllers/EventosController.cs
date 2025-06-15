@@ -20,7 +20,7 @@ namespace REST_VECINDAPP.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Directiva")]
-        public IActionResult CrearEvento([FromBody] Evento evento)
+        public IActionResult CrearEvento([FromBody] CrearEventoDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -33,18 +33,37 @@ namespace REST_VECINDAPP.Controllers
                 });
             }
 
-            var (exito, eventoCreado, mensaje) = _eventosService.CrearEvento(evento);
-
-            if (exito)
+            try
             {
-                return Ok(new
+                var evento = new Evento
                 {
-                    mensaje = "Evento creado exitosamente",
-                    evento = eventoCreado
-                });
-            }
+                    Titulo = dto.Titulo,
+                    Descripcion = dto.Descripcion,
+                    FechaEvento = dto.FechaEvento,
+                    HoraEvento = dto.HoraEvento,
+                    Lugar = dto.Lugar,
+                    DirectivaRut = dto.DirectivaRut,
+                    Notas = dto.Notas,
+                    Estado = "activo"
+                };
 
-            return BadRequest(new { mensaje });
+                var (exito, eventoCreado, mensaje) = _eventosService.CrearEvento(evento);
+
+                if (exito)
+                {
+                    return Ok(new
+                    {
+                        mensaje = "Evento creado exitosamente",
+                        evento = eventoCreado
+                    });
+                }
+
+                return BadRequest(new { mensaje });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = $"Error al crear el evento: {ex.Message}" });
+            }
         }
 
         [HttpPost("asistencia")]
@@ -101,10 +120,10 @@ namespace REST_VECINDAPP.Controllers
         }
 
         [HttpGet]
-        public IActionResult ConsultarEventos()
+        public IActionResult ConsultarEventos([FromQuery] DateTime? fechaDesde = null, [FromQuery] DateTime? fechaHasta = null)
         {
             var rut = int.Parse(User.FindFirst("rut")?.Value ?? "0");
-            var (exito, eventos, mensaje) = _eventosService.ConsultarEventos(rut);
+            var (exito, eventos, mensaje) = _eventosService.ConsultarEventos(rut, fechaDesde, fechaHasta);
 
             if (exito)
             {
@@ -128,6 +147,9 @@ namespace REST_VECINDAPP.Controllers
                         .Select(e => e.ErrorMessage)
                 });
             }
+
+            // Asegurar que el estado tenga un valor por defecto si es nulo
+            evento.Estado = evento.Estado ?? "activo";
 
             var (exito, eventoActualizado, mensaje) = _eventosService.ActualizarEvento(id, evento);
 
