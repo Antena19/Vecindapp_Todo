@@ -58,11 +58,15 @@ DROP TABLE IF EXISTS `certificados`;
 CREATE TABLE `certificados` (
   `id` int NOT NULL AUTO_INCREMENT,
   `solicitud_id` int NOT NULL,
+  `tipo_certificado_id` int DEFAULT NULL,
   `codigo_verificacion` varchar(50) NOT NULL,
   `fecha_emision` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_vencimiento` date DEFAULT NULL,
   `archivo_pdf` varchar(255) NOT NULL,
+  `nombre_archivo` varchar(255) DEFAULT NULL,
+  `ruta_completa` varchar(255) DEFAULT NULL,
   `estado` varchar(20) NOT NULL DEFAULT 'vigente',
+  `emitido_por` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `codigo_verificacion_UNIQUE` (`codigo_verificacion`),
   KEY `solicitud_id_idx` (`solicitud_id`),
@@ -76,7 +80,7 @@ CREATE TABLE `certificados` (
 
 LOCK TABLES `certificados` WRITE;
 /*!40000 ALTER TABLE `certificados` DISABLE KEYS */;
-INSERT INTO `certificados` VALUES (1,1,'CERT-952959','2025-05-23 19:06:22','2025-08-23','/certificados/CERT-952959.pdf','vigente');
+INSERT INTO `certificados` VALUES (1,1,NULL,'CERT-952959','2025-05-23 19:06:22','2025-08-23','/certificados/CERT-952959.pdf',NULL,NULL,'vigente',NULL);
 /*!40000 ALTER TABLE `certificados` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -198,7 +202,7 @@ CREATE TABLE `eventos` (
   PRIMARY KEY (`id`),
   KEY `directiva_evento_rut_idx` (`directiva_rut`),
   CONSTRAINT `directiva_evento_rut_fk` FOREIGN KEY (`directiva_rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -207,7 +211,7 @@ CREATE TABLE `eventos` (
 
 LOCK TABLES `eventos` WRITE;
 /*!40000 ALTER TABLE `eventos` DISABLE KEYS */;
-INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2025-06-28','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.','2342'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2025-06-21','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.','1994'),(6,'Test Editar 4','Test prueba editar 3','2025-06-14','23:02:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.4','4343');
+INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2025-06-28','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.','2342'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2025-06-21','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.','1994'),(6,'Test Editar 4','Test prueba editar 3','2025-06-14','23:02:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.4','4343'),(9,'hola','hola','2025-06-15','21:58:00','puerto',17144575,'activo','EVENT-657748','2025-06-14 21:59:53','','8119');
 /*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -410,7 +414,7 @@ CREATE TABLE `socios` (
 
 LOCK TABLES `socios` WRITE;
 /*!40000 ALTER TABLE `socios` DISABLE KEYS */;
-INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23','2025-06-12','aprobada',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',1,NULL,NULL),(3,201,19037466,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,0,'Cambio Domicilio','2025-06-11 23:01:06'),(6,NULL,11402302,'2025-06-12',NULL,'pendiente',NULL,'/archivos/identidad_11402302_638853596404018582.png','/archivos/domicilio_11402302_638853596404066740.png',0,NULL,NULL);
+INSERT INTO `socios` VALUES (1,200,17144575,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,1,NULL,NULL),(2,NULL,25592802,'2025-05-23','2025-06-12','aprobada',NULL,'/archivos/identidad_25592802_638835996474347036.png','/archivos/domicilio_25592802_638835996474387560.png',1,NULL,NULL),(3,201,19037466,'2023-01-10','2023-01-10','aprobada',NULL,NULL,NULL,0,'Cambio Domicilio','2025-06-11 23:01:06'),(6,NULL,11402302,'2025-06-12','2025-06-14','aprobada',NULL,'/archivos/identidad_11402302_638853596404018582.png','/archivos/domicilio_11402302_638853596404066740.png',1,NULL,NULL);
 /*!40000 ALTER TABLE `socios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -423,6 +427,7 @@ DROP TABLE IF EXISTS `solicitudes_certificado`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `solicitudes_certificado` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `numero_folio` varchar(50) DEFAULT NULL,
   `usuario_rut` int NOT NULL,
   `tipo_certificado_id` int NOT NULL,
   `fecha_solicitud` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -430,14 +435,18 @@ CREATE TABLE `solicitudes_certificado` (
   `motivo` text,
   `documentos_adjuntos` varchar(255) DEFAULT NULL,
   `fecha_aprobacion` datetime DEFAULT NULL,
+  `fecha_vencimiento` date DEFAULT NULL,
   `directiva_rut` int DEFAULT NULL,
   `precio` decimal(10,2) NOT NULL,
+  `pago_id` int DEFAULT NULL,
   `observaciones` text,
   PRIMARY KEY (`id`),
   KEY `usuario_rut_idx` (`usuario_rut`),
   KEY `tipo_certificado_idx` (`tipo_certificado_id`),
   KEY `directiva_rut_idx` (`directiva_rut`),
+  KEY `pago_certificado_fk` (`pago_id`),
   CONSTRAINT `directiva_cert_rut` FOREIGN KEY (`directiva_rut`) REFERENCES `usuarios` (`rut`),
+  CONSTRAINT `pago_certificado_fk` FOREIGN KEY (`pago_id`) REFERENCES `pagos` (`id`),
   CONSTRAINT `tipo_certificado_fk` FOREIGN KEY (`tipo_certificado_id`) REFERENCES `tipos_certificado` (`id`),
   CONSTRAINT `usuario_cert_rut` FOREIGN KEY (`usuario_rut`) REFERENCES `usuarios` (`rut`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -449,7 +458,7 @@ CREATE TABLE `solicitudes_certificado` (
 
 LOCK TABLES `solicitudes_certificado` WRITE;
 /*!40000 ALTER TABLE `solicitudes_certificado` DISABLE KEYS */;
-INSERT INTO `solicitudes_certificado` VALUES (1,17144575,3,'2025-05-23 18:41:41','aprobado','Necesito certificado de residencia para trámites bancarios','documento.pdf','2025-05-23 19:06:22',17144575,3000.00,'prueba');
+INSERT INTO `solicitudes_certificado` VALUES (1,NULL,17144575,3,'2025-05-23 18:41:41','aprobado','Necesito certificado de residencia para trámites bancarios','documento.pdf','2025-05-23 19:06:22',NULL,17144575,3000.00,NULL,'prueba');
 /*!40000 ALTER TABLE `solicitudes_certificado` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -582,7 +591,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (11402302,'7','Cecilia','Yañez','Parraguez','ceciyan67@gmail.com','+56956587637','Avenida Austral 1343','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-06-11',1,'vecino',NULL,NULL),(17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva',NULL,NULL),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-05-23',1,'socio',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'socio',NULL,NULL);
+INSERT INTO `usuarios` VALUES (11402302,'7','Cecilia','Yañez','Parraguez','ceciyan67@gmail.com','+56956587637','Avenida Austral 1343','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-06-11',1,'socio',NULL,NULL),(17144575,'2','Angelina','Mendoza','Yañez','angelina.mendoza.y@gmail.com','+56998555466','Joseph Addison 2342 ','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-13',1,'directiva',NULL,NULL),(19037466,'1','Paloma','Tamayo','Segura','p.tamayo.segura@gmail.com','+56966744011','Pilmaiquen 1481','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-05-23',1,'socio',NULL,NULL),(25592802,'3','Batitú','Mayorga','Mendoza','prueba@gmail.com','+56998555466','prueba','30b62cbe41ff0cd5a6cd8ed2ff4f47d4a152b56e0e79587a3758137f58d2bec8','2025-04-19',1,'socio',NULL,NULL);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2167,6 +2176,35 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_TIPOS_CERTIFICADO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_OBTENER_TIPOS_CERTIFICADO`()
+BEGIN
+    SELECT 
+        id, 
+        nombre, 
+        descripcion, 
+        precio_socio, 
+        precio_vecino, 
+        documentos_requeridos, 
+        activo, 
+        medios_pago_habilitados
+    FROM tipos_certificado
+    WHERE activo = 1;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_TODOS_SOCIOS` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -3246,4 +3284,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-12 21:30:34
+-- Dump completed on 2025-06-15  1:09:28

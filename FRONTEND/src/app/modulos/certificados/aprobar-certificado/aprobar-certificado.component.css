@@ -1,0 +1,72 @@
+/* Estilos para la lista de solicitudes */
+.solicitudes-lista {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.solicitud-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.solicitud-item:hover {
+  background-color: #f8f9fa;
+}
+
+.solicitud-seleccionada {
+  background-color: #e9ecef;
+  border-color: #007bff;
+}
+
+/* Estilos para el formulario de rechazo */
+.rechazo-form {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.botones-accion {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-aprobar {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-rechazar {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-aprobar:hover {
+  background-color: #218838;
+}
+
+.btn-rechazar:hover {
+  background-color: #c82333;
+} 

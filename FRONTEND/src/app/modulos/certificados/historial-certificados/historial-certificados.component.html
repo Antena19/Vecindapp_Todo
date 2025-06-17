@@ -1,0 +1,25 @@
+<div class="historial-certificados-container">
+  <h2>Historial de Certificados</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>RUT</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Descargar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of historial">
+        <td>{{ item.nombre }}</td>
+        <td>{{ item.rut }}</td>
+        <td>{{ item.fecha }}</td>
+        <td>{{ item.estado }}</td>
+        <td>
+          <button (click)="descargar(item.certificadoId)" [disabled]="!item.certificadoId">Descargar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div> 

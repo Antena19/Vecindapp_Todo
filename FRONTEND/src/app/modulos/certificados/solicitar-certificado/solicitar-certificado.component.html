@@ -1,0 +1,95 @@
+<div class="certificado-container" id="certificadoResidencia">
+  <div class="logo-container">
+    <img src="assets/images/logo-junta.png" alt="Logo Junta de Vecinos" class="logo-certificado">
+  </div>
+  <h1 class="titulo-certificado">CERTIFICADO DE RESIDENCIA</h1>
+  <div class="subtitulo-certificado">
+    <span>PUERTO MONTT, {{ fechaFormateada }}.</span>
+  </div>
+  <form [formGroup]="solicitudForm" (ngSubmit)="submit()" class="form-certificado">
+    <div class="checkbox-group">
+      <label>
+        <input type="checkbox" formControlName="para_otro" (change)="onParaOtroChange($event)">
+        Solicitar para otra persona
+      </label>
+    </div>
+    <div *ngIf="!paraOtro">
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input formControlName="nombre" readonly>
+      </div>
+      <div class="form-group">
+        <label>RUT:</label>
+        <input formControlName="rut" readonly>
+      </div>
+      <div class="form-group">
+        <label>Teléfono:</label>
+        <input formControlName="telefono" readonly>
+      </div>
+      <div class="form-group">
+        <label>Dirección:</label>
+        <input formControlName="direccion" readonly>
+      </div>
+    </div>
+    <div *ngIf="paraOtro">
+      <div class="form-group">
+        <label>Nombre:</label>
+        <input formControlName="nombre" required>
+      </div>
+      <div class="form-group">
+        <label>RUT:</label>
+        <input formControlName="rut" required>
+      </div>
+      <div class="form-group">
+        <label>Parentesco:</label>
+        <input formControlName="parentesco" required>
+      </div>
+      <div class="form-group">
+        <label>Teléfono:</label>
+        <input formControlName="telefono">
+      </div>
+      <div class="form-group">
+        <label>Dirección:</label>
+        <input formControlName="direccion">
+      </div>
+      <div class="form-group">
+        <label>Adjuntar Certificado de Nacimiento o Matrimonio:</label>
+        <input type="file" (change)="onFileChange($event)" multiple>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Motivo:</label>
+      <textarea formControlName="motivo" rows="2" placeholder="Ingrese el motivo de la solicitud"></textarea>
+    </div>
+    <button type="button" (click)="previsualizarPDF()">Previsualizar PDF</button>
+    <button type="submit">{{ certificadoListo ? 'Listo' : (precio > 0 ? 'Pagar y Solicitar' : 'Solicitar') }}</button>
+  </form>
+  <button class="btn-exportar" (click)="exportarPDF()" type="button">Descargar PDF</button>
+</div>
+
+<!-- Sección oculta para exportar PDF con formato formal -->
+<div id="certificadoFormal" style="display:none; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,137,123,0.12); max-width: 600px; margin: 32px auto; padding: 0 0 32px 0; font-family: 'Segoe UI', Arial, sans-serif;">
+  <div style="text-align:center; margin-bottom: 16px; margin-top: 32px;">
+    <img src="assets/images/logo-junta.png" alt="Logo Junta de Vecinos" style="width:120px; margin-bottom:10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); border: 2px solid #e0e0e0; background: #fff;">
+    <h1 style="font-size:2.2rem; font-weight:bold; margin:0; color: #00897B;">CERTIFICADO DE RESIDENCIA</h1>
+    <div style="font-size:1.1rem; margin: 8px 0 18px 0; color: #333;">PUERTO MONTT, {{ fechaFormateada }}.</div>
+  </div>
+  <div style="font-size:1.05rem; text-align:justify; margin: 0 32px 18px 32px; color: #222;">
+    LA JUNTA DE VECINOS PORTALDE PUERTO MONTT, RUT: 65.066.453 – 1, PERSONALIDAD JURICA N°3849 CON FOJA 3850, CONSTITUIDA EL 13 DE MARZO 2013 EN PUERTO MONTT, perteneciente a la unidad N° 20 con facultad que otorga la Ley N°19.418 en el artículo 43 certifica que:<br><br>
+    Sr.(a): <b>{{ solicitudForm.value.nombre }}</b><br>
+    RUT: <b>{{ solicitudForm.value.rut }}</b><br>
+    Reside en: <b>{{ solicitudForm.value.direccion }}</b><br>
+    <span *ngIf="solicitudForm.value.motivo"><b>Motivo:</b> {{ solicitudForm.value.motivo }}</span><br><br>
+    Se extiende el presente documento para ser presentado en la institución que lo requiera.<br><br>
+    <b>Ley 20.718 de 02 de enero 2014</b> faculta a las juntas de vecinos a emitir certificados de residencia, siéndole aplicable al requirente que faltare a la verdad cuanto a los datos proporcionados al efecto, las sanciones contempladas en el artículo 212 del código penal.
+  </div>
+  <div style="margin-top: 48px; text-align:center;">
+    <div style="margin-bottom:8px;">
+      <img src="assets/images/firma-digital.png" alt="Firma Digital" style="height:60px;">
+    </div>
+    <div style="font-weight:bold; color:#00897B;">FIRMA DIGITAL JUNTA DE VECINOS</div>
+    <div style="font-size:0.95rem; color:#333;">Presidente</div>
+  </div>
+</div>
+
+<div id="certificadoFormalContainer" style="display:none;"></div> 

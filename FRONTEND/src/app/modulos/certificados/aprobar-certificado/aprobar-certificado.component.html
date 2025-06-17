@@ -1,0 +1,30 @@
+<div class="aprobar-certificado-container">
+  <h2>Solicitudes Pendientes de Certificados</h2>
+  <ul>
+    <li *ngFor="let solicitud of solicitudes" (click)="seleccionarSolicitud(solicitud)">
+      {{ solicitud.nombre }} - {{ solicitud.rut }} - {{ solicitud.fecha }}
+    </li>
+  </ul>
+  <div *ngIf="solicitudSeleccionada">
+    <h3>Detalle de la Solicitud</h3>
+    <p><b>Nombre:</b> {{ solicitudSeleccionada.nombre }}</p>
+    <p><b>RUT:</b> {{ solicitudSeleccionada.rut }}</p>
+    <p><b>Dirección:</b> {{ solicitudSeleccionada.direccion }}</p>
+    <p><b>Teléfono:</b> {{ solicitudSeleccionada.telefono }}</p>
+    <p><b>Parentesco:</b> {{ solicitudSeleccionada.parentesco }}</p>
+    <div *ngIf="solicitudSeleccionada.documentos">
+      <p><b>Documentos adjuntos:</b></p>
+      <ul>
+        <li *ngFor="let doc of solicitudSeleccionada.documentos">
+          <a [href]="doc.url" target="_blank">{{ doc.nombre }}</a>
+        </li>
+      </ul>
+    </div>
+    <button (click)="aprobar()">Aprobar</button>
+    <button (click)="rechazar()">Rechazar</button>
+    <div>
+      <label>Motivo de rechazo:</label>
+      <input [(ngModel)]="motivoRechazo">
+    </div>
+  </div>
+</div> 

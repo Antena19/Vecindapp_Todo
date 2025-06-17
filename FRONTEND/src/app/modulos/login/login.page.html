@@ -18,7 +18,7 @@
             <ion-label>RUT (sin puntos)</ion-label>
             <div class="rut-container">
               <ion-item>
-                <ion-input type="number" formControlName="rut" inputmode="numeric" placeholder="Ingresa tu RUT"></ion-input>
+                <ion-input type="text" formControlName="rut" inputmode="numeric" placeholder="Ingresa tu RUT"></ion-input>
               </ion-item>
               <div class="rut-separator">-</div>
               <ion-item class="dv-item">
@@ -29,6 +29,7 @@
     
           <div *ngIf="loginForm.get('rut')?.invalid && loginForm.get('rut')?.touched" class="error-message">
             <span *ngIf="loginForm.get('rut')?.errors?.['required']">El RUT es obligatorio</span>
+            <span *ngIf="loginForm.get('rut')?.errors?.['pattern']">El RUT debe tener entre 7 y 8 dígitos numéricos</span>
           </div>
     
           <div class="input-container">

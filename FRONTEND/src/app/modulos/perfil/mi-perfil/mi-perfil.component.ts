@@ -26,6 +26,7 @@ export class MiPerfilComponent implements OnInit {
   editando = false;
   cambiandoPassword = false;
   isSubmitted = false;
+  loading: HTMLIonLoadingElement | null = null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -78,48 +79,58 @@ export class MiPerfilComponent implements OnInit {
   }
 
   async cargarDatosUsuario() {
-    const loading = await this.loadingController.create({
-      message: 'Cargando datos...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
-    this.http.get(`${environment.apiUrl}/api/Usuarios/autenticado`)
-      .subscribe({
-        next: (response: any) => {
-          loading.dismiss();
-          this.usuario = response.usuario;
-          
-          // Cargar datos en el formulario
-          this.perfilForm.patchValue({
-            nombre: this.usuario.nombre,
-            apellido_paterno: this.usuario.apellido_paterno,
-            apellido_materno: this.usuario.apellido_materno,
-            correo_electronico: this.usuario.correo_electronico,
-            telefono: this.usuario.telefono,
-            direccion: this.usuario.direccion
-          });
-        },
-        error: async (error) => {
-          loading.dismiss();
-          console.error('Error al cargar datos del usuario:', error);
-          
-          const alert = await this.alertController.create({
-            header: 'Error',
-            message: 'No se pudieron cargar tus datos. Por favor, intenta nuevamente más tarde.',
-            buttons: [
-              {
-                text: 'Aceptar',
-                handler: () => {
-                  this.router.navigate(['/home']);
-                }
-              }
-            ]
-          });
-          
-          await alert.present();
-        }
+    try {
+      this.loading = await this.loadingController.create({
+        message: 'Cargando datos...',
+        spinner: 'crescent',
+        backdropDismiss: false,
+        keyboardClose: false
       });
+      await this.loading.present();
+
+      this.http.get(`${environment.apiUrl}/api/Usuarios/autenticado`)
+        .subscribe({
+          next: (response: any) => {
+            this.usuario = response.usuario;
+            
+            // Cargar datos en el formulario
+            this.perfilForm.patchValue({
+              nombre: this.usuario.nombre,
+              apellido_paterno: this.usuario.apellido_paterno,
+              apellido_materno: this.usuario.apellido_materno,
+              correo_electronico: this.usuario.correo_electronico,
+              telefono: this.usuario.telefono,
+              direccion: this.usuario.direccion
+            });
+          },
+          error: async (error) => {
+            console.error('Error al cargar datos del usuario:', error);
+            
+            const alert = await this.alertController.create({
+              header: 'Error',
+              message: 'No se pudieron cargar tus datos. Por favor, intenta nuevamente más tarde.',
+              buttons: [
+                {
+                  text: 'Aceptar',
+                  handler: () => {
+                    this.router.navigate(['/home']);
+                  }
+                }
+              ]
+            });
+            
+            await alert.present();
+          },
+          complete: () => {
+            if (this.loading) {
+              this.loading.dismiss();
+              this.loading = null;
+            }
+          }
+        });
+    } catch (error) {
+      console.error('Error al mostrar loading:', error);
+    }
   }
 
   toggleEdicion() {
@@ -159,62 +170,27 @@ export class MiPerfilComponent implements OnInit {
     
     this.cargando = true;
     
-    const loading = await this.loadingController.create({
-      message: 'Guardando cambios...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-    
-    const datosActualizados = {
-      Nombres: this.perfilForm.value.nombre,
-      Apellidos: this.perfilForm.value.apellido_paterno,
-      ApellidoMaterno: this.perfilForm.value.apellido_materno || null,
-      CorreoElectronico: this.perfilForm.value.correo_electronico,
-      Telefono: this.perfilForm.value.telefono || null,
-      Direccion: this.perfilForm.value.direccion
-    };
+    try {
+      this.loading = await this.loadingController.create({
+        message: 'Guardando cambios...',
+        spinner: 'crescent',
+        backdropDismiss: false,
+        keyboardClose: false
+      });
+      await this.loading.present();
+      
+      const datosActualizados = {
+        Nombres: this.perfilForm.value.nombre,
+        Apellidos: this.perfilForm.value.apellido_paterno,
+        ApellidoMaterno: this.perfilForm.value.apellido_materno || null,
+        CorreoElectronico: this.perfilForm.value.correo_electronico,
+        Telefono: this.perfilForm.value.telefono || null,
+        Direccion: this.perfilForm.value.direccion
+      };
 
-    console.log('Enviando datos:', datosActualizados);
-    
-    this.http.put(`${environment.apiUrl}/api/Usuarios/${this.usuario.rut}`, datosActualizados)
-      .subscribe({
-        next: async () => {
-          this.cargando = false;
-          await loading.dismiss();
-          
-          // Actualizar datos locales
-          this.usuario = {
-            ...this.usuario,
-            nombre: this.perfilForm.value.nombre,
-            apellido_paterno: this.perfilForm.value.apellido_paterno,
-            apellido_materno: this.perfilForm.value.apellido_materno,
-            correo_electronico: this.perfilForm.value.correo_electronico,
-            telefono: this.perfilForm.value.telefono,
-            direccion: this.perfilForm.value.direccion
-          };
-          
-          // Salir del modo edición
-          this.editando = false;
-          this.perfilForm.disable();
-          
-          const toast = await this.toastController.create({
-            message: 'Tus datos han sido actualizados exitosamente',
-            duration: 3000,
-            color: 'success',
-            position: 'top'
-          });
-          
-          await toast.present();
-        },
-        error: async (error) => {
-          this.cargando = false;
-          await loading.dismiss();
-        
-          console.log('Error completo:', error);
-          console.log('Respuesta del servidor:', error.error);
-          
-          // Si es un error 400 con statusText "OK", tratar como éxito
-          if (error.status === 400 && error.statusText === "OK") {
+      this.http.put(`${environment.apiUrl}/api/Usuarios/${this.usuario.rut}`, datosActualizados)
+        .subscribe({
+          next: async () => {
             // Actualizar datos locales
             this.usuario = {
               ...this.usuario,
@@ -238,27 +214,68 @@ export class MiPerfilComponent implements OnInit {
             });
             
             await toast.present();
-            return;
+          },
+          error: async (error) => {
+            console.log('Error completo:', error);
+            console.log('Respuesta del servidor:', error.error);
+            
+            // Si es un error 400 con statusText "OK", tratar como éxito
+            if (error.status === 400 && error.statusText === "OK") {
+              // Actualizar datos locales
+              this.usuario = {
+                ...this.usuario,
+                nombre: this.perfilForm.value.nombre,
+                apellido_paterno: this.perfilForm.value.apellido_paterno,
+                apellido_materno: this.perfilForm.value.apellido_materno,
+                correo_electronico: this.perfilForm.value.correo_electronico,
+                telefono: this.perfilForm.value.telefono,
+                direccion: this.perfilForm.value.direccion
+              };
+              
+              // Salir del modo edición
+              this.editando = false;
+              this.perfilForm.disable();
+              
+              const toast = await this.toastController.create({
+                message: 'Tus datos han sido actualizados exitosamente',
+                duration: 3000,
+                color: 'success',
+                position: 'top'
+              });
+              
+              await toast.present();
+              return;
+            }
+            
+            // Manejar otros errores normalmente
+            let mensajeError = 'Ocurrió un error al actualizar tus datos. Por favor, intenta nuevamente.';
+            
+            if (error.status === 409) {
+              mensajeError = 'El correo electrónico ya está registrado con otro usuario.';
+            } else if (error.status === 400) {
+              mensajeError = error.error?.mensaje || 'Datos inválidos. Verifica la información proporcionada.';
+            }
+            
+            const alert = await this.alertController.create({
+              header: 'Error',
+              message: mensajeError,
+              buttons: ['Aceptar']
+            });
+            
+            await alert.present();
+          },
+          complete: () => {
+            this.cargando = false;
+            if (this.loading) {
+              this.loading.dismiss();
+              this.loading = null;
+            }
           }
-          
-          // Manejar otros errores normalmente
-          let mensajeError = 'Ocurrió un error al actualizar tus datos. Por favor, intenta nuevamente.';
-          
-          if (error.status === 409) {
-            mensajeError = 'El correo electrónico ya está registrado con otro usuario.';
-          } else if (error.status === 400) {
-            mensajeError = error.error?.mensaje || 'Datos inválidos. Verifica la información proporcionada.';
-          }
-          
-          const alert = await this.alertController.create({
-            header: 'Error',
-            message: mensajeError,
-            buttons: ['Aceptar']
-          });
-          
-          await alert.present();
-        }
-      });
+        });
+    } catch (error) {
+      console.error('Error al mostrar loading:', error);
+      this.cargando = false;
+    }
   }
 
   async cambiarPassword() {

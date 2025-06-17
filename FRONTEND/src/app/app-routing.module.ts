@@ -47,6 +47,11 @@ const routes: Routes = [
     path: 'eventos',
     loadChildren: () => import('./modulos/eventos/eventos.module').then(m => m.EventosModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'certificados',
+    loadChildren: () => import('./modulos/certificados/certificados.module').then(m => m.CertificadosModule),
+    canActivate: [AuthGuard]
   }
 ];
 

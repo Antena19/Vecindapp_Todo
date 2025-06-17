@@ -1,0 +1,203 @@
+body, html {
+  background: #F5F5DC;
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.certificado-container {
+  max-width: 600px;
+  margin: 40px auto 24px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(44,62,80,0.10);
+  padding: 36px 28px 28px 28px;
+  border: 1.5px solid #e2e2d0;
+  position: relative;
+  min-height: 80vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 700px) {
+  .certificado-container {
+    padding: 18px 4vw 18px 4vw;
+    min-height: 90vh;
+    max-width: 98vw;
+  }
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.logo-certificado {
+  width: 120px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,137,123,0.10);
+  border: 2px solid #e0e0e0;
+  background: #fff;
+}
+
+.titulo-certificado {
+  text-align: center;
+  font-size: 2.3rem;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  letter-spacing: 1px;
+  color: #00897B;
+}
+
+.subtitulo-certificado {
+  text-align: center;
+  font-size: 1.15rem;
+  margin-bottom: 20px;
+  color: #2C3E50;
+}
+
+.form-certificado {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #2C3E50;
+  font-size: 1.04rem;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="file"],
+textarea {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1.5px solid #00897B;
+  border-radius: 5px;
+  font-size: 1.04rem;
+  margin-bottom: 2px;
+  background: #f9f9f9;
+  transition: border 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="file"]:focus,
+textarea:focus {
+  border: 1.5px solid #2C3E50;
+  outline: none;
+}
+
+input[readonly] {
+  background: #f1f1f1;
+  color: #888;
+}
+
+.checkbox-group {
+  margin: 15px 0 18px 0;
+}
+
+button[type="submit"] {
+  background-color: #00897B;
+  color: white;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.13rem;
+  font-weight: 600;
+  margin-top: 12px;
+  box-shadow: 0 2px 8px rgba(0,137,123,0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+button[type="submit"]:hover {
+  background-color: #00695c;
+  box-shadow: 0 4px 16px rgba(0,137,123,0.13);
+}
+
+button[type="button"] {
+  background-color: #2C3E50;
+  color: #fff;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.08rem;
+  font-weight: 500;
+  margin-right: 10px;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+button[type="button"]:hover {
+  background-color: #00897B;
+}
+
+.precio-certificado {
+  font-size: 1.08rem;
+  margin-bottom: 10px;
+  color: #2C3E50;
+}
+
+.leyenda {
+  margin-top: 30px;
+  font-size: 1.01rem;
+  color: #222;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 20px 16px;
+  border: 1px solid #e0e0e0;
+  text-align: justify;
+}
+
+.leyenda b {
+  color: #00897B;
+}
+
+.firmas {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.linea-firma {
+  border-bottom: 2px solid #2C3E50;
+  width: 220px;
+  margin: 0 auto 4px auto;
+  height: 2px;
+}
+
+.nombre-firma {
+  font-size: 1.08rem;
+  color: #2C3E50;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.btn-exportar {
+  display: block;
+  margin: 32px auto 0 auto;
+  background: #00897B;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 36px;
+  font-size: 1.13rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,137,123,0.08);
+  transition: background 0.2s;
+}
+
+.btn-exportar:hover {
+  background: #00695c;
+} 
