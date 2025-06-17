@@ -6,8 +6,7 @@
   <div class="subtitulo-certificado">
     <span>PUERTO MONTT, {{ fechaFormateada }}.</span>
   </div>
-  <p style="color: #00897B; font-weight: bold;">Tipo usuario: {{ usuario?.tipo_usuario }} | Precio: {{ precio }}</p>
-  <form [formGroup]="solicitudForm" (ngSubmit)="submit()" class="form-certificado">
+  <form *ngIf="!puedeDescargarPDF" [formGroup]="solicitudForm" (ngSubmit)="submit()" class="form-certificado">
     <div class="checkbox-group">
       <label>
         <input type="checkbox" formControlName="para_otro" (change)="onParaOtroChange($event)">
@@ -73,18 +72,18 @@
       </div>
     </div>
     <div class="precio-certificado">Precio: ${{ precio }}</div>
-    <button type="button" (click)="previsualizarPDF()">Previsualizar PDF</button>
+    <button type="button" (click)="previsualizarPDF()" *ngIf="!puedeDescargarPDF">Previsualizar PDF</button>
     <button type="submit" *ngIf="precio === 0">Solicitar</button>
     <button type="button" *ngIf="precio > 0" (click)="pagar()">Pagar</button>
   </form>
   <!-- Vista de solicitud: solo firma del usuario -->
-  <div class="firmas-certificado" style="display: flex; justify-content: center; margin-top: 40px;">
+  <div *ngIf="!puedeDescargarPDF" class="firmas-certificado" style="display: flex; justify-content: center; margin-top: 40px;">
     <div class="firma-usuario" style="text-align: center;">
-      <img *ngIf="signatureData" [src]="signatureData" alt="Firma Usuario" style="height: 80px; border: 1px solid #ccc;">
+      <img *ngIf="signatureData && puedeDescargarPDF" [src]="signatureData" alt="Firma Usuario" style="height: 80px; border: 1px solid #ccc;">
       <div style="font-size: 0.95rem; color: #333;">Firma del Usuario</div>
     </div>
   </div>
-  <div class="firma-digital-section" style="margin: 24px 0; text-align: center;">
+  <div *ngIf="!puedeDescargarPDF" class="firma-digital-section" style="margin: 24px 0; text-align: center;">
     <label style="font-weight: bold; color: #00897B;">Firma digital del solicitante:</label>
     <div style="display: flex; flex-direction: column; align-items: center;">
       <canvas #signatureCanvas width="320" height="100" style="border:2px solid #00897B; border-radius: 8px; background: #fff; touch-action: none; box-shadow: 0 2px 8px rgba(0,137,123,0.10);"></canvas>
@@ -96,8 +95,30 @@
       <div *ngIf="!firmaGuardada" style="color: #888; margin-top: 6px;">Firme con su dedo o mouse sobre el recuadro</div>
     </div>
   </div>
-  <!-- Mostrar el botón solo si puedeDescargarPDF es true -->
-  <button *ngIf="puedeDescargarPDF" class="btn-exportar" (click)="exportarPDF()" type="button">Descargar PDF</button>
+  <div *ngIf="puedeDescargarPDF" class="exito-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;">
+    <div style="background: #e6f9f0; border: 2px solid #00b894; border-radius: 12px; padding: 32px 24px 24px 24px; margin-bottom: 32px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 2px 12px rgba(0,185,148,0.08);">
+      <div style="font-size: 3rem; color: #00b894; margin-bottom: 12px;">
+        <span>&#10004;</span>
+      </div>
+      <div style="color: #00897B; font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">
+        ¡Pago realizado con éxito!
+      </div>
+      <div style="color: #222; font-size: 1.08rem; margin-bottom: 18px;">
+        Ahora puedes descargar tu certificado de residencia.<br>
+        <span style='font-size:0.98rem; color:#555;'>Guárdalo y preséntalo donde lo necesites.</span>
+      </div>
+      <div style="background: #fff; border-radius: 8px; padding: 16px 12px; margin-bottom: 18px; border: 1px solid #e0e0e0; text-align: left; font-size: 1.01rem; color: #333;">
+        <b>Nombre:</b> {{ solicitudForm.value.nombre }}<br>
+        <b>RUT:</b> {{ solicitudForm.value.rut }}<br>
+        <b>Dirección:</b> {{ solicitudForm.value.direccion }}<br>
+      </div>
+      <div style="display: flex; justify-content: center;">
+        <button class="btn-exportar" (click)="exportarPDF()" type="button" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.13rem; padding: 12px 36px;">
+          <span style="font-size: 1.3rem;">&#128190;</span> Descargar PDF
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Sección oculta para exportar PDF con formato formal -->
@@ -117,7 +138,7 @@
     <b>Ley 20.718 de 02 de enero 2014</b> faculta a las juntas de vecinos a emitir certificados de residencia, siéndole aplicable al requirente que faltare a la verdad cuanto a los datos proporcionados al efecto, las sanciones contempladas en el artículo 212 del código penal.
   </div>
   <div style="margin-top: 48px; text-align:center;">
-    <img src="assets/images/firma-presidente.jpg" alt="Firma Presidente" style="height: 80px;">
+    <img *ngIf="puedeDescargarPDF" src="assets/images/firma-presidente.jpg" alt="Firma Presidente" style="height: 80px; display: block; margin: 0 auto 16px auto; border: none;">
     <div style="font-weight: bold; color: #00897B; font-size: 1.2rem; margin-top: 8px;">Presidente Junta de Vecinos</div>
     <div style="font-size: 1rem; color: #222; margin-top: 8px;">
       <b>Validado digitalmente</b><br>

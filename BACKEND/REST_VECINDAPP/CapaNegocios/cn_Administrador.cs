@@ -76,12 +76,12 @@ namespace REST_VECINDAPP.CapaNegocios
                                     nombre = reader["nombre"].ToString(),
                                     apellido_paterno = reader["apellido_paterno"].ToString(),
                                     apellido_materno = reader["apellido_materno"] != DBNull.Value ?
-                                        reader["apellido_materno"].ToString() : null,
+                                        reader["apellido_materno"].ToString() : string.Empty,
                                     correo_electronico = reader["correo_electronico"].ToString(),
                                     telefono = reader["telefono"] != DBNull.Value ?
-                                        reader["telefono"].ToString() : null,
+                                        reader["telefono"].ToString() : string.Empty,
                                     direccion = reader["direccion"] != DBNull.Value ?
-                                        reader["direccion"].ToString() : null,
+                                        reader["direccion"].ToString() : string.Empty,
                                     fecha_registro = Convert.ToDateTime(reader["fecha_registro"]),
                                     estado = Convert.ToInt32(reader["estado"]),
                                     tipo_usuario = reader["tipo_usuario"].ToString()

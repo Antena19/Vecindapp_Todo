@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
+import { PaymentPage } from './pages/payment/payment.page';
 
 const routes: Routes = [
   {
@@ -52,6 +53,14 @@ const routes: Routes = [
     path: 'certificados',
     loadChildren: () => import('./modulos/certificados/certificados.module').then(m => m.CertificadosModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'payment',
+    loadComponent: () => import('./pages/payment/payment.page').then(m => m.PaymentPage)
+  },
+  {
+    path: 'payment/return',
+    loadComponent: () => import('./pages/payment/payment.page').then(m => m.PaymentPage)
   }
 ];
 

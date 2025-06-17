@@ -6,6 +6,7 @@ import { AutenticacionService } from 'src/app/services/autenticacion.service';
 import { Usuario } from 'src/app/modelos/Usuario';
 import html2pdf from 'html2pdf.js';
 import { CertificadosService } from '../certificados.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-solicitar-certificado',
@@ -38,7 +39,8 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private authService: AutenticacionService,
-    @Inject(CertificadosService) private certificadosService: CertificadosService
+    @Inject(CertificadosService) private certificadosService: CertificadosService,
+    private route: ActivatedRoute
   ) {
     this.solicitudForm = this.fb.group({
       para_otro: [false],
@@ -53,6 +55,11 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['descargar']) {
+        this.puedeDescargarPDF = true;
+      }
+    });
     this.usuario = this.authService.obtenerUsuarioActual();
     if (this.usuario) {
       this.solicitudForm.patchValue({
@@ -270,32 +277,30 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
     }
 
     const solicitud = {
-      solicitud: {
-        Id: 0,
-        UsuarioRut: usuario.rut,
-        TipoCertificadoId: 3,
-        FechaSolicitud: new Date().toISOString(),
-        Estado: 'pendiente',
-        Motivo: 'Certificado de Residencia',
-        DocumentosAdjuntos: documentoAdjunto,
-        FechaAprobacion: null,
-        DirectivaRut: null,
-        Precio: precio,
-        Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
-        NombreSolicitante: formValue.nombre,
-        RutSolicitante: formValue.rut,
-        Telefono: formValue.telefono,
-        Direccion: formValue.direccion,
-        FirmaDigital: this.signatureData,
-        HashVerificacion: this.hashVerificacion,
-        TimestampFirma: new Date().toISOString(),
-        UsuarioFirmante: usuario.rut
-      }
+      Id: 0,
+      UsuarioRut: usuario.rut || '',
+      TipoCertificadoId: 3,
+      FechaSolicitud: new Date().toISOString(),
+      Estado: 'pendiente',
+      Motivo: formValue.motivo?.trim() || 'Certificado de Residencia',
+      DocumentosAdjuntos: documentoAdjunto || 'Sin documentos adjuntos',
+      FechaAprobacion: null,
+      DirectivaRut: null,
+      Precio: precio,
+      Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
+      NombreSolicitante: formValue.nombre?.trim() || '',
+      RutSolicitante: formValue.rut?.trim() || '',
+      Telefono: formValue.telefono?.trim() || '',
+      Direccion: formValue.direccion?.trim() || '',
+      FirmaDigital: this.signatureData || '',
+      HashVerificacion: this.hashVerificacion || '',
+      TimestampFirma: new Date().toISOString(),
+      UsuarioFirmante: String(usuario.rut || '')
     };
 
     console.log('Enviando solicitud:', solicitud);
 
-    this.certificadosService.solicitarCertificado(usuario.rut, solicitud).subscribe({
+    this.certificadosService.solicitarCertificado(solicitud).subscribe({
       next: (res: any) => {
         console.log('Respuesta backend al crear solicitud:', res);
         if (precio > 0) {
@@ -308,14 +313,18 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
           console.log('Objeto pago que se enviará:', pago);
           this.certificadosService.iniciarPagoTransbank(pago).subscribe({
             next: (pagoRes: any) => {
+              console.log('Respuesta de Transbank:', pagoRes);
               if (pagoRes.url && pagoRes.token) {
-                window.location.href = pagoRes.url + '?token_ws=' + pagoRes.token;
+                console.log('Redirigiendo a:', pagoRes.url + '?token_ws=' + pagoRes.token);
+                // Usar window.open en lugar de window.location.href para mejor compatibilidad
+                window.open(pagoRes.url + '?token_ws=' + pagoRes.token, '_self');
               } else {
+                console.error('Respuesta de pago incompleta:', pagoRes);
                 alert('Error: No se recibió la URL de pago correctamente');
               }
             },
             error: (err: any) => {
-              console.error('Error en pago:', err);
+              console.error('Error detallado en pago:', err);
               alert('Error al iniciar el pago: ' + (err?.error?.mensaje || 'Error desconocido'));
             }
           });
@@ -333,21 +342,33 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   }
 
   exportarPDF() {
-    if (!this.firmaGuardada) {
-      alert('⚠️ Debe firmar el certificado antes de exportar el PDF.');
-      return;
-    }
-
     const element = document.getElementById('certificadoFormal');
     if (element) {
-      const opt = {
-        margin: 0.2,
-        filename: `certificado_residencia_${this.hashVerificacion}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
+      // Mostrar solo la firma del presidente en el PDF
+      const firmaPresidente = element.querySelector('img[alt="Firma Presidente"]') as HTMLImageElement;
+      if (firmaPresidente) {
+        firmaPresidente.style.display = 'block';
+      }
+      // Ocultar la firma digital del usuario siempre
+      const firmaUsuario = element.querySelector('img[alt="Firma Usuario"]') as HTMLImageElement;
+      if (firmaUsuario) {
+        firmaUsuario.style.display = 'none';
+      }
+      // Mostrar temporalmente el certificado
+      const originalDisplay = element.style.display;
+      element.style.display = 'block';
+      setTimeout(() => {
+        const opt = {
+          margin: 0.2,
+          filename: `certificado_residencia_${this.hashVerificacion}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save().then(() => {
+          element.style.display = originalDisplay;
+        });
+      }, 100);
     }
   }
 
@@ -474,7 +495,7 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       FirmaDigital: this.signatureData || '',
       HashVerificacion: this.hashVerificacion || '',
       TimestampFirma: new Date().toISOString(),
-      UsuarioFirmante: usuario.rut || ''
+      UsuarioFirmante: String(usuario.rut || '')
     };
 
     // Validación final antes de enviar
@@ -502,7 +523,7 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
 
     console.log('Enviando solicitud completa:', JSON.stringify(solicitud, null, 2));
 
-    this.certificadosService.solicitarCertificado(usuario.rut, solicitud).subscribe({
+    this.certificadosService.solicitarCertificado(solicitud).subscribe({
       next: (res: any) => {
         console.log('Respuesta del servidor:', res);
         if (!res.id && !res.solicitudId) {
@@ -521,14 +542,18 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
         
         this.certificadosService.iniciarPagoTransbank(pago).subscribe({
           next: (pagoRes: any) => {
+            console.log('Respuesta de Transbank:', pagoRes);
             if (pagoRes.url && pagoRes.token) {
-              window.location.href = pagoRes.url + '?token_ws=' + pagoRes.token;
+              console.log('Redirigiendo a:', pagoRes.url + '?token_ws=' + pagoRes.token);
+              // Usar window.open en lugar de window.location.href para mejor compatibilidad
+              window.open(pagoRes.url + '?token_ws=' + pagoRes.token, '_self');
             } else {
+              console.error('Respuesta de pago incompleta:', pagoRes);
               alert('Error: No se recibió la URL de pago correctamente');
             }
           },
           error: (err: any) => {
-            console.error('Error en pago:', err);
+            console.error('Error detallado en pago:', err);
             alert('Error al iniciar el pago: ' + (err?.error?.mensaje || 'Error desconocido'));
           }
         });

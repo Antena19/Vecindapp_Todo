@@ -88,12 +88,12 @@ namespace REST_VECINDAPP.CapaNegocios
                                 Rut = Convert.ToInt32(reader["rut"]),
                                 Nombre = reader["nombre"].ToString(),
                                 ApellidoPaterno = reader["apellido_paterno"].ToString(),
-                                ApellidoMaterno = reader["apellido_materno"].ToString(),
+                                ApellidoMaterno = reader["apellido_materno"] != DBNull.Value ? reader["apellido_materno"].ToString() : string.Empty,
                                 FechaSolicitud = Convert.ToDateTime(reader["fecha_solicitud"]),
                                 EstadoSolicitud = reader["estado_solicitud"].ToString(),
-                                MotivoRechazo = reader["motivo_rechazo"].ToString(),
-                                DocumentoIdentidad = reader["documento_identidad"]?.ToString(),
-                                DocumentoDomicilio = reader["documento_domicilio"]?.ToString()
+                                MotivoRechazo = reader["motivo_rechazo"] != DBNull.Value ? reader["motivo_rechazo"].ToString() : string.Empty,
+                                DocumentoIdentidad = reader["documento_identidad"] != DBNull.Value ? reader["documento_identidad"].ToString() : string.Empty,
+                                DocumentoDomicilio = reader["documento_domicilio"] != DBNull.Value ? reader["documento_domicilio"].ToString() : string.Empty
                             };
 
                             solicitudes.Add(solicitud);
@@ -124,7 +124,7 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         if (reader.Read())
                         {
-                            mensaje = reader["mensaje"].ToString();
+                            mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
                         }
                     }
                 }
@@ -153,7 +153,7 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         if (reader.Read())
                         {
-                            mensaje = reader["mensaje"].ToString();
+                            mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
                         }
                     }
                 }
@@ -312,7 +312,7 @@ namespace REST_VECINDAPP.CapaNegocios
                         {
                             if (reader.Read())
                             {
-                                mensaje = reader["mensaje"].ToString();
+                                mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
                             }
                         }
                     }
@@ -456,7 +456,7 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         if (reader.Read())
                         {
-                            mensaje = reader["mensaje"].ToString();
+                            mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
                         }
                     }
                 }
@@ -526,8 +526,8 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         if (reader.Read())
                         {
-                            codigoVerificacion = reader["codigo_verificacion"].ToString();
-                            mensaje = reader["mensaje"].ToString();
+                            codigoVerificacion = reader["codigo_verificacion"]?.ToString() ?? string.Empty;
+                            mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
                         }
                     }
                 }
@@ -558,7 +558,7 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         if (reader.Read())
                         {
-                            mensaje = reader["mensaje"].ToString();
+                            mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
                         }
                     }
                 }
@@ -696,7 +696,7 @@ namespace REST_VECINDAPP.CapaNegocios
                     {
                         if (reader.Read())
                         {
-                            mensaje = reader["mensaje"].ToString();
+                            mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
                         }
                     }
                 }

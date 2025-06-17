@@ -157,7 +157,8 @@ namespace REST_VECINDAPP.Controllers
             try
             {
                 var response = await _transbankService.CommitTransaction(request.Token);
-                
+                // Log detallado de la respuesta de Transbank
+                Console.WriteLine($"[Transbank] CommitTransaction response: Status={response.Status}, BuyOrder={response.BuyOrder}, SessionId={response.SessionId}, Amount={response.Amount}, ResponseCode={response.ResponseCode}, AuthorizationCode={response.AuthorizationCode}, CardDetail={response.CardDetail?.CardNumber}");
                 if (response.Status == "AUTHORIZED")
                 {
                     await _certificadosService.ConfirmarPago(request.Token);
@@ -165,11 +166,13 @@ namespace REST_VECINDAPP.Controllers
                 }
                 else
                 {
-                    return BadRequest(new { mensaje = "El pago no pudo ser confirmado" });
+                    Console.WriteLine($"[Transbank] Pago no autorizado. Status: {response.Status}, ResponseCode: {response.ResponseCode}");
+                    return BadRequest(new { mensaje = "El pago no pudo ser confirmado", detalle = response });
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[Transbank] Error al confirmar el pago: {ex.Message}");
                 return BadRequest(new { mensaje = ex.Message });
             }
         }

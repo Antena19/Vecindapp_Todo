@@ -61,10 +61,12 @@ namespace REST_VECINDAPP.CapaNegocios
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var preferenceResponse = JsonSerializer.Deserialize<PreferenceResponse>(responseContent);
 
-                if (preferenceResponse?.Id != null)
+                if (preferenceResponse == null || preferenceResponse.Id == null)
                 {
-                    GuardarTransaccion(pago.SolicitudId, preferenceResponse.Id, pago.Monto);
+                    throw new Exception("No se pudo obtener la preferencia de pago de MercadoPago.");
                 }
+
+                GuardarTransaccion(pago.SolicitudId, preferenceResponse.Id, pago.Monto);
 
                 return preferenceResponse;
             }

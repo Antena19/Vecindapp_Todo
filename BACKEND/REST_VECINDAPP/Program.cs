@@ -67,6 +67,7 @@ builder.Services.AddScoped<cn_Certificados>();
 builder.Services.AddScoped<cn_MercadoPago>();
 builder.Services.AddScoped<cn_Eventos>();
 builder.Services.AddScoped<TransbankService>();
+builder.Services.AddScoped<WebpayService>();
 
 // Configurar la autenticacin con JWT
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key no est� configurado"));
@@ -133,5 +134,10 @@ app.UseStaticFiles();
 
 // Agregar endpoint de healthcheck
 app.MapGet("/", () => Results.Ok("API is healthy"));
+
+// Redirigir POST /payment/return a GET /payment/return para soporte de Webpay
+app.MapPost("/payment/return", async context => {
+    context.Response.Redirect("/payment/return");
+});
 
 app.Run();

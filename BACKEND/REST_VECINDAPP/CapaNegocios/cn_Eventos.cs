@@ -397,7 +397,7 @@ namespace REST_VECINDAPP.CapaNegocios
                         {
                             if (reader.Read())
                             {
-                                return (true, Convert.ToString(reader["mensaje"]));
+                                return (true, Convert.ToString(reader["mensaje"]) ?? string.Empty);
                             }
                         }
                     }
@@ -430,7 +430,7 @@ namespace REST_VECINDAPP.CapaNegocios
                         {
                             if (reader.Read())
                             {
-                                return (true, Convert.ToString(reader["mensaje"]));
+                                return (true, Convert.ToString(reader["mensaje"]) ?? string.Empty);
                             }
                         }
                     }

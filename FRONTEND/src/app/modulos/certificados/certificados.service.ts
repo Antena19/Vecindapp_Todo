@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CertificadosService {
@@ -8,8 +10,8 @@ export class CertificadosService {
 
   constructor(private http: HttpClient) {}
 
-  solicitarCertificado(usuarioRut: number, data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/solicitar`, { usuarioRut, solicitud: data });
+  solicitarCertificado(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/solicitar`, data);
   }
 
   obtenerSolicitudesPendientes(): Observable<any[]> {
@@ -41,6 +43,13 @@ export class CertificadosService {
   }
 
   iniciarPagoTransbank(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/pago/iniciar`, data);
+    console.log('Iniciando pago con datos:', data);
+    return this.http.post(`${this.apiUrl}/pago/iniciar`, data).pipe(
+      tap(response => console.log('Respuesta del servidor:', response)),
+      catchError(error => {
+        console.error('Error en el servicio de pago:', error);
+        return throwError(() => error);
+      })
+    );
   }
 } 
