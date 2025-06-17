@@ -62,9 +62,29 @@
       <textarea formControlName="motivo" rows="2" placeholder="Ingrese el motivo de la solicitud"></textarea>
     </div>
     <button type="button" (click)="previsualizarPDF()">Previsualizar PDF</button>
-    <button type="submit">{{ certificadoListo ? 'Listo' : (precio > 0 ? 'Pagar y Solicitar' : 'Solicitar') }}</button>
+    <button type="submit" *ngIf="precio === 0">Solicitar</button>
+    <button type="button" *ngIf="precio > 0" (click)="pagar()">Pagar</button>
   </form>
   <button class="btn-exportar" (click)="exportarPDF()" type="button">Descargar PDF</button>
+  <!-- Vista de solicitud: solo firma del usuario -->
+  <div class="firmas-certificado" style="display: flex; justify-content: center; margin-top: 40px;">
+    <div class="firma-usuario" style="text-align: center;">
+      <img *ngIf="signatureData" [src]="signatureData" alt="Firma Usuario" style="height: 80px; border: 1px solid #ccc;">
+      <div style="font-size: 0.95rem; color: #333;">Firma del Usuario</div>
+    </div>
+  </div>
+  <div class="firma-digital-section" style="margin: 24px 0; text-align: center;">
+    <label style="font-weight: bold; color: #00897B;">Firma digital del solicitante:</label>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <canvas #signatureCanvas width="320" height="100" style="border:2px solid #00897B; border-radius: 8px; background: #fff; touch-action: none; box-shadow: 0 2px 8px rgba(0,137,123,0.10);"></canvas>
+      <div style="margin-top: 8px;">
+        <button type="button" (click)="guardarFirma()" style="margin-right: 8px; background: #00897B; color: #fff; border: none; border-radius: 5px; padding: 6px 18px; font-weight: 600;">Guardar Firma</button>
+        <button type="button" (click)="limpiarFirma()" style="background: #2C3E50; color: #fff; border: none; border-radius: 5px; padding: 6px 18px; font-weight: 500;">Limpiar</button>
+      </div>
+      <div *ngIf="firmaGuardada" style="color: green; margin-top: 6px;">Firma guardada correctamente</div>
+      <div *ngIf="!firmaGuardada" style="color: #888; margin-top: 6px;">Firme con su dedo o mouse sobre el recuadro</div>
+    </div>
+  </div>
 </div>
 
 <!-- Sección oculta para exportar PDF con formato formal -->
@@ -84,11 +104,13 @@
     <b>Ley 20.718 de 02 de enero 2014</b> faculta a las juntas de vecinos a emitir certificados de residencia, siéndole aplicable al requirente que faltare a la verdad cuanto a los datos proporcionados al efecto, las sanciones contempladas en el artículo 212 del código penal.
   </div>
   <div style="margin-top: 48px; text-align:center;">
-    <div style="margin-bottom:8px;">
-      <img src="assets/images/firma-digital.png" alt="Firma Digital" style="height:60px;">
+    <img src="assets/images/firma-presidente.jpg" alt="Firma Presidente" style="height: 80px;">
+    <div style="font-weight: bold; color: #00897B; font-size: 1.2rem; margin-top: 8px;">Presidente Junta de Vecinos</div>
+    <div style="font-size: 1rem; color: #222; margin-top: 8px;">
+      <b>Validado digitalmente</b><br>
+      Código: {{ hashVerificacion }}<br>
+      Fecha: {{ timestampFirma }}
     </div>
-    <div style="font-weight:bold; color:#00897B;">FIRMA DIGITAL JUNTA DE VECINOS</div>
-    <div style="font-size:0.95rem; color:#333;">Presidente</div>
   </div>
 </div>
 

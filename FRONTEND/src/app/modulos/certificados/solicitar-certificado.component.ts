@@ -1,9 +1,22 @@
 import { FormGroup } from '@angular/forms';
 import html2pdf from 'html2pdf.js';
-import { OnInit } from '@angular/core';
+import { OnInit, Component } from '@angular/core';
 
+@Component({
+  selector: 'app-solicitar-certificado',
+  templateUrl: './solicitar-certificado.component.html',
+  styleUrls: ['./solicitar-certificado.component.css']
+})
 export class SolicitarCertificadoComponent implements OnInit {
-  solicitudForm: FormGroup;
+  solicitudForm!: FormGroup;
+  firmaGuardada: boolean = false;
+  signatureData: string | null = null;
+  usuario: any = null;
+  documentos: File[] = [];
+  paraOtro: boolean = false;
+  hashVerificacion: string = '';
+  timestampFirma: string = '';
+  certificadosService: any;
 
   exportarPDF() {
     const formValue = this.solicitudForm.value;
@@ -51,6 +64,76 @@ export class SolicitarCertificadoComponent implements OnInit {
         });
       }
     }, 100);
+  }
+
+  pagar() {
+    // Validar que la firma esté presente
+    if (!this.firmaGuardada || !this.signatureData) {
+      alert('⚠️ Debe firmar digitalmente el certificado antes de pagar.');
+      return;
+    }
+
+    const usuario = this.usuario;
+    if (!usuario) {
+      alert('No se pudo obtener el usuario autenticado.');
+      return;
+    }
+    if (!this.solicitudForm.valid) {
+      alert('Por favor, complete todos los campos requeridos correctamente.');
+      return;
+    }
+    const formValue = this.solicitudForm.value;
+    const documentoAdjunto = this.documentos && this.documentos.length > 0 ? this.documentos[0].name : 'Sin documentos adjuntos';
+    let precio = 0;
+    if (usuario.tipo_usuario?.toLowerCase() === 'enrut') {
+      precio = 2000;
+    } else if (usuario.tipo_usuario?.toLowerCase() === 'vecino') {
+      precio = 4000;
+    }
+    const solicitud = {
+      UsuarioRut: usuario.rut,
+      TipoCertificadoId: 3,
+      Motivo: 'Certificado de Residencia',
+      Estado: 'pendiente',
+      Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
+      Precio: precio,
+      FechaSolicitud: new Date().toISOString(),
+      DocumentosAdjuntos: documentoAdjunto,
+      NombreSolicitante: formValue.nombre,
+      RutSolicitante: formValue.rut,
+      Telefono: formValue.telefono,
+      Direccion: formValue.direccion,
+      FirmaDigital: this.signatureData,
+      HashVerificacion: this.hashVerificacion,
+      TimestampFirma: this.timestampFirma,
+      UsuarioFirmante: usuario.rut
+    };
+    this.certificadosService.solicitarCertificado(solicitud).subscribe({
+      next: (res: any) => {
+        const pago = {
+          SolicitudId: res.id || res.solicitudId,
+          Monto: precio,
+          RutUsuario: usuario.rut + '-' + (usuario.dv_rut || '')
+        };
+        this.certificadosService.iniciarPagoTransbank(pago).subscribe({
+          next: (pagoRes: any) => {
+            if (pagoRes.url && pagoRes.token) {
+              window.location.href = pagoRes.url + '?token_ws=' + pagoRes.token;
+            } else {
+              alert('Error: No se recibió la URL de pago correctamente');
+            }
+          },
+          error: (err: any) => {
+            console.error('Error en pago:', err);
+            alert('Error al iniciar el pago: ' + (err?.error?.mensaje || 'Error desconocido'));
+          }
+        });
+      },
+      error: (err: any) => {
+        console.error('Error en solicitud:', err);
+        alert('Error al enviar la solicitud: ' + (err?.error?.mensaje || 'Error desconocido'));
+      }
+    });
   }
 
   ngOnInit(): void {}
