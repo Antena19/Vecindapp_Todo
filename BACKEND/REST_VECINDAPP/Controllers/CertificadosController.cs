@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using REST_VECINDAPP.CapaNegocios;
 using REST_VECINDAPP.Modelos.DTOs;
 using REST_VECINDAPP.Seguridad;
+using REST_VECINDAPP.Servicios;
 using System.Security.Claims;
 using Transbank.Webpay.WebpayPlus;
 using Transbank.Webpay.Common;
@@ -16,13 +17,16 @@ namespace REST_VECINDAPP.Controllers
     {
         private readonly cn_Certificados _certificadosService;
         private readonly VerificadorRoles _verificadorRoles;
+        private readonly TransbankService _transbankService;
 
         public CertificadosController(
             cn_Certificados certificadosService,
-            VerificadorRoles verificadorRoles)
+            VerificadorRoles verificadorRoles,
+            TransbankService transbankService)
         {
             _certificadosService = certificadosService;
             _verificadorRoles = verificadorRoles;
+            _transbankService = transbankService;
         }
 
         [HttpPost("solicitar")]
@@ -30,8 +34,8 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                var resultado = await _certificadosService.SolicitarCertificado(solicitud.UsuarioRut, solicitud);
-                return Ok(resultado);
+                var solicitudId = await _certificadosService.SolicitarCertificado(solicitud.UsuarioRut, solicitud);
+                return Ok(new { id = solicitudId });
             }
             catch (Exception ex)
             {
@@ -118,17 +122,26 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                // Implementación temporal mientras se configura Transbank
-                var token = Guid.NewGuid().ToString();
-                var url = "https://webpay3gint.transbank.cl/webpayserver/initTransaction";
-                
+                var solicitud = await _certificadosService.ObtenerSolicitud(request.SolicitudId);
+                if (solicitud == null)
+                    return NotFound(new { mensaje = "Solicitud no encontrada" });
+
+                var buyOrder = $"cert-{request.SolicitudId}-{DateTime.Now.Ticks}";
+                var sessionId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.NewGuid().ToString();
+
+                var response = await _transbankService.CreateTransaction(
+                    solicitud.Precio,
+                    buyOrder,
+                    sessionId
+                );
+
                 // Guardar el token en la base de datos para su posterior verificación
-                await _certificadosService.GuardarTokenPago(request.SolicitudId, token);
+                await _certificadosService.GuardarTokenPago(request.SolicitudId, response.Token);
 
                 return Ok(new
                 {
-                    url = url,
-                    token = token
+                    url = response.Url,
+                    token = response.Token
                 });
             }
             catch (Exception ex)
@@ -137,14 +150,23 @@ namespace REST_VECINDAPP.Controllers
             }
         }
 
-        [HttpPost("pago/webhook")]
+        [HttpPost("pago/confirmar")]
         [AllowAnonymous]
-        public async Task<IActionResult> RecibirWebhook([FromBody] WebhookNotification notification)
+        public async Task<IActionResult> ConfirmarPago([FromBody] ConfirmarPagoRequest request)
         {
             try
             {
-                // TODO: Implementar lógica de webhook para Transbank
-                return Ok();
+                var response = await _transbankService.CommitTransaction(request.Token);
+                
+                if (response.Status == "AUTHORIZED")
+                {
+                    await _certificadosService.ConfirmarPago(request.Token);
+                    return Ok(new { mensaje = "Pago confirmado exitosamente" });
+                }
+                else
+                {
+                    return BadRequest(new { mensaje = "El pago no pudo ser confirmado" });
+                }
             }
             catch (Exception ex)
             {
@@ -157,11 +179,11 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                // TODO: Implementar verificación de estado con Transbank
+                var response = await _transbankService.GetTransactionStatus(token);
                 return Ok(new { 
-                    estado = "PENDIENTE",
-                    monto = 0,
-                    fecha = DateTime.Now
+                    estado = response.Status,
+                    monto = response.Amount,
+                    fecha = response.TransactionDate
                 });
             }
             catch (Exception ex)
@@ -250,6 +272,19 @@ namespace REST_VECINDAPP.Controllers
     {
         public string Token { get; set; }
         public string Status { get; set; }
+    }
+
+    public class PagoTransbankRequest
+    {
+        public int SolicitudId { get; set; }
+        public string Token { get; set; }
+        public decimal Monto { get; set; }
+        public string RutUsuario { get; set; }
+    }
+
+    public class ConfirmarPagoRequest
+    {
+        public string Token { get; set; }
     }
 }
 

@@ -23,7 +23,7 @@ namespace REST_VECINDAPP.CapaNegocios
                 ?? throw new ArgumentException("La cadena de conexión 'DefaultConnection' no está configurada.");
         }
 
-        public async Task<bool> SolicitarCertificado(int usuarioId, SolicitudCertificadoDTO solicitud)
+        public async Task<int> SolicitarCertificado(int usuarioId, SolicitudCertificadoDTO solicitud)
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -34,8 +34,18 @@ namespace REST_VECINDAPP.CapaNegocios
             command.Parameters.AddWithValue("@p_motivo", solicitud.Motivo);
             command.Parameters.AddWithValue("@p_documentos_adjuntos", solicitud.DocumentosAdjuntos ?? string.Empty);
             command.Parameters.AddWithValue("@p_precio", solicitud.Precio);
-            var result = await command.ExecuteNonQueryAsync();
-            return result > 0;
+            command.Parameters.AddWithValue("@p_observaciones", solicitud.Observaciones ?? string.Empty);
+            command.Parameters.AddWithValue("@p_nombre_solicitante", solicitud.NombreSolicitante ?? string.Empty);
+            command.Parameters.AddWithValue("@p_rut_solicitante", solicitud.RutSolicitante ?? string.Empty);
+            command.Parameters.AddWithValue("@p_telefono", solicitud.Telefono ?? string.Empty);
+            command.Parameters.AddWithValue("@p_direccion", solicitud.Direccion ?? string.Empty);
+            command.Parameters.AddWithValue("@p_firma_digital", solicitud.FirmaDigital ?? string.Empty);
+            command.Parameters.AddWithValue("@p_hash_verificacion", solicitud.HashVerificacion ?? string.Empty);
+            command.Parameters.AddWithValue("@p_timestamp_firma", solicitud.TimestampFirma.ToString());
+            command.Parameters.AddWithValue("@p_usuario_firmante", solicitud.UsuarioFirmante ?? string.Empty);
+
+            var solicitudId = Convert.ToInt32(await command.ExecuteScalarAsync());
+            return solicitudId;
         }
 
         public async Task<bool> AprobarCertificado(int solicitudId)
@@ -160,12 +170,12 @@ namespace REST_VECINDAPP.CapaNegocios
                     TipoCertificadoId = reader.GetInt32("tipo_certificado_id"),
                     FechaSolicitud = reader.GetDateTime("fecha_solicitud"),
                     Estado = reader.GetString("estado"),
-                    Motivo = reader.GetString("motivo"),
-                    DocumentosAdjuntos = reader.GetString("documentos_adjuntos"),
+                    Motivo = reader.IsDBNull("motivo") ? null : reader.GetString("motivo"),
+                    DocumentosAdjuntos = reader.IsDBNull("documentos_adjuntos") ? null : reader.GetString("documentos_adjuntos"),
                     FechaAprobacion = reader.IsDBNull("fecha_aprobacion") ? null : reader.GetDateTime("fecha_aprobacion"),
                     DirectivaRut = reader.IsDBNull("directiva_rut") ? null : reader.GetInt32("directiva_rut"),
                     Precio = reader.GetDecimal("precio"),
-                    Observaciones = reader.GetString("observaciones")
+                    Observaciones = reader.IsDBNull("observaciones") ? null : reader.GetString("observaciones")
                 };
             }
             return null;
@@ -332,6 +342,26 @@ namespace REST_VECINDAPP.CapaNegocios
                 command.Parameters.AddWithValue("@p_token", token);
                 await command.ExecuteNonQueryAsync();
             }
+        }
+
+        // Alias para compatibilidad con el controlador
+        public async Task<SolicitudCertificadoDTO> ObtenerSolicitud(int solicitudId)
+        {
+            return await ObtenerDetalleSolicitud(solicitudId);
+        }
+
+        // Confirmar pago usando el SP_CONFIRMAR_PAGOS
+        public async Task<bool> ConfirmarPago(string token)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+            using var command = new MySqlCommand("SP_CONFIRMAR_PAGOS", connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@p_token_webpay", token);
+            command.Parameters.AddWithValue("@p_estado_pago", "aprobado"); // Puedes parametrizar si lo necesitas
+            command.Parameters.AddWithValue("@p_respuesta_webpay", ""); // Puedes guardar la respuesta real si la tienes
+            var result = await command.ExecuteNonQueryAsync();
+            return result > 0;
         }
     }
 } 

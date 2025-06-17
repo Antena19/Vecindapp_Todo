@@ -202,7 +202,7 @@ CREATE TABLE `eventos` (
   PRIMARY KEY (`id`),
   KEY `directiva_evento_rut_idx` (`directiva_rut`),
   CONSTRAINT `directiva_evento_rut_fk` FOREIGN KEY (`directiva_rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -211,7 +211,7 @@ CREATE TABLE `eventos` (
 
 LOCK TABLES `eventos` WRITE;
 /*!40000 ALTER TABLE `eventos` DISABLE KEYS */;
-INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2025-06-28','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.','2342'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2025-06-21','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.','1994'),(6,'Test Editar 4','Test prueba editar 3','2025-06-14','23:02:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.4','4343'),(9,'hola','hola','2025-06-15','21:58:00','puerto',17144575,'activo','EVENT-657748','2025-06-14 21:59:53','','8119');
+INSERT INTO `eventos` VALUES (3,'Asamblea General Extraordinaria','Reunión para discutir temas importantes de la comunidad y elección de nueva directiva.','2025-06-28','19:00:00','Salón Comunitario Portal Puerto Montt',17144575,'activo','QR_ASAMBLEA_2024_03_25','2025-05-26 13:05:05','Se requiere asistencia mínima del 50% de los socios para quórum.','2342'),(4,'Jornada de Limpieza Comunitaria','Actividad de limpieza y mantenimiento de áreas comunes. Se recomienda traer guantes y bolsas.','2025-06-21','09:00:00','Áreas Verdes del Condominio',17144575,'activo','QR_LIMPIEZA_2024_03_30','2025-05-26 13:05:05','Se proporcionarán herramientas y refrigerios a los participantes.','1994'),(6,'Test Editar 4','Test prueba editar 3','2025-06-14','23:02:00','Sede Social ',17144575,'activo','EVENT-98061','2025-06-09 19:48:16','test 1.4','4343'),(9,'hola','hola','2025-06-15','21:58:00','puerto',17144575,'activo','EVENT-657748','2025-06-14 21:59:53','','8119'),(10,'hola1','HOLA1','2025-06-17','19:54:00','pUERTO MONTT',17144575,'activo','EVENT-70471','2025-06-16 19:54:34','','5658');
 /*!40000 ALTER TABLE `eventos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -449,7 +449,7 @@ CREATE TABLE `solicitudes_certificado` (
   CONSTRAINT `pago_certificado_fk` FOREIGN KEY (`pago_id`) REFERENCES `pagos` (`id`),
   CONSTRAINT `tipo_certificado_fk` FOREIGN KEY (`tipo_certificado_id`) REFERENCES `tipos_certificado` (`id`),
   CONSTRAINT `usuario_cert_rut` FOREIGN KEY (`usuario_rut`) REFERENCES `usuarios` (`rut`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -458,7 +458,7 @@ CREATE TABLE `solicitudes_certificado` (
 
 LOCK TABLES `solicitudes_certificado` WRITE;
 /*!40000 ALTER TABLE `solicitudes_certificado` DISABLE KEYS */;
-INSERT INTO `solicitudes_certificado` VALUES (1,NULL,17144575,3,'2025-05-23 18:41:41','aprobado','Necesito certificado de residencia para trámites bancarios','documento.pdf','2025-05-23 19:06:22',NULL,17144575,3000.00,NULL,'prueba');
+INSERT INTO `solicitudes_certificado` VALUES (1,NULL,17144575,3,'2025-05-23 18:41:41','aprobado','Necesito certificado de residencia para trámites bancarios','documento.pdf','2025-05-23 19:06:22',NULL,17144575,3000.00,NULL,'prueba'),(6,NULL,17144575,3,'2025-06-15 01:26:52','pendiente','','',NULL,NULL,NULL,0.00,NULL,NULL),(9,NULL,17144575,3,'2025-06-15 01:29:41','pendiente','','',NULL,NULL,NULL,0.00,NULL,NULL),(11,NULL,17144575,3,'2025-06-15 01:34:49','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(12,NULL,17144575,3,'2025-06-15 01:41:06','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(13,NULL,17144575,3,'2025-06-15 01:44:38','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(14,NULL,17144575,3,'2025-06-15 01:50:24','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(15,NULL,17144575,3,'2025-06-15 01:54:56','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(16,NULL,17144575,3,'2025-06-15 01:57:35','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(17,NULL,17144575,3,'2025-06-16 19:51:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(18,NULL,17144575,3,'2025-06-16 19:52:28','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(19,NULL,17144575,3,'2025-06-16 19:58:47','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(20,NULL,17144575,3,'2025-06-16 20:02:15','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(21,NULL,17144575,3,'2025-06-16 20:21:04','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(22,NULL,17144575,3,'2025-06-16 20:21:04','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(23,NULL,17144575,3,'2025-06-16 20:30:16','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(24,NULL,17144575,3,'2025-06-17 00:49:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(25,NULL,17144575,3,'2025-06-17 00:51:13','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(26,NULL,17144575,3,'2025-06-17 00:51:24','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(27,NULL,17144575,3,'2025-06-17 00:53:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(28,NULL,17144575,3,'2025-06-17 00:59:25','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(29,NULL,17144575,3,'2025-06-17 11:41:51','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(30,NULL,17144575,3,'2025-06-17 11:46:16','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(31,NULL,17144575,3,'2025-06-17 11:47:35','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(32,NULL,17144575,3,'2025-06-17 11:50:55','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(33,NULL,17144575,3,'2025-06-17 12:30:38','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(34,NULL,17144575,3,'2025-06-17 12:30:50','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL);
 /*!40000 ALTER TABLE `solicitudes_certificado` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1890,6 +1890,31 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_GUARDAR_TOKEN_PAGO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GUARDAR_TOKEN_PAGO`(
+    IN p_solicitud_id INT,
+    IN p_token VARCHAR(255)
+)
+BEGIN
+    -- Guarda el token en el campo observaciones (ajusta si tienes un campo específico)
+    UPDATE solicitudes_certificado
+    SET observaciones = CONCAT(IFNULL(observaciones, ''), ' | TOKEN_WEBPAY: ', p_token)
+    WHERE id = p_solicitud_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_INICIAR_SESION` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1977,6 +2002,49 @@ BEGIN
     END IF;
 
     SELECT 'Notificaciones marcadas como leídas' AS mensaje;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_DETALLE_SOLICITUD` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_OBTENER_DETALLE_SOLICITUD`(
+    IN p_solicitud_id INT
+)
+BEGIN
+    SELECT 
+        sc.id,
+        sc.numero_folio,
+        sc.usuario_rut,
+        u.nombre,
+        u.apellido_paterno,
+        u.apellido_materno,
+        sc.tipo_certificado_id,
+        tc.nombre AS tipo_certificado,
+        sc.fecha_solicitud,
+        sc.estado,
+        sc.motivo,
+        sc.documentos_adjuntos,
+        sc.fecha_aprobacion,
+        sc.fecha_vencimiento,
+        sc.directiva_rut,
+        sc.precio,
+        sc.pago_id,
+        sc.observaciones
+    FROM solicitudes_certificado sc
+    JOIN usuarios u ON sc.usuario_rut = u.rut
+    JOIN tipos_certificado tc ON sc.tipo_certificado_id = tc.id
+    WHERE sc.id = p_solicitud_id;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3171,30 +3239,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_SOLICITAR_CERTIFICADO`(
     IN p_usuario_rut INT,
     IN p_tipo_certificado_id INT,
     IN p_motivo TEXT,
-    IN p_documentos_adjuntos VARCHAR(255)
+    IN p_documentos_adjuntos VARCHAR(255),
+    IN p_precio DECIMAL(10,2)
 )
 BEGIN
-    DECLARE v_precio DECIMAL(10,2);
-    DECLARE v_id_solicitud INT;
-
-    -- Determinar precio según si es socio o vecino
-    SELECT 
-        CASE WHEN u.tipo_usuario = 'socio' THEN tc.precio_socio ELSE tc.precio_vecino END 
-    INTO v_precio
-    FROM tipos_certificado tc
-    JOIN usuarios u ON u.rut = p_usuario_rut
-    WHERE tc.id = p_tipo_certificado_id;
-
     -- Insertar solicitud de certificado
     INSERT INTO solicitudes_certificado 
     (usuario_rut, tipo_certificado_id, fecha_solicitud, estado, motivo, documentos_adjuntos, precio)
     VALUES 
-    (p_usuario_rut, p_tipo_certificado_id, NOW(), 'pendiente', p_motivo, p_documentos_adjuntos, v_precio);
+    (p_usuario_rut, p_tipo_certificado_id, NOW(), 'pendiente', p_motivo, p_documentos_adjuntos, p_precio);
 
     -- Obtener el ID de la solicitud recién insertada
-    SET v_id_solicitud = LAST_INSERT_ID();
+    SET @v_id_solicitud = LAST_INSERT_ID();
 
-    SELECT v_id_solicitud AS id_solicitud, 
+    SELECT @v_id_solicitud AS id_solicitud, 
            'Solicitud de certificado registrada exitosamente' AS mensaje;
 END ;;
 DELIMITER ;
@@ -3284,4 +3342,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-15  1:09:28
+-- Dump completed on 2025-06-17 12:32:28

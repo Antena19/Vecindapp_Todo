@@ -8,8 +8,8 @@ export class CertificadosService {
 
   constructor(private http: HttpClient) {}
 
-  solicitarCertificado(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/solicitar`, data);
+  solicitarCertificado(usuarioRut: number, data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/solicitar`, { usuarioRut, solicitud: data });
   }
 
   obtenerSolicitudesPendientes(): Observable<any[]> {

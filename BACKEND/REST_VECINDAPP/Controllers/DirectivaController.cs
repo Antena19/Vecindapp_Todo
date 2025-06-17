@@ -35,11 +35,11 @@ namespace REST_VECINDAPP.Controllers
         }
 
         [HttpGet("solicitudes")]
-        public ActionResult<List<SolicitudSocioDTO>> ConsultarSolicitudes([FromQuery] string estadoSolicitud = null)
+        public ActionResult<List<SolicitudSocioDTO>> ConsultarSolicitudes([FromQuery] string? estadoSolicitud = null)
         {
             try
             {
-                var solicitudes = _directivaService.ConsultarSolicitudes(estadoSolicitud);
+                var solicitudes = _directivaService.ConsultarSolicitudes(estadoSolicitud ?? string.Empty);
                 return Ok(solicitudes);
             }
             catch (Exception ex)

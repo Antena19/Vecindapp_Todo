@@ -6,6 +6,7 @@
   <div class="subtitulo-certificado">
     <span>PUERTO MONTT, {{ fechaFormateada }}.</span>
   </div>
+  <p style="color: #00897B; font-weight: bold;">Tipo usuario: {{ usuario?.tipo_usuario }} | Precio: {{ precio }}</p>
   <form [formGroup]="solicitudForm" (ngSubmit)="submit()" class="form-certificado">
     <div class="checkbox-group">
       <label>
@@ -58,14 +59,24 @@
       </div>
     </div>
     <div class="form-group">
-      <label>Motivo:</label>
-      <textarea formControlName="motivo" rows="2" placeholder="Ingrese el motivo de la solicitud"></textarea>
+      <label>Motivo de la solicitud *</label>
+      <textarea 
+        formControlName="motivo" 
+        required 
+        placeholder="Ejemplo: Necesito certificado para trámite bancario"
+        rows="3"
+        [class.is-invalid]="solicitudForm.get('motivo')?.invalid && solicitudForm.get('motivo')?.touched">
+      </textarea>
+      <div *ngIf="solicitudForm.get('motivo')?.invalid && solicitudForm.get('motivo')?.touched" class="error-message">
+        <span *ngIf="solicitudForm.get('motivo')?.errors?.['required']">El motivo es requerido</span>
+        <span *ngIf="solicitudForm.get('motivo')?.errors?.['minlength']">El motivo debe tener al menos 10 caracteres</span>
+      </div>
     </div>
+    <div class="precio-certificado">Precio: ${{ precio }}</div>
     <button type="button" (click)="previsualizarPDF()">Previsualizar PDF</button>
     <button type="submit" *ngIf="precio === 0">Solicitar</button>
     <button type="button" *ngIf="precio > 0" (click)="pagar()">Pagar</button>
   </form>
-  <button class="btn-exportar" (click)="exportarPDF()" type="button">Descargar PDF</button>
   <!-- Vista de solicitud: solo firma del usuario -->
   <div class="firmas-certificado" style="display: flex; justify-content: center; margin-top: 40px;">
     <div class="firma-usuario" style="text-align: center;">
@@ -85,6 +96,8 @@
       <div *ngIf="!firmaGuardada" style="color: #888; margin-top: 6px;">Firme con su dedo o mouse sobre el recuadro</div>
     </div>
   </div>
+  <!-- Mostrar el botón solo si puedeDescargarPDF es true -->
+  <button *ngIf="puedeDescargarPDF" class="btn-exportar" (click)="exportarPDF()" type="button">Descargar PDF</button>
 </div>
 
 <!-- Sección oculta para exportar PDF con formato formal -->

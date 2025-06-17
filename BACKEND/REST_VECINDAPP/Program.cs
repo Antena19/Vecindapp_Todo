@@ -66,6 +66,7 @@ builder.Services.AddScoped<cn_Directiva>();
 builder.Services.AddScoped<cn_Certificados>();
 builder.Services.AddScoped<cn_MercadoPago>();
 builder.Services.AddScoped<cn_Eventos>();
+builder.Services.AddScoped<TransbankService>();
 
 // Configurar la autenticacin con JWT
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key no est� configurado"));

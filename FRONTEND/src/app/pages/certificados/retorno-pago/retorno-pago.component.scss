@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ion-text-center {
+  text-align: center;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+} 

@@ -91,24 +91,23 @@ export class SolicitarCertificadoComponent implements OnInit {
       precio = 4000;
     }
     const solicitud = {
-      UsuarioRut: usuario.rut,
+      Id: 0,
       TipoCertificadoId: 3,
-      Motivo: 'Certificado de Residencia',
-      Estado: 'pendiente',
-      Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
-      Precio: precio,
       FechaSolicitud: new Date().toISOString(),
+      Estado: 'Pendiente',
+      Motivo: 'Certificado de Residencia',
       DocumentosAdjuntos: documentoAdjunto,
+      FechaAprobacion: null,
+      DirectivaRut: null,
+      Precio: precio,
+      Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
       NombreSolicitante: formValue.nombre,
-      RutSolicitante: formValue.rut,
-      Telefono: formValue.telefono,
-      Direccion: formValue.direccion,
-      FirmaDigital: this.signatureData,
-      HashVerificacion: this.hashVerificacion,
-      TimestampFirma: this.timestampFirma,
-      UsuarioFirmante: usuario.rut
+      RutSolicitante: formValue.rut
     };
-    this.certificadosService.solicitarCertificado(solicitud).subscribe({
+
+    console.log('Enviando solicitud:', solicitud);
+
+    this.certificadosService.solicitarCertificado(usuario.rut, solicitud).subscribe({
       next: (res: any) => {
         const pago = {
           SolicitudId: res.id || res.solicitudId,

@@ -33,6 +33,7 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   public firmaGuardada: boolean = false;
   public hashVerificacion: string = '';
   public timestampFirma: string = '';
+  public puedeDescargarPDF: boolean = false;
   
   constructor(
     private fb: FormBuilder,
@@ -41,13 +42,13 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   ) {
     this.solicitudForm = this.fb.group({
       para_otro: [false],
-      nombre: [''],
-      rut: [''],
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      rut: ['', [Validators.required]],
       parentesco: [''],
-      telefono: [''],
-      direccion: [''],
+      telefono: ['', [Validators.required, Validators.minLength(8)]],
+      direccion: ['', [Validators.required, Validators.minLength(5)]],
       documentos: [null],
-      motivo: ['']
+      motivo: ['', [Validators.required, Validators.minLength(10)]]
     });
   }
 
@@ -60,11 +61,11 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
         telefono: this.usuario.telefono,
         direccion: this.usuario.direccion
       });
-      
-      if (this.usuario.tipo_usuario?.toLowerCase() === 'enrut') {
+      const tipo = this.usuario.tipo_usuario?.toLowerCase();
+      if (tipo === 'enrut' || tipo === 'socio' || tipo === 'directiva') {
         this.precio = 2000;
-      } else if (this.usuario.tipo_usuario?.toLowerCase() === 'vecino') {
-        this.precio = 4000;
+      } else if (tipo === 'vecino') {
+        this.precio = 3000;
       } else {
         this.precio = 0;
       }
@@ -246,7 +247,14 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.solicitudForm.valid) {
-      alert('Por favor, complete todos los campos requeridos correctamente.');
+      const errores: string[] = [];
+      Object.keys(this.solicitudForm.controls).forEach(key => {
+        const control = this.solicitudForm.get(key);
+        if (control?.errors) {
+          errores.push(`${key}: ${Object.keys(control.errors).join(', ')}`);
+        }
+      });
+      alert(`Por favor, corrija los siguientes errores:\n${errores.join('\n')}`);
       return;
     }
 
@@ -254,43 +262,50 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
     const documentoAdjunto = this.documentos.length > 0 ? this.documentos[0].name : 'Sin documentos adjuntos';
     
     let precio = 0;
-    if (usuario.tipo_usuario?.toLowerCase() === 'enrut') {
+    const tipo = usuario.tipo_usuario?.toLowerCase();
+    if (tipo === 'enrut' || tipo === 'socio' || tipo === 'directiva') {
       precio = 2000;
-    } else if (usuario.tipo_usuario?.toLowerCase() === 'vecino') {
-      precio = 4000;
+    } else if (tipo === 'vecino') {
+      precio = 3000;
     }
 
     const solicitud = {
-      UsuarioRut: usuario.rut,
-      TipoCertificadoId: 3,
-      Motivo: 'Certificado de Residencia',
-      Estado: 'pendiente',
-      Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
-      Precio: precio,
-      FechaSolicitud: new Date().toISOString(),
-      DocumentosAdjuntos: documentoAdjunto,
-      NombreSolicitante: formValue.nombre,
-      RutSolicitante: formValue.rut,
-      Telefono: formValue.telefono,
-      Direccion: formValue.direccion,
-      // Datos de la firma digital
-      FirmaDigital: this.signatureData,
-      HashVerificacion: this.hashVerificacion,
-      TimestampFirma: this.timestampFirma,
-      UsuarioFirmante: usuario.rut
+      solicitud: {
+        Id: 0,
+        UsuarioRut: usuario.rut,
+        TipoCertificadoId: 3,
+        FechaSolicitud: new Date().toISOString(),
+        Estado: 'pendiente',
+        Motivo: 'Certificado de Residencia',
+        DocumentosAdjuntos: documentoAdjunto,
+        FechaAprobacion: null,
+        DirectivaRut: null,
+        Precio: precio,
+        Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
+        NombreSolicitante: formValue.nombre,
+        RutSolicitante: formValue.rut,
+        Telefono: formValue.telefono,
+        Direccion: formValue.direccion,
+        FirmaDigital: this.signatureData,
+        HashVerificacion: this.hashVerificacion,
+        TimestampFirma: new Date().toISOString(),
+        UsuarioFirmante: usuario.rut
+      }
     };
 
-    console.log('usuario_rut que se enviará:', solicitud.UsuarioRut);
-    console.log('Enviando solicitud con firma digital:', solicitud);
+    console.log('Enviando solicitud:', solicitud);
 
-    this.certificadosService.solicitarCertificado(solicitud).subscribe({
+    this.certificadosService.solicitarCertificado(usuario.rut, solicitud).subscribe({
       next: (res: any) => {
+        console.log('Respuesta backend al crear solicitud:', res);
         if (precio > 0) {
           const pago = {
             SolicitudId: res.id || res.solicitudId,
             Monto: precio,
-            RutUsuario: usuario.rut + '-' + (usuario.dv_rut || '')
+            RutUsuario: usuario.rut + '-' + (usuario.dv_rut || ''),
+            Token: ''
           };
+          console.log('Objeto pago que se enviará:', pago);
           this.certificadosService.iniciarPagoTransbank(pago).subscribe({
             next: (pagoRes: any) => {
               if (pagoRes.url && pagoRes.token) {
@@ -308,6 +323,7 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
           alert('¡Solicitud enviada correctamente con firma digital!');
         }
         this.resetForm();
+        this.puedeDescargarPDF = true;
       },
       error: (err: any) => {
         console.error('Error en solicitud:', err);
@@ -398,43 +414,111 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       alert('No se pudo obtener el usuario autenticado.');
       return;
     }
+
+    // Validación más detallada del formulario
     if (!this.solicitudForm.valid) {
-      alert('Por favor, complete todos los campos requeridos correctamente.');
+      const errores: string[] = [];
+      Object.keys(this.solicitudForm.controls).forEach(key => {
+        const control = this.solicitudForm.get(key);
+        if (control?.errors) {
+          errores.push(`${key}: ${Object.keys(control.errors).join(', ')}`);
+        }
+      });
+      alert(`Por favor, corrija los siguientes errores:\n${errores.join('\n')}`);
       return;
     }
+
     const formValue = this.solicitudForm.value;
+    
+    // Validar campos críticos
+    if (!formValue.nombre || !formValue.rut || !formValue.telefono || !formValue.direccion) {
+      alert('Por favor, complete todos los campos obligatorios del formulario.');
+      return;
+    }
+
+    // Validar que el motivo esté presente
+    if (!formValue.motivo || formValue.motivo.trim() === '') {
+      alert('Por favor, ingrese el motivo de la solicitud.');
+      return;
+    }
+
     const documentoAdjunto = this.documentos && this.documentos.length > 0 ? this.documentos[0].name : 'Sin documentos adjuntos';
     let precio = 0;
-    if (usuario.tipo_usuario?.toLowerCase() === 'enrut') {
+    const tipo = usuario.tipo_usuario?.toLowerCase();
+    if (tipo === 'enrut' || tipo === 'socio' || tipo === 'directiva') {
       precio = 2000;
-    } else if (usuario.tipo_usuario?.toLowerCase() === 'vecino') {
-      precio = 4000;
+    } else if (tipo === 'vecino') {
+      precio = 3000;
+    } else {
+      alert('Tipo de usuario no válido para el cálculo del precio.');
+      return;
     }
+
+    // Asegurar que todos los campos requeridos tengan valores válidos
     const solicitud = {
-      UsuarioRut: usuario.rut,
+      Id: 0,
+      UsuarioRut: usuario.rut || '',
       TipoCertificadoId: 3,
-      Motivo: 'Certificado de Residencia',
-      Estado: 'pendiente',
-      Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
-      Precio: precio,
       FechaSolicitud: new Date().toISOString(),
-      DocumentosAdjuntos: documentoAdjunto,
-      NombreSolicitante: formValue.nombre,
-      RutSolicitante: formValue.rut,
-      Telefono: formValue.telefono,
-      Direccion: formValue.direccion,
-      FirmaDigital: this.signatureData,
-      HashVerificacion: this.hashVerificacion,
-      TimestampFirma: this.timestampFirma,
-      UsuarioFirmante: usuario.rut
+      Estado: 'pendiente',
+      Motivo: formValue.motivo?.trim() || 'Certificado de Residencia',
+      DocumentosAdjuntos: documentoAdjunto || 'Sin documentos adjuntos',
+      FechaAprobacion: null,
+      DirectivaRut: null,
+      Precio: precio,
+      Observaciones: this.paraOtro ? `Solicitud para: ${formValue.nombre} - Parentesco: ${formValue.parentesco}` : 'Solicitud personal',
+      NombreSolicitante: formValue.nombre?.trim() || '',
+      RutSolicitante: formValue.rut?.trim() || '',
+      Telefono: formValue.telefono?.trim() || '',
+      Direccion: formValue.direccion?.trim() || '',
+      FirmaDigital: this.signatureData || '',
+      HashVerificacion: this.hashVerificacion || '',
+      TimestampFirma: new Date().toISOString(),
+      UsuarioFirmante: usuario.rut || ''
     };
-    this.certificadosService.solicitarCertificado(solicitud).subscribe({
+
+    // Validación final antes de enviar
+    const camposRequeridos = [
+      { campo: 'Estado', valor: solicitud.Estado },
+      { campo: 'Motivo', valor: solicitud.Motivo },
+      { campo: 'Telefono', valor: solicitud.Telefono },
+      { campo: 'Direccion', valor: solicitud.Direccion },
+      { campo: 'FirmaDigital', valor: solicitud.FirmaDigital },
+      { campo: 'Observaciones', valor: solicitud.Observaciones },
+      { campo: 'RutSolicitante', valor: solicitud.RutSolicitante },
+      { campo: 'UsuarioFirmante', valor: solicitud.UsuarioFirmante },
+      { campo: 'HashVerificacion', valor: solicitud.HashVerificacion },
+      { campo: 'NombreSolicitante', valor: solicitud.NombreSolicitante }
+    ];
+
+    const camposVacios = camposRequeridos.filter(item => !item.valor || item.valor.toString().trim() === '');
+    
+    if (camposVacios.length > 0) {
+      const listaCampos = camposVacios.map(item => item.campo).join(', ');
+      alert(`Los siguientes campos están vacíos: ${listaCampos}`);
+      console.error('Campos vacíos:', camposVacios);
+      return;
+    }
+
+    console.log('Enviando solicitud completa:', JSON.stringify(solicitud, null, 2));
+
+    this.certificadosService.solicitarCertificado(usuario.rut, solicitud).subscribe({
       next: (res: any) => {
+        console.log('Respuesta del servidor:', res);
+        if (!res.id && !res.solicitudId) {
+          alert('Error: No se recibió un ID válido de la solicitud');
+          return;
+        }
+
         const pago = {
           SolicitudId: res.id || res.solicitudId,
           Monto: precio,
-          RutUsuario: usuario.rut + '-' + (usuario.dv_rut || '')
+          RutUsuario: usuario.rut + '-' + (usuario.dv_rut || ''),
+          Token: ''
         };
+
+        console.log('Iniciando pago con datos:', pago);
+        
         this.certificadosService.iniciarPagoTransbank(pago).subscribe({
           next: (pagoRes: any) => {
             if (pagoRes.url && pagoRes.token) {
@@ -451,7 +535,16 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       },
       error: (err: any) => {
         console.error('Error en solicitud:', err);
-        alert('Error al enviar la solicitud: ' + (err?.error?.mensaje || 'Error desconocido'));
+        
+        if (err.error && err.error.errors) {
+          console.error('Errores de validación del backend:', err.error.errors);
+          const errorMessages = Object.entries(err.error.errors)
+            .map(([field, messages]: [string, any]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+            .join('\n');
+          alert(`Errores de validación del backend:\n${errorMessages}`);
+        } else {
+          alert('Error al enviar la solicitud: ' + (err?.error?.mensaje || err?.message || 'Error desconocido'));
+        }
       }
     });
   }

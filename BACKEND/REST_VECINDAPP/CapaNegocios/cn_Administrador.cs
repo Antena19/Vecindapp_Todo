@@ -221,7 +221,7 @@ namespace REST_VECINDAPP.CapaNegocios
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@p_fecha_inicio", fechaInicio);
                         cmd.Parameters.AddWithValue("@p_fecha_fin", fechaFin);
-                        cmd.Parameters.AddWithValue("@p_tipo_actividad", tipoActividad ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@p_tipo_actividad", tipoActividad ?? string.Empty);
 
                         using (var reader = cmd.ExecuteReader())
                         {

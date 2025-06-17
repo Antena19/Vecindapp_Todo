@@ -32,7 +32,7 @@ namespace REST_VECINDAPP.CapaNegocios
                 if (idsocio != -1)
                     cmd.Parameters.AddWithValue("@p_idsocio", idsocio);
                 else
-                    cmd.Parameters.AddWithValue("@p_idsocio", null);
+                    cmd.Parameters.AddWithValue("@p_idsocio", DBNull.Value);
 
                 using (var reader = cmd.ExecuteReader())
                 {
