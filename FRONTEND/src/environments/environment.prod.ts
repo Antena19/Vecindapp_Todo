@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'vecindapptodo-production.up.railway.app'
+  apiUrl: 'vecindapp-monorepo-production.up.railway.app'
 }; 

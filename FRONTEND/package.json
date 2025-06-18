@@ -22,6 +22,7 @@
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
     "@capacitor-community/barcode-scanner": "^4.0.1",
+    "@capacitor/android": "^7.0.0",
     "@capacitor/app": "7.0.0",
     "@capacitor/camera": "^7.0.1",
     "@capacitor/clipboard": "^7.0.1",
