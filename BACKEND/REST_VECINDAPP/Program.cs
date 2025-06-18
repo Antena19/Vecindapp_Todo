@@ -92,10 +92,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<REST_VECINDAPP.Seguridad.VerificadorRoles>();
 
-// Configurar el puerto 8080
+// Configurar el puerto dinámico para Railway
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(8080);
+    serverOptions.ListenAnyIP(int.Parse(port));
 });
 
 // Agregar el servicio de almacenamiento de archivos
@@ -125,8 +126,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 app.UseCors(); // Usar la política por defecto (permisiva)
-app.UseHttpsRedirection();
-app.UseAuthentication();  // Primero autenticaci�n
+// app.UseHttpsRedirection(); // Desactivado para evitar redirección a HTTPS en local y Railway
+app.UseAuthentication();  // Primero autenticacin
 app.UseAuthorization();   // Luego autorizaci�n
 app.MapControllers();
 

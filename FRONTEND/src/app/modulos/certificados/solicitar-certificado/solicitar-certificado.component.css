@@ -9,11 +9,10 @@ body, html {
 .certificado-container {
   max-width: 600px;
   margin: 40px auto 24px auto;
-  background: #fff;
+  background: transparent;
+  padding: 0;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(44,62,80,0.10);
-  padding: 36px 28px 28px 28px;
-  border: 1.5px solid #e2e2d0;
   position: relative;
   min-height: 80vh;
   overflow-y: auto;
@@ -30,7 +29,6 @@ body, html {
 .logo-container {
   display: flex;
   justify-content: center;
-  align-items: center;
   margin-bottom: 16px;
 }
 
@@ -45,108 +43,75 @@ body, html {
 
 .titulo-certificado {
   text-align: center;
-  font-size: 2.3rem;
-  font-weight: bold;
-  margin: 0 0 10px 0;
-  letter-spacing: 1px;
   color: #00897B;
+  font-size: 1.7rem;
+  font-weight: bold;
+  margin-bottom: 8px;
 }
 
 .subtitulo-certificado {
   text-align: center;
-  font-size: 1.15rem;
-  margin-bottom: 20px;
   color: #2C3E50;
+  font-size: 1.1rem;
+  margin-bottom: 18px;
 }
 
 .form-certificado {
-  margin-bottom: 20px;
+  background: #f5f5dc;
+  border-radius: 10px;
+  padding: 18px 12px 12px 12px;
+  box-shadow: 0 2px 8px rgba(0,137,123,0.06);
+  margin-bottom: 18px;
 }
 
 .form-group {
   margin-bottom: 16px;
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-  color: #2C3E50;
-  font-size: 1.04rem;
-}
-
-input[type="text"],
-input[type="tel"],
-input[type="file"],
-textarea {
-  width: 100%;
-  padding: 9px 10px;
-  border: 1.5px solid #00897B;
+.form-group input[formControlName],
+.form-group input[formControlName][required],
+.form-group input[formControlName][type="text"],
+.form-group input[formControlName][type="file"] {
+  background: #fff !important;
+  border: 1px solid #e2e2d0;
   border-radius: 5px;
-  font-size: 1.04rem;
-  margin-bottom: 2px;
-  background: #f9f9f9;
-  transition: border 0.2s;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  color: #222;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-input[type="text"]:focus,
-input[type="tel"]:focus,
-input[type="file"]:focus,
-textarea:focus {
-  border: 1.5px solid #2C3E50;
-  outline: none;
-}
-
-input[readonly] {
-  background: #f1f1f1;
+.form-group input[readonly] {
+  background: #f5f5dc !important;
   color: #888;
+}
+
+.form-group textarea {
+  background: #fff;
+  border: 1px solid #e2e2d0;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  color: #222;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .checkbox-group {
   margin: 15px 0 18px 0;
 }
 
-button[type="submit"] {
-  background-color: #00897B;
-  color: white;
-  padding: 12px 32px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.13rem;
-  font-weight: 600;
-  margin-top: 12px;
-  box-shadow: 0 2px 8px rgba(0,137,123,0.08);
-  transition: background 0.2s, box-shadow 0.2s;
-}
-
-button[type="submit"]:hover {
-  background-color: #00695c;
-  box-shadow: 0 4px 16px rgba(0,137,123,0.13);
-}
-
-button[type="button"] {
-  background-color: #2C3E50;
-  color: #fff;
-  padding: 10px 24px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.08rem;
+.checkbox-group label {
   font-weight: 500;
-  margin-right: 10px;
-  margin-top: 8px;
-  transition: background 0.2s;
-}
-
-button[type="button"]:hover {
-  background-color: #00897B;
+  color: #2C3E50;
 }
 
 .precio-certificado {
-  font-size: 1.08rem;
-  margin-bottom: 10px;
-  color: #2C3E50;
+  color: #00897B;
+  font-weight: bold;
+  margin: 12px 0 8px 0;
+  text-align: right;
 }
 
 .leyenda {
@@ -200,4 +165,29 @@ button[type="button"]:hover {
 
 .btn-exportar:hover {
   background: #00695c;
+}
+
+.error-message {
+  color: #eb445a;
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+
+.btn-principal {
+  background: #00897B;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 24px;
+  font-weight: 600;
+  margin-right: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 8px rgba(0,137,123,0.08);
+}
+
+.btn-principal:hover {
+  background: #00796c;
 } 
