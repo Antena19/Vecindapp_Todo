@@ -135,6 +135,21 @@ namespace REST_VECINDAPP.Controllers
                     sessionId
                 );
 
+                // Registrar el pago en la base de datos
+                int usuarioRut = solicitud.UsuarioRut;
+                var (exito, mensaje) = await _certificadosService.RegistrarPagoCertificado(
+                    usuarioRut,
+                    request.SolicitudId,
+                    solicitud.Precio,
+                    "webpay",
+                    response.Token,
+                    response.Url
+                );
+                if (!exito)
+                {
+                    return BadRequest(new { mensaje });
+                }
+
                 // Guardar el token en la base de datos para su posterior verificación
                 await _certificadosService.GuardarTokenPago(request.SolicitudId, response.Token);
 
@@ -156,24 +171,47 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
+                Console.WriteLine($"[LOG] Iniciando confirmación de pago para token: {request.Token}");
                 var response = await _transbankService.CommitTransaction(request.Token);
-                // Log detallado de la respuesta de Transbank
-                Console.WriteLine($"[Transbank] CommitTransaction response: Status={response.Status}, BuyOrder={response.BuyOrder}, SessionId={response.SessionId}, Amount={response.Amount}, ResponseCode={response.ResponseCode}, AuthorizationCode={response.AuthorizationCode}, CardDetail={response.CardDetail?.CardNumber}");
+                Console.WriteLine($"[LOG] Respuesta de Transbank: Status={response.Status}, BuyOrder={response.BuyOrder}, SessionId={response.SessionId}, Amount={response.Amount}, ResponseCode={response.ResponseCode}, AuthorizationCode={response.AuthorizationCode}, CardDetail={response.CardDetail?.CardNumber}");
+
                 if (response.Status == "AUTHORIZED")
                 {
-                    await _certificadosService.ConfirmarPago(request.Token);
-                    return Ok(new { mensaje = "Pago confirmado exitosamente" });
+                    // Primero actualizamos el estado del pago
+                    var pagoOk = await _certificadosService.ConfirmarPago(request.Token, "aprobada");
+                    Console.WriteLine($"[LOG] ConfirmarPago ejecutado, resultado: {pagoOk}");
+
+                    if (pagoOk)
+                    {
+                        // Obtenemos la solicitud para verificar que todo está correcto
+                        var solicitud = await _certificadosService.ObtenerSolicitudPorTokenWebpay(request.Token);
+                        if (solicitud == null)
+                        {
+                            Console.WriteLine($"[ERROR] No se encontró la solicitud para el token: {request.Token}");
+                            return BadRequest(new { mensaje = "Error al procesar la solicitud" });
+                        }
+
+                        return Ok(new { 
+                            mensaje = "Pago confirmado y certificado generado correctamente",
+                            solicitudId = solicitud.Id
+                        });
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[ERROR] Error al confirmar el pago para el token: {request.Token}");
+                        return BadRequest(new { mensaje = "Error al confirmar el pago" });
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"[Transbank] Pago no autorizado. Status: {response.Status}, ResponseCode: {response.ResponseCode}");
-                    return BadRequest(new { mensaje = "El pago no pudo ser confirmado", detalle = response });
+                    Console.WriteLine($"[LOG] Pago no autorizado. Status: {response.Status}");
+                    return BadRequest(new { mensaje = "Pago no autorizado" });
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Transbank] Error al confirmar el pago: {ex.Message}");
-                return BadRequest(new { mensaje = ex.Message });
+                Console.WriteLine($"[ERROR] Error en ConfirmarPago: {ex.Message}");
+                return StatusCode(500, new { mensaje = "Error interno del servidor", error = ex.Message });
             }
         }
 

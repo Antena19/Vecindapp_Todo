@@ -21,8 +21,8 @@ export class WebpayService {
   }
 
   confirmarTransaccion(token: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/api/webpay/confirmar`, {
-      Token: token
+    return this.http.post(`${this.apiUrl}/api/certificados/pago/confirmar`, {
+      token
     });
   }
 } 
