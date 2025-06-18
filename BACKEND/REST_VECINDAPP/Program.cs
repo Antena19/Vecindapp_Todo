@@ -15,13 +15,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        builder => builder
-            .WithOrigins("http://localhost:8100", "https://tudominio.com",
-                "capacitor://localhost", "http://localhost:4200") 
+    // Configuración CORS permisiva para permitir todas las conexiones
+    options.AddDefaultPolicy(builder =>
+    {
+        builder
+            .AllowAnyOrigin()
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowAnyHeader();
+    });
 });
 
 // Configurar Swagger para soportar JWT
@@ -123,7 +124,7 @@ if (app.Environment.IsDevelopment())
         c.DefaultModelsExpandDepth(-1); // Oculta la secci�n de modelos por defecto
     });
 }
-app.UseCors("AllowSpecificOrigin");
+app.UseCors(); // Usar la política por defecto (permisiva)
 app.UseHttpsRedirection();
 app.UseAuthentication();  // Primero autenticaci�n
 app.UseAuthorization();   // Luego autorizaci�n

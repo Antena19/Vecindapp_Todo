@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 using REST_VECINDAPP.Servicios;
+using Microsoft.AspNetCore.Authorization;
 
 namespace REST_VECINDAPP.Controllers
 {
@@ -247,67 +248,44 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                var (exito, usuario, mensaje) = _cnUsuarios.ObtenerDatosUsuario(rut);
+                var cnUsuarios = _cnUsuarios;
+                var (exito, usuario, mensaje) = cnUsuarios.ObtenerDatosUsuario(rut);
 
-                return Ok(new
+                if (exito && usuario != null)
                 {
-                    exito = exito,
-                    usuario = usuario,
-                    mensaje = mensaje
-                });
+                    return Ok(new
+                    {
+                        mensaje = "Usuario encontrado",
+                        usuario = new
+                        {
+                            rut = usuario.rut,
+                            nombre = usuario.nombre,
+                            apellido = usuario.apellido_paterno,
+                            tipo_usuario = usuario.tipo_usuario
+                        }
+                    });
+                }
+                else
+                {
+                    return NotFound(new { mensaje = mensaje ?? "Usuario no encontrado" });
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    error = ex.Message,
-                    stack = ex.StackTrace
-                });
+                return StatusCode(500, new { mensaje = "Error interno del servidor", error = ex.Message });
             }
         }
-        /// <summary>
-        /// Endpoint para recuperación simple de contraseña usando RUT y nombre completo
-        /// </summary>
-        /// <param name="request">Datos para recuperación de contraseña</param>
-        /// <returns>Resultado de la recuperación de contraseña</returns>
-        [HttpPost("recuperar-clave-simple")]
-        public IActionResult RecuperarClaveSimple([FromBody] RecuperacionSimpleRequest request)
+
+        // Endpoint de prueba simple para CORS
+        [HttpGet("test-cors")]
+        [AllowAnonymous]
+        public IActionResult TestCors()
         {
-            // Validar modelo de entrada
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    mensaje = "Datos de recuperación inválidos",
-                    errores = ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)
-                });
-            }
-
-            // Usar la capa de negocios para recuperar clave por RUT y nombre completo
-            var cnUsuarios = _cnUsuarios;
-
-            var (exito, mensaje) = cnUsuarios.RecuperarClaveSimple(
-                request.Rut,
-                request.NombreCompleto,
-                request.NuevaContrasena
-            );
-
-            if (exito)
-            {
-                return Ok(new { mensaje = "Contraseña restablecida exitosamente" });
-            }
-            else
-            {
-                // Si los datos no coinciden
-                if (mensaje.Contains("no encontrado") || mensaje.Contains("no coincide"))
-                {
-                    return Unauthorized(new { mensaje = "Los datos proporcionados no son correctos" });
-                }
-
-                return BadRequest(new { mensaje });
-            }
+            return Ok(new { 
+                mensaje = "CORS funciona correctamente", 
+                timestamp = DateTime.UtcNow,
+                origin = Request.Headers["Origin"].ToString()
+            });
         }
     }
 }
