@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { AutenticacionService } from 'src/app/services/autenticacion.service';
 
 @Component({
   selector: 'app-comunicacion',
@@ -11,14 +12,21 @@ import { CommonModule } from '@angular/common';
   imports: [IonicModule, CommonModule]
 })
 export class ComunicacionComponent {
+  tipoUsuario: string = '';
 
   constructor(
     private router: Router,
-    private loadingController: LoadingController
-  ) { }
+    private loadingController: LoadingController,
+    private authService: AutenticacionService
+  ) {}
 
   async ionViewDidEnter() {
     try {
+      this.tipoUsuario = this.authService.getUserRole();
+      if (this.tipoUsuario === 'vecino' || this.tipoUsuario === 'socio') {
+        this.router.navigate(['/comunicacion/lista'], { replaceUrl: true });
+        return;
+      }
       const activeLoader = await this.loadingController.getTop();
       if (activeLoader) {
         await this.loadingController.dismiss();

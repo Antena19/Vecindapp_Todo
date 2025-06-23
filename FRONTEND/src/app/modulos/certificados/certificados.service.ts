@@ -106,4 +106,8 @@ export class CertificadosService {
       })
     );
   }
+
+  obtenerResumenCertificados(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/resumen`);
+  }
 } 

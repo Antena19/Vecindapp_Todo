@@ -377,6 +377,21 @@ namespace REST_VECINDAPP.Controllers
             }
         }
 
+        [HttpGet("resumen")]
+        [Authorize(Roles = "Directiva")]
+        public async Task<IActionResult> ObtenerResumenCertificados()
+        {
+            try
+            {
+                var resumen = await _certificadosService.ObtenerResumenCertificados();
+                return Ok(resumen);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
         private int ObtenerRutUsuarioAutenticado()
         {
             var rut = User.Claims.FirstOrDefault(c => c.Type == "Rut")?.Value;

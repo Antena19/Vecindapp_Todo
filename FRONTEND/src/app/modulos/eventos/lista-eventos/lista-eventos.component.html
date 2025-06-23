@@ -16,7 +16,19 @@
     Crear Evento
   </ion-button>
 
-  <div *ngFor="let evento of eventos">
+  <ion-segment [(ngModel)]="filtroEstado" color="primary" style="margin-bottom: 16px;">
+    <ion-segment-button value="todos">
+      <ion-label>Todos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="activos">
+      <ion-label>Activos</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="inactivos">
+      <ion-label>Inactivos</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <div *ngFor="let evento of eventosFiltrados">
     <ion-card class="evento-card" [ngClass]="{'evento-pasado': eventoPasado(evento)}">
       <ion-card-header>
         <ion-card-title>{{ evento.titulo }}</ion-card-title>
@@ -31,8 +43,8 @@
           {{ evento.lugar }}
         </p>
         <p class="descripcion">{{ evento.descripcion }}</p>
-        <ion-badge [color]="evento.estado === 'activo' ? 'success' : 'medium'">
-          {{ evento.estado }}
+        <ion-badge [color]="eventoPasado(evento) ? 'medium' : 'success'">
+          {{ eventoPasado(evento) ? 'inactivo' : 'activo' }}
         </ion-badge>
         <ion-button expand="block" fill="clear" color="primary" (click)="verDetalle(evento.id)">
           <ion-icon name="eye-outline" slot="start"></ion-icon>

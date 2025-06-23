@@ -32,4 +32,49 @@ ion-label {
   ion-card-content {
     color: var(--ion-color-medium);
   }
+}
+
+.evento-card {
+  background: #fffbe6 !important;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(0, 121, 107, 0.08);
+  border-left: 6px solid #009688;
+  padding: 18px 18px 12px 18px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+}
+
+.evento-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 121, 107, 0.18);
+  border-left: 8px solid #00796b;
+}
+
+.evento-card:not(.evento-pasado) {
+  background: #fff9c4 !important;
+}
+
+ion-segment {
+  margin-bottom: 16px;
+  background: #fffbe6;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 4px 0;
+  --indicator-color: #009688;
+}
+
+ion-segment-button {
+  border-radius: 8px !important;
+  margin: 0 4px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+ion-segment-button.segment-button-checked {
+  background: #e0f2f1 !important;
+  border-color: #009688 !important;
+  color: #009688 !important;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,150,136,0.08);
 } 

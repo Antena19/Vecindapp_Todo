@@ -7,13 +7,15 @@ import { SolicitarCertificadoComponent } from './solicitar-certificado/solicitar
 import { AprobarCertificadoComponent } from './aprobar-certificado/aprobar-certificado.component';
 import { PagoCertificadoComponent } from './pago-certificado/pago-certificado.component';
 import { HistorialCertificadosComponent } from './historial-certificados/historial-certificados.component';
+import { DashboardCertificadosComponent } from './dashboard-certificados/dashboard-certificados.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'solicitar', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'solicitar', component: SolicitarCertificadoComponent },
   { path: 'aprobar', component: AprobarCertificadoComponent },
   { path: 'pago', component: PagoCertificadoComponent },
   { path: 'historial', component: HistorialCertificadosComponent },
+  { path: 'dashboard', component: DashboardCertificadosComponent },
 ];
 
 @NgModule({
@@ -23,7 +25,8 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    DashboardCertificadosComponent
   ]
 })
 export class CertificadosModule { } 

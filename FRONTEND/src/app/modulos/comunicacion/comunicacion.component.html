@@ -25,7 +25,8 @@
           </ion-card-content>
         </ion-card>
       </ion-col>
-      <ion-col size="6">
+      <!-- Solo para directiva -->
+      <ion-col size="6" *ngIf="tipoUsuario === 'directiva'">
         <ion-card (click)="navegarACrear()" class="menu-card">
           <ion-card-content>
             <ion-icon name="add-circle" size="large" color="success"></ion-icon>
@@ -35,7 +36,7 @@
         </ion-card>
       </ion-col>
     </ion-row>
-    <ion-row>
+    <ion-row *ngIf="tipoUsuario === 'directiva'">
       <ion-col size="6">
         <ion-card (click)="navegarAGestion()" class="menu-card">
           <ion-card-content>

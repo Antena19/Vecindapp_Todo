@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/comunicacion"></ion-back-button>
+      <ion-back-button [defaultHref]="tipoUsuario === 'vecino' || tipoUsuario === 'socio' ? '/home' : '/comunicacion'"></ion-back-button>
     </ion-buttons>
     <ion-title>Noticias y Eventos</ion-title>
     <ion-buttons slot="end">
@@ -17,8 +17,8 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Filtros de búsqueda -->
-  <ion-card>
+  <!-- Filtros de búsqueda (colapsables en móvil) -->
+  <ion-card class="filtros-card">
     <ion-card-content>
       <ion-searchbar 
         [(ngModel)]="textoBusqueda" 
@@ -26,42 +26,47 @@
         (ionInput)="buscarNoticias()"
         show-clear-button="focus">
       </ion-searchbar>
-
-      <ion-row>
-        <ion-col size="6">
-          <ion-select 
-            [(ngModel)]="filtroCategoria" 
-            placeholder="Categoría"
-            (ionChange)="aplicarFiltros()">
-            <ion-select-option *ngFor="let cat of categorias" [value]="cat.valor">
-              {{ cat.texto }}
-            </ion-select-option>
-          </ion-select>
-        </ion-col>
-        <ion-col size="6">
-          <ion-select 
-            [(ngModel)]="filtroAlcance" 
-            placeholder="Alcance"
-            (ionChange)="aplicarFiltros()">
-            <ion-select-option *ngFor="let alc of alcances" [value]="alc.valor">
-              {{ alc.texto }}
-            </ion-select-option>
-          </ion-select>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col size="12">
-          <ion-select 
-            [(ngModel)]="filtroPrioridad" 
-            placeholder="Prioridad"
-            (ionChange)="aplicarFiltros()">
-            <ion-select-option *ngFor="let pri of prioridades" [value]="pri.valor">
-              {{ pri.texto }}
-            </ion-select-option>
-          </ion-select>
-        </ion-col>
-      </ion-row>
+      <ion-button expand="block" fill="outline" (click)="mostrarFiltros = !mostrarFiltros" size="small" color="success">
+        <ion-icon name="options-outline" slot="start"></ion-icon>
+        Filtros
+        <ion-icon [name]="mostrarFiltros ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
+      </ion-button>
+      <div *ngIf="mostrarFiltros" class="filtros-desplegables">
+        <ion-row>
+          <ion-col size="12" size-md="6">
+            <ion-select 
+              [(ngModel)]="filtroCategoria" 
+              placeholder="Categoría"
+              (ionChange)="aplicarFiltros()">
+              <ion-select-option *ngFor="let cat of categorias" [value]="cat.valor">
+                {{ cat.texto }}
+              </ion-select-option>
+            </ion-select>
+          </ion-col>
+          <ion-col size="12" size-md="6">
+            <ion-select 
+              [(ngModel)]="filtroAlcance" 
+              placeholder="Alcance"
+              (ionChange)="aplicarFiltros()">
+              <ion-select-option *ngFor="let alc of alcances" [value]="alc.valor">
+                {{ alc.texto }}
+              </ion-select-option>
+            </ion-select>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12">
+            <ion-select 
+              [(ngModel)]="filtroPrioridad" 
+              placeholder="Prioridad"
+              (ionChange)="aplicarFiltros()">
+              <ion-select-option *ngFor="let pri of prioridades" [value]="pri.valor">
+                {{ pri.texto }}
+              </ion-select-option>
+            </ion-select>
+          </ion-col>
+        </ion-row>
+      </div>
     </ion-card-content>
   </ion-card>
 
@@ -73,19 +78,17 @@
 
   <div *ngIf="!isLoading && noticiasFiltradas.length === 0" class="no-noticias">
     <ion-icon name="newspaper-outline" size="large" color="medium"></ion-icon>
-    <h3>No se encontraron noticias</h3>
-    <p>Intenta ajustar los filtros de búsqueda</p>
+    <h3>No hay noticias por ahora</h3>
+    <p>¡Vuelve pronto para ver novedades de tu comunidad!</p>
   </div>
 
   <ion-list *ngIf="!isLoading && noticiasFiltradas.length > 0">
-    <ion-item *ngFor="let noticia of noticiasFiltradas" 
-              (click)="verDetalleNoticia(noticia.id)"
-              button
-              class="noticia-item">
+    <div *ngFor="let noticia of noticiasFiltradas" 
+         (click)="verDetalleNoticia(noticia.id)"
+         class="noticia-item">
       <ion-thumbnail slot="start" *ngIf="noticia.imagenUrl">
         <img [src]="noticia.imagenUrl" [alt]="noticia.titulo">
       </ion-thumbnail>
-      
       <ion-label>
         <div class="noticia-header">
           <h2>{{ noticia.titulo }}</h2>
@@ -93,9 +96,7 @@
                    [color]="getPrioridadColor(noticia.prioridad)">
           </ion-icon>
         </div>
-        
         <p class="noticia-contenido">{{ noticia.contenido | slice:0:150 }}...</p>
-        
         <div class="noticia-metadata">
           <ion-chip [color]="getPrioridadColor(noticia.prioridad)" size="small">
             {{ noticia.prioridad }}
@@ -107,13 +108,12 @@
             {{ noticia.categoria }}
           </ion-chip>
         </div>
-        
         <div class="noticia-footer">
           <p class="autor">Por: {{ noticia.autorNombre }}</p>
           <p class="fecha">{{ noticia.fechaPublicacion | date:'short' }}</p>
         </div>
       </ion-label>
-    </ion-item>
+    </div>
   </ion-list>
 
   <!-- Contador de resultados -->

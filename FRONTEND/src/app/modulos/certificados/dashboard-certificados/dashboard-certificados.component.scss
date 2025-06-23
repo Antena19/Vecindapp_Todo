@@ -1,0 +1,75 @@
+ion-content {
+  --background: #faf9e6;
+}
+
+.dashboard-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-card {
+  background: #fffbe6 !important;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 121, 107, 0.08);
+  text-align: center;
+  padding: 18px 18px 12px 18px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  cursor: default;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-left: 6px solid #009688;
+  position: relative;
+}
+.dashboard-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 121, 107, 0.18);
+  border-left: 8px solid #00796b;
+}
+.dashboard-card .cantidad {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 8px 0 2px 0;
+  color: #00796b;
+}
+.dashboard-card .titulo {
+  font-size: 1.1em;
+  color: #3a4a3a;
+  margin-bottom: 0;
+}
+.dashboard-card.primary {
+  background: #e0f7fa;
+  color: #00796b;
+}
+.dashboard-card.success {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+.dashboard-card.danger {
+  background: #ffebee;
+  color: #d32f2f;
+}
+.dashboard-card.tertiary {
+  background: #e1f5fe;
+  color: #006064;
+}
+ion-icon {
+  margin-bottom: 4px;
+  font-size: 2em;
+  color: #009688;
+} 

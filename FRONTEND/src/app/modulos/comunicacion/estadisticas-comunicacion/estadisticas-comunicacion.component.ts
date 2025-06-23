@@ -40,7 +40,7 @@ export class EstadisticasComunicacionComponent implements OnInit, OnDestroy {
     this.loading = true;
     
     return new Promise((resolve) => {
-        this.statsSubscription = this.comunicacionService.getEstadisticasComunicacionTest().subscribe({
+        this.statsSubscription = this.comunicacionService.getEstadisticasComunicacion().subscribe({
             next: (estadisticas) => {
               this.estadisticas = {
                 NoticiasPublicadas: estadisticas.NoticiasPublicadas ?? (estadisticas as any).noticiasPublicadas ?? 0,

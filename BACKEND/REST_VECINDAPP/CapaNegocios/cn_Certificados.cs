@@ -1030,5 +1030,50 @@ namespace REST_VECINDAPP.CapaNegocios
                 return false;
             }
         }
+
+        public async Task<Dictionary<string, int>> ObtenerResumenCertificados()
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            var resumen = new Dictionary<string, int>
+            {
+                { "solicitados", 0 },
+                { "aprobados", 0 },
+                { "rechazados", 0 },
+                { "emitidos", 0 }
+            };
+
+            // Contar por estado en solicitudes_certificado
+            var queryEstados = @"SELECT estado, COUNT(*) as cantidad FROM solicitudes_certificado GROUP BY estado";
+            using (var command = new MySqlCommand(queryEstados, connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    var estado = reader.GetString("estado").ToLower();
+                    var cantidad = reader.GetInt32("cantidad");
+                    if (estado == "solicitado" || estado == "pendiente")
+                        resumen["solicitados"] += cantidad;
+                    else if (estado == "aprobado")
+                        resumen["aprobados"] += cantidad;
+                    else if (estado == "rechazado")
+                        resumen["rechazados"] += cantidad;
+                }
+            }
+
+            // Contar emitidos en certificados
+            var queryEmitidos = @"SELECT COUNT(*) as emitidos FROM certificados WHERE estado = 'vigente'";
+            using (var command = new MySqlCommand(queryEmitidos, connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                if (await reader.ReadAsync())
+                {
+                    resumen["emitidos"] = reader.GetInt32("emitidos");
+                }
+            }
+
+            return resumen;
+        }
     }
 } 

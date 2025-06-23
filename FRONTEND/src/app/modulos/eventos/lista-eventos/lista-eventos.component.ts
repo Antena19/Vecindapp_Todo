@@ -4,6 +4,7 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { EventosService } from '../../../services/eventos.service';
 import { Evento } from '../../../modelos/evento.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-lista-eventos',
@@ -13,11 +14,22 @@ import { Evento } from '../../../modelos/evento.model';
   imports: [
     CommonModule,
     IonicModule,
-    RouterModule
+    RouterModule,
+    FormsModule
   ]
 })
 export class ListaEventosComponent implements OnInit {
   eventos: Evento[] = [];
+  filtroEstado: string = 'todos';
+
+  get eventosFiltrados() {
+    if (this.filtroEstado === 'activos') {
+      return this.eventos.filter(e => !this.eventoPasado(e));
+    } else if (this.filtroEstado === 'inactivos') {
+      return this.eventos.filter(e => this.eventoPasado(e));
+    }
+    return this.eventos;
+  }
 
   constructor(
     private router: Router,

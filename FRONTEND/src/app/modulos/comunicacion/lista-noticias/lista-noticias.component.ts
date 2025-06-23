@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, Platform } from '@ionic/angular';
 import { Router, RouterModule } from '@angular/router';
 import { ComunicacionService } from '../../../services/comunicacion.service';
 import { Noticia } from '../../../modelos/comunicacion.model';
 import { Subscription } from 'rxjs';
+import { AutenticacionService } from 'src/app/services/autenticacion.service';
 
 @Component({
   selector: 'app-lista-noticias',
@@ -23,6 +24,9 @@ export class ListaNoticiasComponent implements OnInit, OnDestroy {
   filtroAlcance = '';
   filtroPrioridad = '';
   private noticiasSubscription: Subscription | null = null;
+  tipoUsuario: string = '';
+  private backButtonSubscription: any;
+  mostrarFiltros: boolean = false;
 
   categorias = [
     { valor: '', texto: 'Todas las categorías' },
@@ -47,16 +51,28 @@ export class ListaNoticiasComponent implements OnInit, OnDestroy {
   constructor(
     private comunicacionService: ComunicacionService,
     private router: Router,
-    private alertController: AlertController
-  ) { }
+    private alertController: AlertController,
+    private authService: AutenticacionService,
+    private platform: Platform
+  ) {
+    this.tipoUsuario = this.authService.getUserRole();
+  }
 
   ngOnInit() {
     this.cargarNoticias();
+    if (this.tipoUsuario === 'vecino' || this.tipoUsuario === 'socio') {
+      this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
+        this.router.navigate(['/home'], { replaceUrl: true });
+      });
+    }
   }
 
   ngOnDestroy() {
     if (this.noticiasSubscription) {
       this.noticiasSubscription.unsubscribe();
+    }
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
     }
   }
 
