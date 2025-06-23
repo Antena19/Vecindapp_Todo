@@ -42,7 +42,12 @@ export class EstadisticasComunicacionComponent implements OnInit, OnDestroy {
     return new Promise((resolve) => {
         this.statsSubscription = this.comunicacionService.getEstadisticasComunicacionTest().subscribe({
             next: (estadisticas) => {
-              this.estadisticas = estadisticas;
+              this.estadisticas = {
+                NoticiasPublicadas: estadisticas.NoticiasPublicadas ?? (estadisticas as any).noticiasPublicadas ?? 0,
+                TotalLecturas: estadisticas.TotalLecturas ?? (estadisticas as any).totalLecturas ?? 0,
+                TotalComentarios: estadisticas.TotalComentarios ?? (estadisticas as any).totalComentarios ?? 0,
+                TasaLectura: estadisticas.TasaLectura ?? (estadisticas as any).tasaLectura ?? 0
+              };
               this.loading = false;
               resolve();
             },

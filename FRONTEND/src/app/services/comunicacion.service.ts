@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { 
   Noticia, 
@@ -119,6 +119,13 @@ export class ComunicacionService {
   // Obtener estadísticas de comunicación (endpoint de prueba sin autenticación)
   getEstadisticasComunicacionTest(): Observable<EstadisticasComunicacion> {
     return this.http.get<EstadisticasComunicacion>(`${this.apiUrl}/comunicacion/estadisticas/test`);
+    // MOCK LOCAL PARA TEST
+    return of({
+      NoticiasPublicadas: 13,
+      TotalLecturas: 4,
+      TotalComentarios: 3,
+      TasaLectura: 23.08
+    });
   }
 
   // ===== FUNCIONALIDADES ESPECIALES =====
