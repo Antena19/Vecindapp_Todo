@@ -1,51 +1,87 @@
 .error-container {
-    padding-left: 16px;
-    padding-top: 5px;
-    font-size: 12px;
-  }
-  
-  ion-card {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    border-radius: 8px;
-    background-color:  #F5F5DC;
-  }
-  ion-item {
-    --background: #ffffff;
-    --border-color: var(--ion-color-medium);
-    --border-color-focused: var(--ion-color-primary);
-    --color: #273746;
-    --padding-start: 10px;
-    --inner-padding-end: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  ion-card-title {
+  padding-left: 16px;
+  padding-top: 5px;
+  font-size: 12px;
+}
+
+ion-card {
+  --background: #F5F5DC;
+  background: #F5F5DC;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+ion-item {
+  --background: #ffffff;
+  --border-color: #e2e2d0;
+  --color: #273746;
+  --padding-start: 10px;
+  --inner-padding-end: 10px;
+  --border-radius: 8px;
+  --border-width: 1px;
+  --highlight-height: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: 16px;
+  box-shadow: none;
+  transition: all 0.2s ease-in-out;
+
+  ion-label[position="stacked"] {
+    font-weight: 600;
+    font-size: 1em;
     color: var(--ion-color-primary);
-    font-size: 18px;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    margin-bottom: 4px;
   }
-  
-  .ion-padding-top {
-    padding-top: 20px;
+
+  ion-input {
+    font-size: 1.1em;
+    --padding-top: 6px;
+    --padding-bottom: 6px;
   }
-  
-  ion-button {
-    margin: 10px 0;
-    --border-radius: 8px;
-  }
-  
-  .spinner-center {
-    display: block;
-    margin: 50px auto;
-  }
-  
-  ion-badge {
-    padding: 8px 10px;
-    font-size: 14px;
-  }
+}
+
+ion-item.item-has-focus {
+  --border-color: var(--ion-color-primary);
+  border-color: var(--ion-color-primary);
+}
+
+ion-input.native-input[disabled] {
+  -webkit-text-fill-color: currentcolor;
+  opacity: 1;
+}
+
+ion-item.ion-item-readonly {
+  --background: #f1f1e6;
+  --color: #555;
+  --border-color: #e2e2d0;
+}
+
+ion-card-title {
+  color: var(--ion-color-primary);
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ion-padding-top {
+  padding-top: 20px;
+}
+
+ion-button {
+  margin: 10px 0;
+  --border-radius: 8px;
+}
+
+.spinner-center {
+  display: block;
+  margin: 50px auto;
+}
+
+ion-badge {
+  padding: 8px 10px;
+  font-size: 14px;
+}

@@ -61,11 +61,6 @@ ion-card {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-ion-item {
-  --background: #F5F5DC;
-  margin-bottom: 2px;
-}
-
 /* Estilos para botones principales */
 ion-button.primary-button {
   --background: #00897B;
@@ -99,14 +94,8 @@ ion-tab-button {
 }
 
 /* Estilos para formularios */
-ion-input, ion-textarea, ion-select {
-  --background: #ffffff;
-  --padding-start: 10px;
-  --padding-end: 10px;
-  border: 1px solid #e2e2d0;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
+/* Los estilos de formularios ahora se manejarán a nivel de componente 
+   para evitar conflictos y asegurar encapsulación. */
 
 /* Estilos para segmentos */
 ion-segment {
