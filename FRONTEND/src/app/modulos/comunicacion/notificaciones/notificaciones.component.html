@@ -1,0 +1,162 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/comunicacion"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Notificaciones</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="marcarTodasComoLeidas()" *ngIf="getNotificacionesNoLeidas() > 0">
+        <ion-icon name="checkmark-done"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Resumen de notificaciones -->
+  <ion-card>
+    <ion-card-content>
+      <div class="resumen-notificaciones">
+        <div class="estadistica">
+          <ion-icon name="notifications" color="primary" size="large"></ion-icon>
+          <div class="texto">
+            <h3>{{ notificaciones.length }}</h3>
+            <p>Total</p>
+          </div>
+        </div>
+        <div class="estadistica">
+          <ion-icon name="mail-unread" color="warning" size="large"></ion-icon>
+          <div class="texto">
+            <h3>{{ getNotificacionesNoLeidas() }}</h3>
+            <p>Sin leer</p>
+          </div>
+        </div>
+        <div class="estadistica">
+          <ion-icon name="mail-read" color="success" size="large"></ion-icon>
+          <div class="texto">
+            <h3>{{ notificaciones.length - getNotificacionesNoLeidas() }}</h3>
+            <p>Leídas</p>
+          </div>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Filtros -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Filtros</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Estado</ion-label>
+        <ion-select [(ngModel)]="filtroLeidas" (ionChange)="aplicarFiltros()">
+          <ion-select-option *ngFor="let filtro of filtros" [value]="filtro.valor">
+            {{ filtro.texto }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de notificaciones -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        Notificaciones ({{ notificacionesFiltradas.length }})
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-spinner *ngIf="loading" name="crescent" class="loading-spinner"></ion-spinner>
+      
+      <div *ngIf="!loading && notificacionesFiltradas.length === 0" class="no-notificaciones">
+        <ion-icon name="notifications-off" size="large" color="medium"></ion-icon>
+        <p>No hay notificaciones disponibles</p>
+      </div>
+
+      <ion-list *ngIf="!loading && notificacionesFiltradas.length > 0">
+        <ion-item *ngFor="let notificacion of notificacionesFiltradas" 
+                  class="notificacion-item"
+                  [class.no-leida]="!notificacion.leida">
+          <ion-avatar slot="start">
+            <ion-icon [name]="getTipoIcono(notificacion.tipo)" 
+                      [color]="getTipoColor(notificacion.tipo)" 
+                      size="large">
+            </ion-icon>
+          </ion-avatar>
+          
+          <ion-label>
+            <h2>{{ notificacion.titulo }}</h2>
+            <p>{{ notificacion.mensaje }}</p>
+            
+            <div class="metadatos">
+              <ion-chip [color]="getPrioridadColor(notificacion.prioridad)" size="small">
+                <ion-icon name="flag"></ion-icon>
+                {{ notificacion.prioridad }}
+              </ion-chip>
+              
+              <ion-chip [color]="getTipoColor(notificacion.tipo)" size="small">
+                <ion-icon [name]="getTipoIcono(notificacion.tipo)"></ion-icon>
+                {{ notificacion.tipo }}
+              </ion-chip>
+              
+              <ion-chip *ngIf="!notificacion.leida" color="warning" size="small">
+                <ion-icon name="mail-unread"></ion-icon>
+                Sin leer
+              </ion-chip>
+              
+              <ion-chip *ngIf="notificacion.leida" color="success" size="small">
+                <ion-icon name="mail-read"></ion-icon>
+                Leída
+              </ion-chip>
+            </div>
+            
+            <p class="fecha">{{ notificacion.fechaRecepcion | date:'short' }}</p>
+            <p *ngIf="notificacion.fechaLectura" class="fecha-lectura">
+              Leída: {{ notificacion.fechaLectura | date:'short' }}
+            </p>
+          </ion-label>
+          
+          <ion-button 
+            *ngIf="!notificacion.leida" 
+            slot="end" 
+            fill="clear" 
+            color="success"
+            (click)="marcarComoLeida(notificacion.id)">
+            <ion-icon name="checkmark"></ion-icon>
+          </ion-button>
+          
+          <ion-button 
+            slot="end" 
+            fill="clear" 
+            color="danger"
+            (click)="eliminarNotificacion(notificacion.id)">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Acciones masivas -->
+  <ion-card *ngIf="!loading && notificaciones.length > 0">
+    <ion-card-header>
+      <ion-card-title>Acciones</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-button 
+        expand="block" 
+        fill="outline" 
+        color="success"
+        (click)="marcarTodasComoLeidas()"
+        [disabled]="getNotificacionesNoLeidas() === 0">
+        <ion-icon name="checkmark-done" slot="start"></ion-icon>
+        Marcar todas como leídas
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

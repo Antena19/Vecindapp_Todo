@@ -1,0 +1,171 @@
+-- Script para añadir noticias de ejemplo a VecindApp
+-- Autor: Sistema VecindApp
+-- Fecha: 2025-01-27
+
+USE vecindapp_bd;
+
+-- Insertar noticias adicionales de ejemplo
+INSERT INTO `noticias` (
+    `titulo`, 
+    `contenido`, 
+    `fecha_publicacion`, 
+    `fecha_evento`, 
+    `lugar`, 
+    `imagen`, 
+    `autor_rut`, 
+    `visibilidad`, 
+    `destacado`, 
+    `alcance`, 
+    `prioridad`, 
+    `estado`, 
+    `categoria`, 
+    `tags`, 
+    `autor_nombre`
+) VALUES 
+(
+    'Mantenimiento de Áreas Comunes',
+    'Informamos a todos los vecinos que durante la próxima semana se realizarán trabajos de mantenimiento en las áreas comunes del condominio. Los trabajos incluyen poda de árboles, limpieza de jardines y reparación de luminarias. Agradecemos su comprensión y colaboración durante este proceso.',
+    '2025-01-27 10:00:00',
+    '2025-02-03 08:00:00',
+    'Áreas comunes del condominio',
+    NULL,
+    17144575,
+    'todos',
+    1,
+    'PUBLICO',
+    'ALTA',
+    'ACTIVO',
+    'AVISO',
+    '["mantenimiento", "áreas comunes", "condominio"]',
+    'Angelina Mendoza'
+),
+(
+    'Celebración del Día del Vecino',
+    '¡Invitamos a todos los vecinos a celebrar juntos el Día del Vecino! Tendremos una tarde llena de actividades para toda la familia: juegos infantiles, música en vivo, rifas y una rica once compartida. No falten a esta hermosa celebración de comunidad.',
+    '2025-01-27 11:30:00',
+    '2025-02-15 16:00:00',
+    'Plaza central del condominio',
+    NULL,
+    17144575,
+    'todos',
+    1,
+    'PUBLICO',
+    'ALTA',
+    'ACTIVO',
+    'EVENTO',
+    '["celebración", "comunidad", "familia", "día del vecino"]',
+    'Angelina Mendoza'
+),
+(
+    'Nuevas Medidas de Seguridad',
+    'A partir del próximo mes implementaremos nuevas medidas de seguridad en el condominio. Se instalarán cámaras de vigilancia adicionales y se reforzará el control de acceso. Estas medidas buscan garantizar la seguridad de todos nuestros vecinos.',
+    '2025-01-27 14:15:00',
+    NULL,
+    NULL,
+    NULL,
+    17144575,
+    'todos',
+    0,
+    'PUBLICO',
+    'MEDIA',
+    'ACTIVO',
+    'NOTICIA',
+    '["seguridad", "cámaras", "control de acceso"]',
+    'Angelina Mendoza'
+),
+(
+    'Reunión Extraordinaria de Directiva',
+    'Se convoca a todos los socios a una reunión extraordinaria de directiva para tratar temas urgentes relacionados con el presupuesto anual y las mejoras del condominio. La reunión será este sábado a las 18:00 horas en la sede vecinal.',
+    '2025-01-27 16:45:00',
+    '2025-02-01 18:00:00',
+    'Sede Vecinal Portal Puerto Montt',
+    NULL,
+    17144575,
+    'solo_socios',
+    1,
+    'SOCIOS',
+    'ALTA',
+    'ACTIVO',
+    'EVENTO',
+    '["reunión", "directiva", "socios", "presupuesto"]',
+    'Angelina Mendoza'
+),
+(
+    'Resultados de la Encuesta Vecinal',
+    'Compartimos con ustedes los resultados de la encuesta vecinal realizada el mes pasado. El 85% de los vecinos está satisfecho con los servicios del condominio. Las principales sugerencias incluyen más áreas de recreación y mejor iluminación nocturna.',
+    '2025-01-27 18:20:00',
+    NULL,
+    NULL,
+    NULL,
+    17144575,
+    'todos',
+    0,
+    'PUBLICO',
+    'MEDIA',
+    'ACTIVO',
+    'NOTICIA',
+    '["encuesta", "resultados", "satisfacción", "mejoras"]',
+    'Angelina Mendoza'
+),
+(
+    'Taller de Reciclaje para Niños',
+    '¡Los más pequeños de la casa están invitados a participar en nuestro taller de reciclaje! Aprenderán a crear manualidades con materiales reciclados y la importancia de cuidar el medio ambiente. El taller es gratuito y se realizará en el salón comunal.',
+    '2025-01-27 19:00:00',
+    '2025-02-08 15:00:00',
+    'Salón comunal',
+    NULL,
+    17144575,
+    'todos',
+    0,
+    'PUBLICO',
+    'MEDIA',
+    'ACTIVO',
+    'EVENTO',
+    '["taller", "reciclaje", "niños", "medio ambiente"]',
+    'Angelina Mendoza'
+),
+(
+    'Actualización de Reglamento Interno',
+    'Se ha actualizado el reglamento interno del condominio con nuevas disposiciones sobre mascotas, horarios de silencio y uso de áreas comunes. Todos los vecinos deben revisar estos cambios que entrarán en vigencia el próximo mes.',
+    '2025-01-27 20:30:00',
+    NULL,
+    NULL,
+    NULL,
+    17144575,
+    'todos',
+    1,
+    'PUBLICO',
+    'ALTA',
+    'ACTIVO',
+    'AVISO',
+    '["reglamento", "mascotas", "horarios", "normas"]',
+    'Angelina Mendoza'
+),
+(
+    'Inauguración del Gimnasio Comunitario',
+    '¡Excelentes noticias! El nuevo gimnasio comunitario ya está listo para su uso. Cuenta con equipos de cardio, pesas y área de yoga. Los socios tendrán acceso gratuito, mientras que los vecinos podrán usarlo por una cuota mensual simbólica.',
+    '2025-01-27 21:15:00',
+    '2025-02-10 10:00:00',
+    'Gimnasio comunitario (Edificio B)',
+    NULL,
+    17144575,
+    'todos',
+    1,
+    'PUBLICO',
+    'ALTA',
+    'ACTIVO',
+    'NOTICIA',
+    '["gimnasio", "deportes", "salud", "inauguración"]',
+    'Angelina Mendoza'
+);
+
+-- Verificar que las noticias se insertaron correctamente
+SELECT 
+    id,
+    titulo,
+    categoria,
+    fecha_publicacion,
+    destacado,
+    estado
+FROM noticias 
+ORDER BY fecha_publicacion DESC; 

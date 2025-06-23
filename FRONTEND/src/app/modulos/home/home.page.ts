@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AutenticacionService } from '../../services/autenticacion.service';
 import { Usuario } from '../../modelos/Usuario';
 import { SociosService } from 'src/app/services/socios.service';
 import { SolicitudSocioDTO } from '../../modelos/DTOs/solicitud-socio.dto';
+import { ComunicacionService } from 'src/app/services/comunicacion.service';
+import { Noticia } from 'src/app/modelos/comunicacion.model';
 
 interface MenuOption {
   title: string;
@@ -18,13 +20,15 @@ interface MenuOption {
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, RouterModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomePage implements OnInit {
   usuario: Usuario | null = null;
   tipoUsuario: string = 'vecino';
   solicitudSocioEstado: string | null = null;
   detallesSolicitud: SolicitudSocioDTO | null = null;
+  noticiasDestacadas: Noticia[] = [];
 
   // Menús específicos por rol
   private menuVecino: MenuOption[] = [
@@ -116,7 +120,8 @@ export class HomePage implements OnInit {
   constructor(
     private router: Router,
     private autenticacionService: AutenticacionService,
-    private sociosService: SociosService
+    private sociosService: SociosService,
+    private comunicacionService: ComunicacionService
   ) {}
 
   ngOnInit() {
@@ -147,10 +152,23 @@ export class HomePage implements OnInit {
       }
     });
 
+    this.cargarNoticiasDestacadas();
+
     // Suscribirse a los eventos de navegación para actualizar el estado
     this.router.events.subscribe(() => {
       if (this.tipoUsuario === 'vecino' && this.usuario) {
         this.consultarEstadoSolicitudSocio();
+      }
+    });
+  }
+
+  cargarNoticiasDestacadas() {
+    this.comunicacionService.getNoticiasDestacadas().subscribe({
+      next: (noticias) => {
+        this.noticiasDestacadas = noticias;
+      },
+      error: (error) => {
+        console.error('Error al cargar noticias destacadas:', error);
       }
     });
   }
@@ -194,5 +212,9 @@ export class HomePage implements OnInit {
 
   navigateTo(route: string) {
     this.router.navigate([route]);
+  }
+
+  verDetalleNoticia(noticiaId: number) {
+    this.router.navigate(['/comunicacion/detalle-noticia', noticiaId]);
   }
 }

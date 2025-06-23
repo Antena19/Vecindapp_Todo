@@ -1,0 +1,177 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/comunicacion"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Gestión de Noticias</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="crearNuevaNoticia()">
+        <ion-icon name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Filtros de búsqueda -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Filtros de Búsqueda</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="stacked">Buscar</ion-label>
+        <ion-input 
+          [(ngModel)]="textoBusqueda" 
+          placeholder="Buscar por título o contenido..."
+          (ionInput)="buscarNoticias()">
+        </ion-input>
+      </ion-item>
+
+      <ion-row>
+        <ion-col size="6">
+          <ion-item>
+            <ion-label position="stacked">Estado</ion-label>
+            <ion-select [(ngModel)]="filtroEstado" (ionChange)="aplicarFiltros()">
+              <ion-select-option *ngFor="let estado of estados" [value]="estado.valor">
+                {{ estado.texto }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+        <ion-col size="6">
+          <ion-item>
+            <ion-label position="stacked">Categoría</ion-label>
+            <ion-select [(ngModel)]="filtroCategoria" (ionChange)="aplicarFiltros()">
+              <ion-select-option *ngFor="let cat of categorias" [value]="cat.valor">
+                {{ cat.texto }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-item>
+        <ion-label position="stacked">Alcance</ion-label>
+        <ion-select [(ngModel)]="filtroAlcance" (ionChange)="aplicarFiltros()">
+          <ion-select-option *ngFor="let alc of alcances" [value]="alc.valor">
+            {{ alc.texto }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-button expand="block" fill="outline" (click)="limpiarFiltros()">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Limpiar Filtros
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de noticias -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        Noticias ({{ noticiasFiltradas.length }})
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-spinner *ngIf="loading" name="crescent" class="loading-spinner"></ion-spinner>
+      
+      <div *ngIf="!loading && noticiasFiltradas.length === 0" class="no-noticias">
+        <ion-icon name="newspaper-outline" size="large" color="medium"></ion-icon>
+        <p>No se encontraron noticias con los filtros aplicados</p>
+      </div>
+
+      <ion-list *ngIf="!loading && noticiasFiltradas.length > 0">
+        <ion-item *ngFor="let noticia of noticiasFiltradas" class="noticia-item">
+          <ion-thumbnail slot="start" *ngIf="noticia.imagenUrl">
+            <img [src]="noticia.imagenUrl" [alt]="noticia.titulo">
+          </ion-thumbnail>
+          
+          <ion-label>
+            <h2>{{ noticia.titulo }}</h2>
+            <p>{{ noticia.contenido | slice:0:100 }}...</p>
+            
+            <div class="metadatos">
+              <ion-chip [color]="getEstadoColor(noticia.estado)" size="small">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                {{ noticia.estado }}
+              </ion-chip>
+              
+              <ion-chip [color]="getPrioridadColor(noticia.prioridad)" size="small">
+                <ion-icon name="flag"></ion-icon>
+                {{ noticia.prioridad }}
+              </ion-chip>
+              
+              <ion-chip [color]="getAlcanceColor(noticia.alcance)" size="small">
+                <ion-icon name="people"></ion-icon>
+                {{ noticia.alcance }}
+              </ion-chip>
+              
+              <ion-chip color="medium" size="small">
+                <ion-icon [name]="getCategoriaIcon(noticia.categoria)"></ion-icon>
+                {{ noticia.categoria }}
+              </ion-chip>
+            </div>
+            
+            <p class="fecha">{{ noticia.fechaCreacion | date:'short' }}</p>
+            <p class="autor">Por: {{ noticia.autorNombre }}</p>
+          </ion-label>
+          
+          <ion-button slot="end" fill="clear" (click)="editarNoticia(noticia.id)">
+            <ion-icon name="create" color="primary"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Acciones por noticia -->
+  <ion-card *ngIf="!loading && noticiasFiltradas.length > 0">
+    <ion-card-header>
+      <ion-card-title>Acciones Rápidas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let noticia of noticiasFiltradas" class="acciones-item">
+          <ion-label>
+            <h3>{{ noticia.titulo | slice:0:50 }}...</h3>
+          </ion-label>
+          
+          <ion-button 
+            *ngIf="noticia.estado === 'INACTIVO'" 
+            fill="clear" 
+            color="success" 
+            size="small"
+            (click)="publicarNoticia(noticia.id)">
+            <ion-icon name="send"></ion-icon>
+            Publicar
+          </ion-button>
+          
+          <ion-button 
+            *ngIf="noticia.prioridad === 'ALTA' && noticia.estado === 'ACTIVO'" 
+            fill="clear" 
+            color="warning" 
+            size="small"
+            (click)="notificarAvisoImportante(noticia.id)">
+            <ion-icon name="notifications"></ion-icon>
+            Notificar
+          </ion-button>
+          
+          <ion-button 
+            fill="clear" 
+            color="danger" 
+            size="small"
+            (click)="eliminarNoticia(noticia.id)">
+            <ion-icon name="trash"></ion-icon>
+            Eliminar
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content> 

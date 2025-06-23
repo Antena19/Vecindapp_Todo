@@ -1,0 +1,155 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/comunicacion"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Publicar Noticia</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancelar()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="noticiaForm" (ngSubmit)="guardarNoticia()">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Información de la Noticia</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="stacked">Título *</ion-label>
+          <ion-input 
+            formControlName="titulo" 
+            placeholder="Ingresa el título de la noticia"
+            maxlength="200">
+          </ion-input>
+        </ion-item>
+        <div *ngIf="noticiaForm.get('titulo')?.invalid && noticiaForm.get('titulo')?.touched" class="error-message">
+          <small *ngIf="noticiaForm.get('titulo')?.errors?.['required']">El título es requerido</small>
+          <small *ngIf="noticiaForm.get('titulo')?.errors?.['minlength']">El título debe tener al menos 5 caracteres</small>
+          <small *ngIf="noticiaForm.get('titulo')?.errors?.['maxlength']">El título no puede exceder 200 caracteres</small>
+        </div>
+
+        <ion-item>
+          <ion-label position="stacked">Contenido *</ion-label>
+          <ion-textarea 
+            formControlName="contenido" 
+            placeholder="Escribe el contenido de la noticia..."
+            rows="8"
+            maxlength="2000">
+          </ion-textarea>
+        </ion-item>
+        <div *ngIf="noticiaForm.get('contenido')?.invalid && noticiaForm.get('contenido')?.touched" class="error-message">
+          <small *ngIf="noticiaForm.get('contenido')?.errors?.['required']">El contenido es requerido</small>
+          <small *ngIf="noticiaForm.get('contenido')?.errors?.['minlength']">El contenido debe tener al menos 20 caracteres</small>
+        </div>
+
+        <ion-item>
+          <ion-label position="stacked">Categoría *</ion-label>
+          <ion-select formControlName="categoria">
+            <ion-select-option *ngFor="let cat of categorias" [value]="cat.valor">
+              {{ cat.texto }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Alcance *</ion-label>
+          <ion-select formControlName="alcance">
+            <ion-select-option *ngFor="let alc of alcances" [value]="alc.valor">
+              {{ alc.texto }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Prioridad *</ion-label>
+          <ion-select formControlName="prioridad">
+            <ion-select-option *ngFor="let pri of prioridades" [value]="pri.valor">
+              {{ pri.texto }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Etiquetas (opcional)</ion-label>
+          <ion-input 
+            formControlName="tags" 
+            placeholder="Separadas por comas (ej: vecinos, seguridad, eventos)">
+          </ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Imagen -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Imagen (opcional)</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="!imagenSeleccionada" class="imagen-placeholder">
+          <ion-button fill="outline" (click)="seleccionarImagen()">
+            <ion-icon name="camera" slot="start"></ion-icon>
+            Agregar Imagen
+          </ion-button>
+        </div>
+
+        <div *ngIf="imagenSeleccionada" class="imagen-preview">
+          <img [src]="imagenSeleccionada" alt="Vista previa">
+          <ion-button fill="clear" color="danger" (click)="eliminarImagen()">
+            <ion-icon name="trash" slot="start"></ion-icon>
+            Eliminar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Opciones de publicación -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Opciones de Publicación</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-checkbox formControlName="publicarInmediatamente"></ion-checkbox>
+          <ion-label>Publicar inmediatamente</ion-label>
+        </ion-item>
+        
+        <div class="info-text">
+          <p *ngIf="noticiaForm.get('publicarInmediatamente')?.value">
+            <ion-icon name="information-circle" color="primary"></ion-icon>
+            La noticia será publicada inmediatamente y visible para todos los usuarios.
+          </p>
+          <p *ngIf="!noticiaForm.get('publicarInmediatamente')?.value">
+            <ion-icon name="information-circle" color="warning"></ion-icon>
+            La noticia se guardará como borrador y podrás publicarla más tarde.
+          </p>
+        </div>
+
+        <div *ngIf="noticiaForm.get('prioridad')?.value === 'ALTA' && noticiaForm.get('publicarInmediatamente')?.value" 
+             class="warning-text">
+          <ion-icon name="warning" color="danger"></ion-icon>
+          <p>Las noticias de alta prioridad enviarán notificaciones push automáticamente.</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botones de acción -->
+    <div class="action-buttons">
+      <ion-button expand="block" fill="outline" (click)="guardarBorrador()" 
+                 [disabled]="noticiaForm.invalid">
+        <ion-icon name="save" slot="start"></ion-icon>
+        Guardar Borrador
+      </ion-button>
+
+      <ion-button expand="block" type="submit" 
+                 [disabled]="noticiaForm.invalid">
+        <ion-icon name="send" slot="start"></ion-icon>
+        {{ noticiaForm.get('publicarInmediatamente')?.value ? 'Publicar Ahora' : 'Guardar' }}
+      </ion-button>
+    </div>
+  </form>
+</ion-content> 

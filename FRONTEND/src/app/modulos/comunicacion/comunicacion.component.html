@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Comunicación y Notificaciones</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="navegarANotificaciones()">
+        <ion-icon name="notifications"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Menú de navegación -->
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6">
+        <ion-card (click)="navegarALista()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="newspaper" size="large" color="primary"></ion-icon>
+            <h3>Ver Noticias</h3>
+            <p>Explora todas las publicaciones</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="6">
+        <ion-card (click)="navegarACrear()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="add-circle" size="large" color="success"></ion-icon>
+            <h3>Publicar Noticia</h3>
+            <p>Crea una nueva publicación</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="6">
+        <ion-card (click)="navegarAGestion()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="settings" size="large" color="warning"></ion-icon>
+            <h3>Gestionar Noticias</h3>
+            <p>Administra publicaciones</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col size="6">
+        <ion-card (click)="navegarAEstadisticas()" class="menu-card">
+          <ion-card-content>
+            <ion-icon name="analytics" size="large" color="tertiary"></ion-icon>
+            <h3>Estadísticas</h3>
+            <p>Métricas de comunicación</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Noticias Destacadas -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Noticias Destacadas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+      
+      <div *ngIf="!loading && noticiasDestacadas.length === 0" class="no-noticias">
+        <ion-icon name="newspaper-outline" size="large" color="medium"></ion-icon>
+        <p>No hay noticias destacadas disponibles</p>
+      </div>
+
+      <ion-list *ngIf="!loading && noticiasDestacadas.length > 0">
+        <ion-item *ngFor="let noticia of noticiasDestacadas" 
+                  [routerLink]="['/comunicacion/detalle', noticia.id]"
+                  button>
+          <ion-thumbnail slot="start" *ngIf="noticia.imagenUrl">
+            <img [src]="noticia.imagenUrl" [alt]="noticia.titulo">
+          </ion-thumbnail>
+          <ion-label>
+            <h2>{{ noticia.titulo }}</h2>
+            <p>{{ noticia.contenido | slice:0:100 }}...</p>
+            <ion-chip [color]="getPrioridadColor(noticia.prioridad)" size="small">
+              {{ noticia.prioridad }}
+            </ion-chip>
+            <ion-chip [color]="getAlcanceColor(noticia.alcance)" size="small">
+              {{ noticia.alcance }}
+            </ion-chip>
+            <p class="fecha">{{ noticia.fechaPublicacion | date:'short' }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Router outlet para sub-rutas -->
+  <router-outlet></router-outlet>
+</ion-content> 

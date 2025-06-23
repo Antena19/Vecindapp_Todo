@@ -1,0 +1,185 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/comunicacion"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Estadísticas de Comunicación</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-spinner *ngIf="loading" name="crescent" class="loading-spinner"></ion-spinner>
+
+  <div *ngIf="!loading && estadisticas" class="estadisticas-container">
+    <!-- Resumen general -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Resumen General</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="resumen-grid">
+          <div class="estadistica-item">
+            <ion-icon name="newspaper" color="primary" size="large"></ion-icon>
+            <div class="texto">
+              <h3>{{ estadisticas.totalNoticias }}</h3>
+              <p>Total Noticias</p>
+            </div>
+          </div>
+          
+          <div class="estadistica-item">
+            <ion-icon name="people" color="secondary" size="large"></ion-icon>
+            <div class="texto">
+              <h3>{{ estadisticas.usuariosNotificados }}</h3>
+              <p>Usuarios Notificados</p>
+            </div>
+          </div>
+          
+          <div class="estadistica-item">
+            <ion-icon name="notifications" color="warning" size="large"></ion-icon>
+            <div class="texto">
+              <h3>{{ estadisticas.notificacionesEnviadas }}</h3>
+              <p>Notificaciones Enviadas</p>
+            </div>
+          </div>
+          
+          <div class="estadistica-item">
+            <ion-icon name="trending-up" [color]="getColorPorTasa(estadisticas.tasaLectura)" size="large"></ion-icon>
+            <div class="texto">
+              <h3>{{ estadisticas.tasaLectura }}%</h3>
+              <p>Tasa de Lectura</p>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Distribución de noticias -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Distribución de Noticias</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="distribucion-noticias">
+          <div class="distribucion-item">
+            <div class="barra-progreso">
+              <div class="progreso" 
+                   [style.width.%]="calcularPorcentaje(estadisticas.noticiasPublicas, estadisticas.totalNoticias)"
+                   color="primary">
+              </div>
+            </div>
+            <div class="info">
+              <span class="label">Públicas</span>
+              <span class="valor">{{ estadisticas.noticiasPublicas }} ({{ calcularPorcentaje(estadisticas.noticiasPublicas, estadisticas.totalNoticias) }}%)</span>
+            </div>
+          </div>
+          
+          <div class="distribucion-item">
+            <div class="barra-progreso">
+              <div class="progreso" 
+                   [style.width.%]="calcularPorcentaje(estadisticas.noticiasSocios, estadisticas.totalNoticias)"
+                   color="secondary">
+              </div>
+            </div>
+            <div class="info">
+              <span class="label">Solo Socios</span>
+              <span class="valor">{{ estadisticas.noticiasSocios }} ({{ calcularPorcentaje(estadisticas.noticiasSocios, estadisticas.totalNoticias) }}%)</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Estado de notificaciones -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Estado de Notificaciones</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="estado-notificaciones">
+          <div class="estado-item">
+            <ion-icon name="checkmark-circle" color="success" size="large"></ion-icon>
+            <div class="texto">
+              <h3>{{ estadisticas.notificacionesEnviadas }}</h3>
+              <p>Enviadas</p>
+            </div>
+          </div>
+          
+          <div class="estado-item">
+            <ion-icon name="time" color="warning" size="large"></ion-icon>
+            <div class="texto">
+              <h3>{{ estadisticas.notificacionesPendientes }}</h3>
+              <p>Pendientes</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tasa-lectura">
+          <h4>Tasa de Lectura</h4>
+          <div class="barra-progreso-grande">
+            <div class="progreso" 
+                 [style.width.%]="estadisticas.tasaLectura"
+                 [class]="'progreso-' + getColorPorTasa(estadisticas.tasaLectura)">
+            </div>
+          </div>
+          <p class="descripcion">
+            {{ estadisticas.tasaLectura }}% de las notificaciones han sido leídas por los usuarios
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Métricas de rendimiento -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Métricas de Rendimiento</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="metricas">
+          <div class="metrica">
+            <ion-icon name="analytics" color="primary"></ion-icon>
+            <div class="info">
+              <h4>Efectividad de Comunicación</h4>
+              <p>Basada en la tasa de lectura y engagement</p>
+            </div>
+            <div class="valor" [class]="'valor-' + getColorPorTasa(estadisticas.tasaLectura)">
+              {{ estadisticas.tasaLectura }}%
+            </div>
+          </div>
+          
+          <div class="metrica">
+            <ion-icon name="people-circle" color="secondary"></ion-icon>
+            <div class="info">
+              <h4>Cobertura de Usuarios</h4>
+              <p>Porcentaje de usuarios que reciben notificaciones</p>
+            </div>
+            <div class="valor" color="success">
+              {{ estadisticas.usuariosNotificados > 0 ? 'Alta' : 'Baja' }}
+            </div>
+          </div>
+          
+          <div class="metrica">
+            <ion-icon name="speedometer" color="warning"></ion-icon>
+            <div class="info">
+              <h4>Velocidad de Entrega</h4>
+              <p>Eficiencia en el envío de notificaciones</p>
+            </div>
+            <div class="valor" color="success">
+              {{ estadisticas.notificacionesPendientes === 0 ? 'Óptima' : 'Pendiente' }}
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Mensaje de error si no se pueden cargar las estadísticas -->
+  <div *ngIf="!loading && !estadisticas" class="error-container">
+    <ion-icon name="alert-circle" size="large" color="danger"></ion-icon>
+    <h2>No se pudieron cargar las estadísticas</h2>
+    <p>Intenta nuevamente más tarde.</p>
+  </div>
+</ion-content> 

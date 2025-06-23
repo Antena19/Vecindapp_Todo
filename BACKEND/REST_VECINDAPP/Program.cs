@@ -69,6 +69,7 @@ builder.Services.AddScoped<cn_Certificados>();
 builder.Services.AddScoped<cn_SolicitudesCertificado>();
 builder.Services.AddScoped<cn_MercadoPago>();
 builder.Services.AddScoped<cn_Eventos>();
+builder.Services.AddScoped<cn_Comunicacion>();
 builder.Services.AddScoped<TransbankServiceV2>();
 builder.Services.AddScoped<WebpayService>();
 

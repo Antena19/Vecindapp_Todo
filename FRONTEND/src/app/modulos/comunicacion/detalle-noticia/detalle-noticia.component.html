@@ -1,0 +1,145 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/comunicacion"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle de Noticia</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="compartirNoticia()">
+        <ion-icon name="share"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-spinner *ngIf="loading" name="crescent" class="loading-spinner"></ion-spinner>
+
+  <div *ngIf="!loading && noticia" class="noticia-container">
+    <!-- Imagen de la noticia -->
+    <div *ngIf="noticia.imagenUrl" class="imagen-noticia">
+      <img [src]="noticia.imagenUrl" [alt]="noticia.titulo">
+    </div>
+
+    <!-- Información de la noticia -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ noticia.titulo }}</ion-card-title>
+        <ion-card-subtitle>
+          <ion-icon [name]="getCategoriaIcon(noticia.categoria)" color="primary"></ion-icon>
+          {{ noticia.categoria }}
+        </ion-card-subtitle>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <!-- Metadatos -->
+        <div class="metadatos">
+          <ion-chip [color]="getPrioridadColor(noticia.prioridad)" size="small">
+            <ion-icon name="flag"></ion-icon>
+            {{ noticia.prioridad }}
+          </ion-chip>
+          
+          <ion-chip [color]="getAlcanceColor(noticia.alcance)" size="small">
+            <ion-icon name="people"></ion-icon>
+            {{ noticia.alcance }}
+          </ion-chip>
+          
+          <ion-chip color="medium" size="small">
+            <ion-icon name="person"></ion-icon>
+            {{ noticia.autorNombre }}
+          </ion-chip>
+          
+          <ion-chip color="medium" size="small">
+            <ion-icon name="calendar"></ion-icon>
+            {{ noticia.fechaPublicacion | date:'short' }}
+          </ion-chip>
+        </div>
+
+        <!-- Contenido -->
+        <div class="contenido-noticia">
+          <p [innerHTML]="noticia.contenido"></p>
+        </div>
+
+        <!-- Tags -->
+        <div *ngIf="noticia.tags && noticia.tags.length > 0" class="tags">
+          <ion-chip *ngFor="let tag of noticia.tags" color="light" size="small">
+            <ion-icon name="pricetag"></ion-icon>
+            {{ tag }}
+          </ion-chip>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Sección de comentarios -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Comentarios ({{ comentarios.length }})</ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <!-- Formulario para agregar comentario -->
+        <form [formGroup]="comentarioForm" (ngSubmit)="agregarComentario()" class="comentario-form">
+          <ion-item>
+            <ion-textarea 
+              formControlName="contenido" 
+              placeholder="Escribe un comentario..."
+              rows="3"
+              maxlength="500">
+            </ion-textarea>
+          </ion-item>
+          <div *ngIf="comentarioForm.get('contenido')?.invalid && comentarioForm.get('contenido')?.touched" class="error-message">
+            <small *ngIf="comentarioForm.get('contenido')?.errors?.['required']">El comentario es requerido</small>
+            <small *ngIf="comentarioForm.get('contenido')?.errors?.['minlength']">El comentario debe tener al menos 5 caracteres</small>
+            <small *ngIf="comentarioForm.get('contenido')?.errors?.['maxlength']">El comentario no puede exceder 500 caracteres</small>
+          </div>
+          <ion-button expand="block" type="submit" [disabled]="comentarioForm.invalid">
+            <ion-icon name="send" slot="start"></ion-icon>
+            Agregar Comentario
+          </ion-button>
+        </form>
+
+        <!-- Lista de comentarios -->
+        <div class="comentarios-lista">
+          <ion-spinner *ngIf="comentariosLoading" name="crescent"></ion-spinner>
+          
+          <div *ngIf="!comentariosLoading && comentarios.length === 0" class="no-comentarios">
+            <ion-icon name="chatbubble-outline" size="large" color="medium"></ion-icon>
+            <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+          </div>
+
+          <ion-item *ngFor="let comentario of comentarios" class="comentario-item">
+            <ion-avatar slot="start">
+              <ion-icon name="person" size="large"></ion-icon>
+            </ion-avatar>
+            
+            <ion-label>
+              <h3>{{ comentario.usuarioNombre }}</h3>
+              <p>{{ comentario.contenido }}</p>
+              <p class="fecha-comentario">{{ comentario.fechaCreacion | date:'short' }}</p>
+            </ion-label>
+            
+            <ion-button 
+              *ngIf="comentario.usuarioRut === usuarioActual?.rut" 
+              fill="clear" 
+              color="danger" 
+              size="small"
+              (click)="eliminarComentario(comentario.id)">
+              <ion-icon name="trash"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Mensaje de error si no se encuentra la noticia -->
+  <div *ngIf="!loading && !noticia" class="error-container">
+    <ion-icon name="alert-circle" size="large" color="danger"></ion-icon>
+    <h2>Noticia no encontrada</h2>
+    <p>La noticia que buscas no existe o ha sido eliminada.</p>
+    <ion-button expand="block" (click)="volver()">
+      <ion-icon name="arrow-back" slot="start"></ion-icon>
+      Volver
+    </ion-button>
+  </div>
+</ion-content> 

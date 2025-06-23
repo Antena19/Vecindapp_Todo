@@ -1,0 +1,139 @@
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  
+  small {
+    display: block;
+  }
+}
+
+.imagen-placeholder {
+  text-align: center;
+  padding: 32px 16px;
+  border: 2px dashed var(--ion-color-medium);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.imagen-preview {
+  text-align: center;
+  
+  img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+}
+
+.info-text {
+  margin-top: 16px;
+  
+  p {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.warning-text {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--ion-color-danger-tint);
+  border-radius: 8px;
+  
+  ion-icon {
+    margin-right: 8px;
+    font-size: 20px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ion-color-danger-shade);
+  }
+}
+
+.action-buttons {
+  padding: 16px;
+  
+  ion-button {
+    margin-bottom: 12px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 32px;
+  text-align: center;
+  
+  ion-icon {
+    margin-bottom: 16px;
+  }
+  
+  h2 {
+    margin: 0 0 8px 0;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    margin: 0 0 24px 0;
+    color: var(--ion-color-medium);
+    line-height: 1.4;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .imagen-preview img {
+    max-height: 150px;
+  }
+  
+  .action-buttons {
+    padding: 12px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .error-container h2 {
+    color: var(--ion-color-light);
+  }
+  
+  .error-container p {
+    color: var(--ion-color-light-shade);
+  }
+  
+  .warning-text {
+    background: var(--ion-color-danger-shade);
+    
+    p {
+      color: var(--ion-color-light);
+    }
+  }
+} 

@@ -55,6 +55,16 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'comunicacion',
+    loadChildren: () => import('./modulos/comunicacion/comunicacion.module').then(m => m.ComunicacionModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'noticias',
+    redirectTo: 'comunicacion',
+    pathMatch: 'full'
+  },
+  {
     path: 'payment',
     loadComponent: () => import('./pages/payment/payment.page').then(m => m.PaymentPage)
   },

@@ -75,13 +75,32 @@
       </ion-card>
     </ng-container>
 
-    <!-- Tarjeta común de anuncios/alertas -->
-    <ion-card class="general-info-card">
-      <ion-card-content>
-        <h2>Próxima reunión vecinal</h2>
-        <p>Jueves, 18:00 - Centro comunitario</p>
-      </ion-card-content>
-    </ion-card>
+    <!-- Carrusel de noticias destacadas o tarjeta de información general -->
+    <ng-container *ngIf="noticiasDestacadas.length > 0; else infoGeneral">
+      <swiper-container [slidesPerView]="1" [spaceBetween]="10" [pagination]="true" [loop]="true" [autoplay]="{ delay: 5000 }">
+        <swiper-slide *ngFor="let noticia of noticiasDestacadas" (click)="verDetalleNoticia(noticia.id)" class="featured-news-slide">
+          <ion-card class="general-info-card">
+            <ion-card-header>
+              <ion-card-subtitle>Noticia Destacada</ion-card-subtitle>
+              <ion-card-title>{{ noticia.titulo }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <p>{{ noticia.resumen || (noticia.contenido | slice:0:150) + '...' }}</p>
+            </ion-card-content>
+          </ion-card>
+        </swiper-slide>
+      </swiper-container>
+    </ng-container>
+
+    <!-- Tarjeta común de anuncios/alertas (fallback) -->
+    <ng-template #infoGeneral>
+      <ion-card class="general-info-card">
+        <ion-card-content>
+          <h2>Próxima reunión vecinal</h2>
+          <p>Jueves, 18:00 - Centro comunitario</p>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
   </ng-container>
 
   <ion-grid>
