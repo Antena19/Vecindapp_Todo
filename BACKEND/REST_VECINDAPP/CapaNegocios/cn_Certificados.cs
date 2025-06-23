@@ -27,22 +27,21 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_SOLICITAR_CERTIFICADO", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_usuario_rut", usuarioId);
-            command.Parameters.AddWithValue("@p_tipo_certificado_id", solicitud.TipoCertificadoId);
-            command.Parameters.AddWithValue("@p_motivo", solicitud.Motivo);
-            command.Parameters.AddWithValue("@p_documentos_adjuntos", solicitud.DocumentosAdjuntos ?? string.Empty);
-            command.Parameters.AddWithValue("@p_precio", solicitud.Precio);
-            command.Parameters.AddWithValue("@p_observaciones", solicitud.Observaciones ?? string.Empty);
-            command.Parameters.AddWithValue("@p_nombre_solicitante", solicitud.NombreSolicitante ?? string.Empty);
-            command.Parameters.AddWithValue("@p_rut_solicitante", solicitud.RutSolicitante ?? string.Empty);
-            command.Parameters.AddWithValue("@p_telefono", solicitud.Telefono ?? string.Empty);
-            command.Parameters.AddWithValue("@p_direccion", solicitud.Direccion ?? string.Empty);
-            command.Parameters.AddWithValue("@p_firma_digital", solicitud.FirmaDigital ?? string.Empty);
-            command.Parameters.AddWithValue("@p_hash_verificacion", solicitud.HashVerificacion ?? string.Empty);
-            command.Parameters.AddWithValue("@p_timestamp_firma", solicitud.TimestampFirma.ToString());
-            command.Parameters.AddWithValue("@p_usuario_firmante", solicitud.UsuarioFirmante ?? string.Empty);
+            
+            // Usar consulta SQL directa en lugar del stored procedure
+            var query = @"
+                INSERT INTO solicitudes_certificado 
+                (usuario_rut, tipo_certificado_id, motivo, documentos_adjuntos, precio, observaciones)
+                VALUES (@usuario_rut, @tipo_certificado_id, @motivo, @documentos_adjuntos, @precio, @observaciones);
+                SELECT LAST_INSERT_ID();";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@usuario_rut", usuarioId);
+            command.Parameters.AddWithValue("@tipo_certificado_id", solicitud.TipoCertificadoId);
+            command.Parameters.AddWithValue("@motivo", solicitud.Motivo ?? string.Empty);
+            command.Parameters.AddWithValue("@documentos_adjuntos", solicitud.DocumentosAdjuntos ?? string.Empty);
+            command.Parameters.AddWithValue("@precio", solicitud.Precio);
+            command.Parameters.AddWithValue("@observaciones", solicitud.Observaciones ?? string.Empty);
 
             var solicitudId = Convert.ToInt32(await command.ExecuteScalarAsync());
             return solicitudId;
@@ -52,9 +51,16 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_APROBAR_CERTIFICADO", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+            
+            // Usar consulta SQL directa en lugar del stored procedure
+            var query = @"
+                UPDATE solicitudes_certificado 
+                SET estado = 'aprobado', 
+                    fecha_aprobacion = NOW() 
+                WHERE id = @solicitud_id";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@solicitud_id", solicitudId);
             var result = await command.ExecuteNonQueryAsync();
             return result > 0;
         }
@@ -63,10 +69,17 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_RECHAZAR_CERTIFICADO", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
-            command.Parameters.AddWithValue("@p_motivo_rechazo", motivoRechazo);
+            
+            // Usar consulta SQL directa en lugar del stored procedure
+            var query = @"
+                UPDATE solicitudes_certificado 
+                SET estado = 'rechazado', 
+                    observaciones = @motivo_rechazo 
+                WHERE id = @solicitud_id";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@solicitud_id", solicitudId);
+            command.Parameters.AddWithValue("@motivo_rechazo", motivoRechazo);
             var result = await command.ExecuteNonQueryAsync();
             return result > 0;
         }
@@ -101,9 +114,29 @@ namespace REST_VECINDAPP.CapaNegocios
             var solicitudes = new List<SolicitudCertificadoDTO>();
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_OBTENER_SOLICITUDES_USUARIO", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_usuario_rut", usuarioRut);
+            
+            // Usar consulta SQL directa en lugar del stored procedure que no existe
+            var query = @"
+                SELECT 
+                    sc.id,
+                    sc.usuario_rut,
+                    sc.tipo_certificado_id,
+                    sc.fecha_solicitud,
+                    sc.estado,
+                    sc.motivo,
+                    sc.documentos_adjuntos,
+                    sc.fecha_aprobacion,
+                    sc.directiva_rut,
+                    sc.precio,
+                    sc.observaciones,
+                    tc.nombre AS tipo_certificado_nombre
+                FROM solicitudes_certificado sc
+                LEFT JOIN tipos_certificado tc ON sc.tipo_certificado_id = tc.id
+                WHERE sc.usuario_rut = @usuario_rut
+                ORDER BY sc.fecha_solicitud DESC";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@usuario_rut", usuarioRut);
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -114,12 +147,12 @@ namespace REST_VECINDAPP.CapaNegocios
                     TipoCertificadoId = reader.GetInt32("tipo_certificado_id"),
                     FechaSolicitud = reader.GetDateTime("fecha_solicitud"),
                     Estado = reader.GetString("estado"),
-                    Motivo = reader.GetString("motivo"),
-                    DocumentosAdjuntos = reader.GetString("documentos_adjuntos"),
+                    Motivo = reader.IsDBNull("motivo") ? null : reader.GetString("motivo"),
+                    DocumentosAdjuntos = reader.IsDBNull("documentos_adjuntos") ? null : reader.GetString("documentos_adjuntos"),
                     FechaAprobacion = reader.IsDBNull("fecha_aprobacion") ? null : reader.GetDateTime("fecha_aprobacion"),
                     DirectivaRut = reader.IsDBNull("directiva_rut") ? null : reader.GetInt32("directiva_rut"),
                     Precio = reader.GetDecimal("precio"),
-                    Observaciones = reader.GetString("observaciones")
+                    Observaciones = reader.IsDBNull("observaciones") ? null : reader.GetString("observaciones")
                 });
             }
             return solicitudes;
@@ -130,8 +163,28 @@ namespace REST_VECINDAPP.CapaNegocios
             var solicitudes = new List<SolicitudCertificadoDTO>();
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_OBTENER_SOLICITUDES_PENDIENTES", connection);
-            command.CommandType = CommandType.StoredProcedure;
+            
+            // Usar consulta SQL directa en lugar del stored procedure
+            var query = @"
+                SELECT 
+                    sc.id,
+                    sc.usuario_rut,
+                    sc.tipo_certificado_id,
+                    sc.fecha_solicitud,
+                    sc.estado,
+                    sc.motivo,
+                    sc.documentos_adjuntos,
+                    sc.fecha_aprobacion,
+                    sc.directiva_rut,
+                    sc.precio,
+                    sc.observaciones,
+                    tc.nombre AS tipo_certificado_nombre
+                FROM solicitudes_certificado sc
+                LEFT JOIN tipos_certificado tc ON sc.tipo_certificado_id = tc.id
+                WHERE sc.estado = 'pendiente'
+                ORDER BY sc.fecha_solicitud DESC";
+                
+            using var command = new MySqlCommand(query, connection);
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -157,9 +210,28 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_OBTENER_DETALLE_SOLICITUD", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+            
+            // Usar consulta SQL directa en lugar del stored procedure
+            var query = @"
+                SELECT 
+                    sc.id,
+                    sc.usuario_rut,
+                    sc.tipo_certificado_id,
+                    sc.fecha_solicitud,
+                    sc.estado,
+                    sc.motivo,
+                    sc.documentos_adjuntos,
+                    sc.fecha_aprobacion,
+                    sc.directiva_rut,
+                    sc.precio,
+                    sc.observaciones,
+                    tc.nombre AS tipo_certificado_nombre
+                FROM solicitudes_certificado sc
+                LEFT JOIN tipos_certificado tc ON sc.tipo_certificado_id = tc.id
+                WHERE sc.id = @solicitud_id";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@solicitud_id", solicitudId);
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
@@ -185,9 +257,15 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_OBTENER_ESTADO_PAGO", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_preferencia_id", preferenciaId);
+            
+            // Usar consulta SQL directa en lugar del stored procedure
+            var query = @"
+                SELECT estado 
+                FROM pagos 
+                WHERE token_webpay = @preferencia_id";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@preferencia_id", preferenciaId);
             var result = await command.ExecuteScalarAsync();
             return result?.ToString();
         }
@@ -198,10 +276,16 @@ namespace REST_VECINDAPP.CapaNegocios
             {
                 using var connection = new MySqlConnection(_connectionString);
                 await connection.OpenAsync();
-                using var command = new MySqlCommand("SP_PROCESAR_PAGO_CERTIFICADO", connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
-                command.Parameters.AddWithValue("@p_preferencia_id", preferenciaId);
+                
+                // Usar consulta SQL directa en lugar del stored procedure
+                var query = @"
+                    UPDATE solicitudes_certificado 
+                    SET estado = 'aprobado', 
+                        fecha_aprobacion = NOW() 
+                    WHERE id = @solicitud_id";
+                    
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@solicitud_id", solicitudId);
                 var result = await command.ExecuteNonQueryAsync();
                 return (result > 0, "Pago procesado correctamente");
             }
@@ -215,9 +299,29 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_OBTENER_CERTIFICADO", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+            
+            // Usar consulta SQL directa y aliasar solicitud_id como id
+            var query = @"
+                SELECT 
+                    c.solicitud_id AS id,
+                    c.solicitud_id,
+                    c.codigo_verificacion,
+                    c.fecha_emision,
+                    c.fecha_vencimiento,
+                    c.archivo_pdf,
+                    c.estado,
+                    sc.usuario_rut,
+                    sc.tipo_certificado_id,
+                    sc.fecha_solicitud,
+                    sc.estado AS solicitud_estado,
+                    sc.motivo,
+                    sc.documentos_adjuntos
+                FROM certificados c
+                INNER JOIN solicitudes_certificado sc ON c.solicitud_id = sc.id
+                WHERE c.solicitud_id = @solicitud_id";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@solicitud_id", solicitudId);
             using var reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
@@ -225,10 +329,10 @@ namespace REST_VECINDAPP.CapaNegocios
                 {
                     id = reader.GetInt32("id"),
                     solicitud_id = reader.GetInt32("solicitud_id"),
-                    codigo_verificacion = reader.GetString("codigo_verificacion"),
+                    codigo_verificacion = reader.IsDBNull("codigo_verificacion") ? null : reader.GetString("codigo_verificacion"),
                     fecha_emision = reader.GetDateTime("fecha_emision"),
                     fecha_vencimiento = reader.GetDateTime("fecha_vencimiento"),
-                    archivo_pdf = reader.GetString("archivo_pdf"),
+                    archivo_pdf = reader.IsDBNull("archivo_pdf") ? null : reader.GetString("archivo_pdf"),
                     estado = reader.GetString("estado"),
                     solicitud = new SolicitudCertificado
                     {
@@ -237,8 +341,8 @@ namespace REST_VECINDAPP.CapaNegocios
                         tipo_certificado_id = reader.GetInt32("tipo_certificado_id"),
                         fecha_solicitud = reader.GetDateTime("fecha_solicitud"),
                         estado = reader.GetString("solicitud_estado"),
-                        motivo = reader.GetString("motivo"),
-                        documentos_adjuntos = reader.GetString("documentos_adjuntos")
+                        motivo = reader.IsDBNull("motivo") ? null : reader.GetString("motivo"),
+                        documentos_adjuntos = reader.IsDBNull("documentos_adjuntos") ? null : reader.GetString("documentos_adjuntos")
                     }
                 };
             }
@@ -250,93 +354,127 @@ namespace REST_VECINDAPP.CapaNegocios
             string rutaArchivo = string.Empty;
             try
             {
-                var certificado = await ObtenerCertificado(solicitudId);
-                if (certificado == null)
+                using var connection = new MySqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                // 1. Obtener toda la información necesaria con un solo query
+                var query = @"
+                    SELECT 
+                        s.id AS solicitud_id,
+                        s.motivo,
+                        c.codigo_verificacion,
+                        c.fecha_emision,
+                        u.nombres,
+                        u.apellidos,
+                        u.rut
+                    FROM solicitudes_certificado s
+                    JOIN certificados c ON s.id = c.solicitud_id
+                    JOIN usuarios u ON s.usuario_rut = u.rut
+                    WHERE s.id = @solicitud_id";
+
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@solicitud_id", solicitudId);
+
+                using var reader = await command.ExecuteReaderAsync();
+                if (!await reader.ReadAsync())
                 {
-                    return (false, "No se encontró el certificado");
+                    return (false, "No se encontró la información del certificado y usuario.");
                 }
 
-                // Asegurarnos de que el directorio existe
-                string directorioCertificados = Path.Combine(Directory.GetCurrentDirectory(), "Certificados");
+                var data = new
+                {
+                    CodigoVerificacion = reader.IsDBNull("codigo_verificacion") ? "No disponible" : reader.GetString("codigo_verificacion"),
+                    FechaEmision = reader.GetDateTime("fecha_emision"),
+                    Nombres = reader.GetString("nombres"),
+                    Apellidos = reader.GetString("apellidos"),
+                    Rut = reader.GetInt32("rut"),
+                    Motivo = reader.IsDBNull("motivo") ? "No especificado" : reader.GetString("motivo")
+                };
+                await reader.CloseAsync();
+
+
+                // 2. Definir rutas a las imágenes (ajusta si es necesario)
+                string basePath = Directory.GetCurrentDirectory();
+                string logoPath = Path.Combine(basePath, "..", "FRONTEND", "src", "assets", "images", "logo-junta.png");
+                string firmaPath = Path.Combine(basePath, "..", "FRONTEND", "src", "assets", "images", "firma-presidente.jpg");
+
+                if (!File.Exists(logoPath) || !File.Exists(firmaPath))
+                {
+                    return (false, "No se encontraron las imágenes del logo o la firma en la ruta esperada.");
+                }
+                
+                string directorioCertificados = Path.Combine(basePath, "Certificados");
                 if (!Directory.Exists(directorioCertificados))
                 {
                     Directory.CreateDirectory(directorioCertificados);
                 }
+                rutaArchivo = Path.Combine(directorioCertificados, $"certificado_{solicitudId}.pdf");
 
-                rutaArchivo = Path.Combine(directorioCertificados, $"certificado_{certificado.id}.pdf");
-
-                // Crear el documento PDF con configuración básica
+                // 3. Crear el PDF con iText
                 using var writer = new PdfWriter(new FileStream(rutaArchivo, FileMode.Create, FileAccess.Write));
                 using var pdf = new PdfDocument(writer);
                 using var document = new Document(pdf);
+                document.SetMargins(40, 40, 40, 40);
 
-                // Configuración básica del documento
-                document.SetMargins(50, 50, 50, 50);
+                // Encabezado con logo
+                var logo = new Image(iText.IO.Image.ImageDataFactory.Create(logoPath)).ScaleToFit(100, 100).SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER);
+                document.Add(logo);
 
                 // Título
                 var titulo = new Paragraph("CERTIFICADO DE RESIDENCIA")
                     .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
-                    .SetFontSize(20)
-                    .SetBold();
+                    .SetFontSize(22)
+                    .SetBold()
+                    .SetMarginTop(15);
                 document.Add(titulo);
 
-                // Espacio
-                document.Add(new Paragraph("\n"));
+                // Cuerpo del certificado
+                var cuerpo = new Paragraph($"La Junta de Vecinos 'Villa El Abrazo de Maipú', certifica que Don/Doña {data.Nombres} {data.Apellidos}, RUT {data.Rut}, tiene domicilio en la comuna de Maipú.")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.JUSTIFIED)
+                    .SetFontSize(12)
+                    .SetMarginTop(30)
+                    .SetMarginBottom(30);
+                document.Add(cuerpo);
 
-                // Información del certificado
-                var infoCertificado = new Paragraph()
-                    .Add(new Text($"Código de Verificación: {certificado.codigo_verificacion}\n"))
-                    .Add(new Text($"Fecha de Emisión: {certificado.fecha_emision:dd/MM/yyyy}\n"))
-                    .Add(new Text($"Estado: {certificado.estado}\n"));
-                document.Add(infoCertificado);
+                var motivo = new Paragraph($"El presente certificado se extiende para ser presentado ante: {data.Motivo}.")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.JUSTIFIED)
+                    .SetFontSize(12)
+                    .SetMarginBottom(50);
+                document.Add(motivo);
 
-                // Información del solicitante
-                if (certificado.solicitud != null)
-                {
-                    document.Add(new Paragraph("\n"));
-                    var infoSolicitante = new Paragraph()
-                        .Add(new Text($"Solicitante: {certificado.solicitud.usuario_rut}\n"))
-                        .Add(new Text($"Motivo: {certificado.solicitud.motivo}\n"));
-                    document.Add(infoSolicitante);
-                }
+                // Firma
+                var firma = new Image(iText.IO.Image.ImageDataFactory.Create(firmaPath)).ScaleToFit(150, 75).SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER);
+                var nombrePresidente = new Paragraph("Juan Pérez\nPresidente\nJunta de Vecinos 'Villa El Abrazo'")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
+                    .SetFontSize(11)
+                    .SetMarginTop(5);
+                 document.Add(firma);
+                 document.Add(nombrePresidente);
 
-                // Pie de página
-                document.Add(new Paragraph("\n\n"));
-                var piePagina = new Paragraph("Este certificado es válido por 3 meses desde la fecha de emisión.")
-                    .SetFontSize(10)
-                    .SetItalic()
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER);
-                document.Add(piePagina);
+                // Pie de página con código de validación
+                var fechaEmision = new Paragraph($"Emitido el: {data.FechaEmision:dd 'de' MMMM 'de' yyyy}")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.LEFT)
+                    .SetFontSize(9)
+                    .SetItalic();
 
-                // Cerrar el documento
+                var codigo = new Paragraph($"Código de Verificación: {data.CodigoVerificacion}")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT)
+                    .SetFontSize(9)
+                    .SetItalic();
+                
+                // Usar una tabla para alinear los elementos del pie de página
+                 var table = new iText.Layout.Element.Table(2, true).SetMarginTop(60);
+                 table.AddCell(new Cell().Add(fechaEmision).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                 table.AddCell(new Cell().Add(codigo).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                 document.Add(table);
+
                 document.Close();
-
-                // Actualizar la ruta del archivo en la base de datos
-                using var connection = new MySqlConnection(_connectionString);
-                await connection.OpenAsync();
-                using var command = new MySqlCommand("SP_ACTUALIZAR_RUTA_CERTIFICADO", connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@p_certificado_id", certificado.id);
-                command.Parameters.AddWithValue("@p_ruta_archivo", rutaArchivo);
-                await command.ExecuteNonQueryAsync();
-
+                
                 return (true, "Certificado generado correctamente");
             }
             catch (Exception ex)
             {
-                // Limpiar el archivo si existe
-                if (!string.IsNullOrEmpty(rutaArchivo) && File.Exists(rutaArchivo))
-                {
-                    try
-                    {
-                        File.Delete(rutaArchivo);
-                    }
-                    catch { }
-                }
-
-                // Registrar el error detallado
-                Console.WriteLine($"[ERROR] Detalles del error al generar PDF: {ex}");
-                
+                Console.WriteLine($"[ERROR] Falló la generación del PDF: {ex.Message}\n{ex.StackTrace}");
                 return (false, $"Error al generar el certificado: {ex.Message}");
             }
         }
@@ -346,15 +484,33 @@ namespace REST_VECINDAPP.CapaNegocios
             var certificados = new List<Certificado>();
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_OBTENER_HISTORIAL_CERTIFICADOS", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_usuario_rut", usuarioRut);
+            
+            using var command = new MySqlCommand(
+                @"SELECT 
+                    c.solicitud_id,
+                    c.codigo_verificacion,
+                    c.fecha_emision,
+                    c.archivo_pdf,
+                    c.estado,
+                    sc.usuario_rut,
+                    sc.tipo_certificado_id,
+                    sc.fecha_solicitud,
+                    sc.estado as solicitud_estado,
+                    sc.motivo,
+                    sc.documentos_adjuntos
+                FROM certificados c
+                INNER JOIN solicitudes_certificado sc ON c.solicitud_id = sc.id
+                WHERE sc.usuario_rut = @usuario_rut
+                ORDER BY c.fecha_emision DESC", 
+                connection);
+            command.Parameters.AddWithValue("@usuario_rut", usuarioRut);
+            
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
                 certificados.Add(new Certificado
                 {
-                    id = reader.GetInt32("id"),
+                    id = reader.GetInt32("solicitud_id"),
                     codigo_verificacion = reader.GetString("codigo_verificacion"),
                     fecha_emision = reader.GetDateTime("fecha_emision"),
                     archivo_pdf = reader.GetString("archivo_pdf"),
@@ -378,11 +534,19 @@ namespace REST_VECINDAPP.CapaNegocios
         {
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
-            using var command = new MySqlCommand("SP_VERIFICAR_CERTIFICADO", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@p_codigo_verificacion", codigoVerificacion);
-            using var reader = await command.ExecuteReaderAsync();
-            if (await reader.ReadAsync())
+            
+            // Usar consulta SQL directa en lugar del stored procedure
+            var query = @"
+                SELECT COUNT(*) as total
+                FROM certificados 
+                WHERE codigo_verificacion = @codigo_verificacion 
+                AND estado = 'vigente'";
+                
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@codigo_verificacion", codigoVerificacion);
+            var result = await command.ExecuteScalarAsync();
+            
+            if (result != null && Convert.ToInt32(result) > 0)
             {
                 return (true, "Certificado válido");
             }
@@ -394,10 +558,16 @@ namespace REST_VECINDAPP.CapaNegocios
             using (var connection = new MySqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using var command = new MySqlCommand("SP_GUARDAR_TOKEN_PAGO", connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
-                command.Parameters.AddWithValue("@p_token", token);
+                
+                // Usar consulta SQL directa en lugar del stored procedure
+                var query = @"
+                    UPDATE solicitudes_certificado 
+                    SET token_webpay = @token 
+                    WHERE id = @solicitud_id";
+                    
+                using var command = new MySqlCommand(query, connection);
+                command.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                command.Parameters.AddWithValue("@token", token);
                 await command.ExecuteNonQueryAsync();
             }
         }
@@ -456,6 +626,15 @@ namespace REST_VECINDAPP.CapaNegocios
                 var updateTransaccionResult = await commandUpdateTransaccion.ExecuteNonQueryAsync();
                 Console.WriteLine($"[LOG] Actualización de estado de transacción WebPay. Filas afectadas: {updateTransaccionResult}");
 
+                // Actualizamos el pago_id en la solicitud de certificado
+                using var commandUpdateSolicitud = new MySqlCommand(
+                    "UPDATE solicitudes_certificado SET pago_id = @pago_id WHERE id = @solicitud_id",
+                    connection);
+                commandUpdateSolicitud.Parameters.AddWithValue("@pago_id", pagoId);
+                commandUpdateSolicitud.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                var updateSolicitudResult = await commandUpdateSolicitud.ExecuteNonQueryAsync();
+                Console.WriteLine($"[LOG] Actualización de pago_id en solicitud. Filas afectadas: {updateSolicitudResult}");
+
                 if (updatePagoResult > 0 && updateTransaccionResult > 0)
                 {
                     Console.WriteLine("[LOG] Estados actualizados correctamente, procediendo con la aprobación del certificado");
@@ -475,7 +654,7 @@ namespace REST_VECINDAPP.CapaNegocios
                     if (!exitoGeneracion)
                     {
                         Console.WriteLine($"[ERROR] Error al generar PDF del certificado: {mensajeGeneracion}");
-                        return false;
+                        // No retornamos false aquí porque el certificado ya se aprobó
                     }
 
                     Console.WriteLine("[LOG] Proceso de confirmación de pago completado exitosamente");
@@ -492,27 +671,61 @@ namespace REST_VECINDAPP.CapaNegocios
             }
         }
 
-        public async Task<(bool Exito, string Mensaje)> RegistrarPagoCertificado(int usuarioRut, int solicitudId, decimal monto, string metodoPago, string tokenWebpay, string urlPago)
+        public async Task<(bool Exito, string Mensaje)> RegistrarPagoCertificadoDirecto(int usuarioRut, int solicitudId, decimal monto, string metodoPago, string tokenWebpay, string urlPago)
         {
             try
             {
+                Console.WriteLine($"[LOG] Registrando pago directo - Usuario: {usuarioRut}, Solicitud: {solicitudId}, Monto: {monto}");
+                
                 using var connection = new MySqlConnection(_connectionString);
                 await connection.OpenAsync();
-                using var command = new MySqlCommand("SP_REGISTRAR_PAGO_CERTIFICADO", connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@p_usuario_rut", usuarioRut);
-                command.Parameters.AddWithValue("@p_solicitud_certificado_id", solicitudId);
-                command.Parameters.AddWithValue("@p_monto", monto);
-                command.Parameters.AddWithValue("@p_metodo_pago", metodoPago);
-                command.Parameters.AddWithValue("@p_token_webpay", tokenWebpay);
-                command.Parameters.AddWithValue("@p_url_pago", urlPago);
-                await command.ExecuteNonQueryAsync();
+                
+                // Registrar pago directamente
+                using var commandPago = new MySqlCommand(
+                    @"INSERT INTO pagos 
+                    (usuario_rut, tipo, referencia_id, monto, metodo_pago, estado, token_webpay, url_pago_webpay)
+                    VALUES (@usuario_rut, 'certificado', @referencia_id, @monto, @metodo_pago, 'procesando', @token_webpay, @url_pago)",
+                    connection);
+                
+                commandPago.Parameters.AddWithValue("@usuario_rut", usuarioRut);
+                commandPago.Parameters.AddWithValue("@referencia_id", solicitudId);
+                commandPago.Parameters.AddWithValue("@monto", monto);
+                commandPago.Parameters.AddWithValue("@metodo_pago", metodoPago);
+                commandPago.Parameters.AddWithValue("@token_webpay", tokenWebpay);
+                commandPago.Parameters.AddWithValue("@url_pago", urlPago);
+                
+                await commandPago.ExecuteNonQueryAsync();
+                var pagoId = await GetLastInsertId(connection);
+                
+                // Registrar transacción WebPay
+                using var commandTransaccion = new MySqlCommand(
+                    @"INSERT INTO transacciones_webpay 
+                    (pago_id, token_webpay, monto, estado, tipo_transaccion, usuario_rut)
+                    VALUES (@pago_id, @token_webpay, @monto, 'iniciada', 'certificado', @usuario_rut)",
+                    connection);
+                
+                commandTransaccion.Parameters.AddWithValue("@pago_id", pagoId);
+                commandTransaccion.Parameters.AddWithValue("@token_webpay", tokenWebpay);
+                commandTransaccion.Parameters.AddWithValue("@monto", monto);
+                commandTransaccion.Parameters.AddWithValue("@usuario_rut", usuarioRut);
+                
+                await commandTransaccion.ExecuteNonQueryAsync();
+                
+                Console.WriteLine($"[LOG] Pago registrado exitosamente - ID: {pagoId}, Token: {tokenWebpay}");
                 return (true, "Pago registrado correctamente");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[ERROR] Error al registrar el pago directo: {ex.Message}");
                 return (false, $"Error al registrar el pago: {ex.Message}");
             }
+        }
+
+        private async Task<int> GetLastInsertId(MySqlConnection connection)
+        {
+            using var command = new MySqlCommand("SELECT LAST_INSERT_ID()", connection);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
 
         public async Task<SolicitudCertificadoDTO?> ObtenerSolicitudPorTokenWebpay(string tokenWebpay)
@@ -554,28 +767,248 @@ namespace REST_VECINDAPP.CapaNegocios
 
                 Console.WriteLine($"[LOG] RUT de directiva encontrado: {directivaRut}");
 
-                // Ahora aprobamos el certificado con el RUT de la directiva
-                using var command = new MySqlCommand("SP_APROBAR_CERTIFICADO", connection);
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
-                command.Parameters.AddWithValue("@p_directiva_rut", directivaRut);
-                command.Parameters.AddWithValue("@p_observaciones", "Aprobación automática por pago");
-
-                using var reader = await command.ExecuteReaderAsync();
-                if (await reader.ReadAsync())
+                // Iniciar transacción
+                using var transaction = await connection.BeginTransactionAsync();
+                try
                 {
-                    var mensaje = reader["mensaje"]?.ToString() ?? string.Empty;
-                    var codigoVerificacion = reader["codigo_verificacion"]?.ToString() ?? string.Empty;
-                    Console.WriteLine($"[LOG] Certificado aprobado. Mensaje: {mensaje}, Código: {codigoVerificacion}");
+                    // 1. Actualizar solicitud de certificado
+                    using var commandUpdateSolicitud = new MySqlCommand(
+                        @"UPDATE solicitudes_certificado 
+                        SET estado = 'aprobado', 
+                            fecha_aprobacion = NOW(),
+                            directiva_rut = @directiva_rut,
+                            observaciones = @observaciones
+                        WHERE id = @solicitud_id",
+                        connection, transaction);
+                    
+                    commandUpdateSolicitud.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                    commandUpdateSolicitud.Parameters.AddWithValue("@directiva_rut", directivaRut);
+                    commandUpdateSolicitud.Parameters.AddWithValue("@observaciones", "Aprobación automática por pago");
+                    
+                    var filasActualizadas = await commandUpdateSolicitud.ExecuteNonQueryAsync();
+                    Console.WriteLine($"[LOG] Filas actualizadas en solicitud: {filasActualizadas}");
+
+                    // 2. Generar código de verificación único
+                    var codigoVerificacion = $"CERT-{DateTime.Now:yyyyMMdd}-{solicitudId}-{new Random().Next(1000, 9999)}";
+                    var archivoPdf = $"/certificados/{codigoVerificacion}.pdf";
+                    
+                    Console.WriteLine($"[LOG] Código de verificación generado: {codigoVerificacion}");
+
+                    // 3. Insertar certificado directamente
+                    using var commandInsertCertificado = new MySqlCommand(
+                        @"INSERT INTO certificados 
+                        (solicitud_id, codigo_verificacion, fecha_emision, fecha_vencimiento, archivo_pdf, estado)
+                        VALUES 
+                        (@solicitud_id, @codigo_verificacion, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), @archivo_pdf, 'vigente')",
+                        connection, transaction);
+                    
+                    commandInsertCertificado.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                    commandInsertCertificado.Parameters.AddWithValue("@codigo_verificacion", codigoVerificacion);
+                    commandInsertCertificado.Parameters.AddWithValue("@archivo_pdf", archivoPdf);
+                    
+                    var filasInsertadas = await commandInsertCertificado.ExecuteNonQueryAsync();
+                    Console.WriteLine($"[LOG] Filas insertadas en certificados: {filasInsertadas}");
+
+                    // Confirmar transacción
+                    await transaction.CommitAsync();
+                    Console.WriteLine($"[LOG] Transacción confirmada exitosamente");
+
+                    Console.WriteLine($"[LOG] Certificado aprobado automáticamente. Código: {codigoVerificacion}");
                     return true;
                 }
-                
-                Console.WriteLine("[LOG] No se pudo aprobar el certificado");
-                return false;
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error durante la transacción: {ex.Message}");
+                    await transaction.RollbackAsync();
+                    throw;
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] Error en AprobarCertificadoAutomatico: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Aprobar certificado sin pago cuando no hay conectividad con Transbank
+        public async Task<bool> AprobarCertificadoSinPago(int solicitudId, string motivo, string observaciones)
+        {
+            try
+            {
+                Console.WriteLine($"[LOG] ===== INICIANDO APROBACIÓN DE CERTIFICADO SIN PAGO =====");
+                Console.WriteLine($"[LOG] Solicitud ID: {solicitudId}");
+                Console.WriteLine($"[LOG] Motivo: {motivo}");
+                Console.WriteLine($"[LOG] Observaciones: {observaciones}");
+
+                using var connection = new MySqlConnection(_connectionString);
+                Console.WriteLine($"[LOG] Abriendo conexión a la base de datos...");
+                await connection.OpenAsync();
+                Console.WriteLine($"[LOG] Conexión abierta exitosamente");
+
+                // Verificar que la solicitud existe y está pendiente
+                Console.WriteLine($"[LOG] Verificando estado de la solicitud...");
+                using var commandVerificar = new MySqlCommand(
+                    @"SELECT estado FROM solicitudes_certificado WHERE id = @solicitud_id",
+                    connection);
+                commandVerificar.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                
+                var estadoActual = await commandVerificar.ExecuteScalarAsync();
+                Console.WriteLine($"[LOG] Estado actual de la solicitud: {estadoActual}");
+                
+                if (estadoActual == null)
+                {
+                    Console.WriteLine($"[ERROR] No se encontró la solicitud {solicitudId}");
+                    return false;
+                }
+
+                // Verificar que la solicitud esté pendiente
+                if (estadoActual.ToString() != "pendiente")
+                {
+                    Console.WriteLine($"[ERROR] La solicitud {solicitudId} no está pendiente. Estado actual: {estadoActual}");
+                    
+                    // Si ya está aprobada, considerarlo como éxito
+                    if (estadoActual.ToString() == "aprobado")
+                    {
+                        Console.WriteLine($"[LOG] La solicitud {solicitudId} ya está aprobada. Retornando éxito.");
+                        return true;
+                    }
+                    
+                    return false;
+                }
+
+                // Obtener un RUT válido de la directiva
+                Console.WriteLine($"[LOG] Buscando RUT de directiva activo...");
+                using var commandGetDirectiva = new MySqlCommand(
+                    @"SELECT rut FROM usuarios 
+                    WHERE tipo_usuario = 'Directiva' 
+                    AND estado = 1 
+                    LIMIT 1", 
+                    connection);
+                
+                var directivaRut = await commandGetDirectiva.ExecuteScalarAsync();
+                if (directivaRut == null)
+                {
+                    Console.WriteLine("[ERROR] No se encontró ningún miembro de la directiva activo");
+                    return false;
+                }
+
+                Console.WriteLine($"[LOG] RUT de directiva encontrado: {directivaRut}");
+                Console.WriteLine($"[LOG] Aprobando certificado sin pago - Solicitud: {solicitudId}, Directiva: {directivaRut}");
+
+                // Iniciar transacción
+                using var transaction = await connection.BeginTransactionAsync();
+                try
+                {
+                    // 1. Actualizar solicitud de certificado
+                    Console.WriteLine($"[LOG] Actualizando solicitud de certificado...");
+                    using var commandUpdateSolicitud = new MySqlCommand(
+                        @"UPDATE solicitudes_certificado 
+                        SET estado = 'aprobado', 
+                            fecha_aprobacion = NOW(),
+                            directiva_rut = @directiva_rut,
+                            observaciones = @observaciones
+                        WHERE id = @solicitud_id",
+                        connection, transaction);
+                    
+                    commandUpdateSolicitud.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                    commandUpdateSolicitud.Parameters.AddWithValue("@directiva_rut", directivaRut);
+                    commandUpdateSolicitud.Parameters.AddWithValue("@observaciones", $"Aprobación sin pago - Motivo: {motivo}. {observaciones}");
+                    
+                    var filasActualizadas = await commandUpdateSolicitud.ExecuteNonQueryAsync();
+                    Console.WriteLine($"[LOG] Filas actualizadas en solicitud: {filasActualizadas}");
+
+                    // 2. Generar código de verificación único
+                    var codigoVerificacion = $"CERT-{DateTime.Now:yyyyMMdd}-{solicitudId}-{new Random().Next(1000, 9999)}";
+                    var archivoPdf = $"/certificados/{codigoVerificacion}.pdf";
+                    
+                    Console.WriteLine($"[LOG] Código de verificación generado: {codigoVerificacion}");
+
+                    // 3. Verificar si ya existe un certificado para esta solicitud
+                    Console.WriteLine($"[LOG] Verificando si ya existe un certificado para la solicitud...");
+                    using var commandVerificarCertificado = new MySqlCommand(
+                        @"SELECT COUNT(*) FROM certificados WHERE solicitud_id = @solicitud_id",
+                        connection, transaction);
+                    commandVerificarCertificado.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                    
+                    var certificadoExistente = await commandVerificarCertificado.ExecuteScalarAsync();
+                    if (Convert.ToInt32(certificadoExistente) > 0)
+                    {
+                        Console.WriteLine($"[LOG] Ya existe un certificado para la solicitud {solicitudId}. Actualizando...");
+                        
+                        // Actualizar certificado existente
+                        using var commandUpdateCertificado = new MySqlCommand(
+                            @"UPDATE certificados 
+                            SET codigo_verificacion = @codigo_verificacion,
+                                fecha_emision = NOW(),
+                                fecha_vencimiento = DATE_ADD(NOW(), INTERVAL 3 MONTH),
+                                archivo_pdf = @archivo_pdf,
+                                estado = 'vigente'
+                            WHERE solicitud_id = @solicitud_id",
+                            connection, transaction);
+                        
+                        commandUpdateCertificado.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                        commandUpdateCertificado.Parameters.AddWithValue("@codigo_verificacion", codigoVerificacion);
+                        commandUpdateCertificado.Parameters.AddWithValue("@archivo_pdf", archivoPdf);
+                        
+                        var filasActualizadasCert = await commandUpdateCertificado.ExecuteNonQueryAsync();
+                        Console.WriteLine($"[LOG] Certificado actualizado. Filas afectadas: {filasActualizadasCert}");
+                    }
+                    else
+                    {
+                        // 4. Insertar certificado nuevo
+                        Console.WriteLine($"[LOG] Insertando nuevo certificado en la tabla...");
+                        
+                        // Intentar con la estructura más simple posible
+                        using var commandInsertCertificado = new MySqlCommand(
+                            @"INSERT INTO certificados 
+                            (solicitud_id, codigo_verificacion, fecha_emision, fecha_vencimiento, archivo_pdf, estado)
+                            VALUES 
+                            (@solicitud_id, @codigo_verificacion, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), @archivo_pdf, 'vigente')",
+                            connection, transaction);
+                        
+                        commandInsertCertificado.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                        commandInsertCertificado.Parameters.AddWithValue("@codigo_verificacion", codigoVerificacion);
+                        commandInsertCertificado.Parameters.AddWithValue("@archivo_pdf", archivoPdf);
+                        
+                        var filasInsertadas = await commandInsertCertificado.ExecuteNonQueryAsync();
+                        Console.WriteLine($"[LOG] Filas insertadas en certificados: {filasInsertadas}");
+                    }
+
+                    // Confirmar transacción
+                    await transaction.CommitAsync();
+                    Console.WriteLine($"[LOG] Transacción confirmada exitosamente");
+
+                    // Generar el PDF del certificado
+                    Console.WriteLine($"[LOG] Generando PDF del certificado...");
+                    var (exitoGeneracion, mensajeGeneracion) = await GenerarPDFCertificado(solicitudId);
+                    if (!exitoGeneracion)
+                    {
+                        Console.WriteLine($"[WARNING] Error al generar PDF del certificado: {mensajeGeneracion}");
+                        // No retornamos false porque el certificado ya se aprobó
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[LOG] PDF generado exitosamente: {mensajeGeneracion}");
+                    }
+                    
+                    Console.WriteLine($"[LOG] ===== APROBACIÓN DE CERTIFICADO COMPLETADA =====");
+                    Console.WriteLine($"[LOG] Código de verificación: {codigoVerificacion}");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error durante la transacción: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] ===== EXCEPCIÓN EN APROBAR CERTIFICADO SIN PAGO =====");
+                Console.WriteLine($"[ERROR] Mensaje: {ex.Message}");
+                Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
+                Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException?.Message}");
                 return false;
             }
         }

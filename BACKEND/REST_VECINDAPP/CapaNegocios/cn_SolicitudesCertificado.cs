@@ -2,6 +2,8 @@ using MySqlConnector;
 using REST_VECINDAPP.Modelos;
 using System.Data;
 using REST_VECINDAPP.Modelos.DTOs;
+using System;
+using System.Threading.Tasks;
 
 namespace REST_VECINDAPP.CapaNegocios
 {
@@ -219,6 +221,122 @@ namespace REST_VECINDAPP.CapaNegocios
             }
 
             return solicitudes;
+        }
+
+        public async Task<bool> ActualizarEstadoPagoAsync(int solicitudId, string estado, string tokenWebpay, int monto)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    using (MySqlCommand cmd = new MySqlCommand("SP_ACTUALIZAR_ESTADO_PAGO", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+                        cmd.Parameters.AddWithValue("@p_estado", estado);
+                        cmd.Parameters.AddWithValue("@p_token_webpay", tokenWebpay);
+                        cmd.Parameters.AddWithValue("@p_monto", monto);
+                        cmd.Parameters.AddWithValue("@p_fecha_pago", DateTime.Now);
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    await conn.CloseAsync();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log del error
+                return false;
+            }
+        }
+
+        public async Task<bool> GuardarPagoEnHistorialAsync(int solicitudId, string tokenWebpay, int monto, string estado)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    using (MySqlCommand cmd = new MySqlCommand("SP_GUARDAR_PAGO_HISTORIAL", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+                        cmd.Parameters.AddWithValue("@p_token_webpay", tokenWebpay);
+                        cmd.Parameters.AddWithValue("@p_monto", monto);
+                        cmd.Parameters.AddWithValue("@p_estado", estado);
+                        cmd.Parameters.AddWithValue("@p_fecha_pago", DateTime.Now);
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    await conn.CloseAsync();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log del error
+                return false;
+            }
+        }
+
+        public async Task<SolicitudCertificado> FindAsync(int solicitudId)
+        {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    await conn.OpenAsync();
+
+                    using (MySqlCommand cmd = new MySqlCommand("SP_CONSULTAR_SOLICITUD_POR_ID", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@p_solicitud_id", solicitudId);
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return new SolicitudCertificado
+                                {
+                                    id = Convert.ToInt32(reader["id"]),
+                                    usuario_rut = Convert.ToInt32(reader["usuario_rut"]),
+                                    tipo_certificado_id = Convert.ToInt32(reader["tipo_certificado_id"]),
+                                    fecha_solicitud = Convert.ToDateTime(reader["fecha_solicitud"]),
+                                    estado = reader["estado"].ToString(),
+                                    motivo = reader["motivo"].ToString(),
+                                    documentos_adjuntos = reader["documentos_adjuntos"].ToString(),
+                                    fecha_aprobacion = reader["fecha_aprobacion"] != DBNull.Value ? Convert.ToDateTime(reader["fecha_aprobacion"]) : null,
+                                    directiva_rut = reader["directiva_rut"] != DBNull.Value ? Convert.ToInt32(reader["directiva_rut"]) : null,
+                                    precio = Convert.ToDecimal(reader["precio"]),
+                                    observaciones = reader["observaciones"].ToString(),
+                                    token_webpay = reader["token_webpay"]?.ToString(),
+                                    monto = reader["monto"] != DBNull.Value ? Convert.ToInt32(reader["monto"]) : null,
+                                    fecha_pago = reader["fecha_pago"] != DBNull.Value ? Convert.ToDateTime(reader["fecha_pago"]) : null
+                                };
+                            }
+                        }
+                    }
+
+                    await conn.CloseAsync();
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                // Log del error
+                return null;
+            }
         }
     }
 }

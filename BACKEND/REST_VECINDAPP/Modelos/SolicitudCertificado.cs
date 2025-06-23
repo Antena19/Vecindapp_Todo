@@ -15,6 +15,11 @@ namespace REST_VECINDAPP.Modelos
         public string observaciones { get; set; }
         public int TipoCertificadoId { get; set; }
 
+        // 🔽 Nuevos campos para registrar el pago Transbank
+        public string token_webpay { get; set; }
+        public int? monto { get; set; }
+        public DateTime? fecha_pago { get; set; }
+
         // Relaciones
         public virtual Usuario usuario { get; set; }
         public virtual TipoCertificado tipo_certificado { get; set; }

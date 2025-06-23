@@ -65,9 +65,10 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<cn_Usuarios>();
 builder.Services.AddScoped<cn_Directiva>();
 builder.Services.AddScoped<cn_Certificados>();
+builder.Services.AddScoped<cn_SolicitudesCertificado>();
 builder.Services.AddScoped<cn_MercadoPago>();
 builder.Services.AddScoped<cn_Eventos>();
-builder.Services.AddScoped<TransbankService>();
+builder.Services.AddScoped<TransbankServiceV2>();
 builder.Services.AddScoped<WebpayService>();
 
 // Configurar la autenticacin con JWT
@@ -93,11 +94,15 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<REST_VECINDAPP.Seguridad.VerificadorRoles>();
 
 // Configurar el puerto dinámico para Railway
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.ConfigureKestrel(serverOptions =>
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
 {
-    serverOptions.ListenAnyIP(int.Parse(port));
-});
+    builder.WebHost.ConfigureKestrel(serverOptions =>
+    {
+        serverOptions.ListenAnyIP(int.Parse(port));
+    });
+}
+// Si no hay variable PORT, usará los puertos del launchSettings.json
 
 // Agregar el servicio de almacenamiento de archivos
 builder.Services.AddScoped<FileStorageService>();

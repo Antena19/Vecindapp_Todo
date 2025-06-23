@@ -21,9 +21,8 @@ namespace REST_VECINDAPP.Servicios
             var options = new Options(
                 _configuration["Transbank:CommerceCode"],
                 _configuration["Transbank:ApiKey"],
-                _configuration["Transbank:Environment"] == "Production" ? WebpayIntegrationType.Live : WebpayIntegrationType.Test
+                WebpayIntegrationType.Test
             );
-
             _transaction = new Transaction(options);
         }
 

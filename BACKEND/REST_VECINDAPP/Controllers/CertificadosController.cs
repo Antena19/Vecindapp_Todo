@@ -7,6 +7,13 @@ using REST_VECINDAPP.Servicios;
 using System.Security.Claims;
 using Transbank.Webpay.WebpayPlus;
 using Transbank.Webpay.Common;
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.IO;
+using System;
 
 namespace REST_VECINDAPP.Controllers
 {
@@ -17,17 +24,22 @@ namespace REST_VECINDAPP.Controllers
     {
         private readonly cn_Certificados _certificadosService;
         private readonly VerificadorRoles _verificadorRoles;
-        private readonly TransbankService _transbankService;
+        private readonly TransbankServiceV2 _transbankService;
+        private readonly IConfiguration _configuration;
 
         public CertificadosController(
             cn_Certificados certificadosService,
             VerificadorRoles verificadorRoles,
-            TransbankService transbankService)
+            TransbankServiceV2 transbankService,
+            IConfiguration configuration)
         {
             _certificadosService = certificadosService;
             _verificadorRoles = verificadorRoles;
             _transbankService = transbankService;
+            _configuration = configuration;
         }
+
+        // ===== ENDPOINTS PRINCIPALES =====
 
         [HttpPost("solicitar")]
         public async Task<IActionResult> SolicitarCertificado([FromBody] SolicitudCertificadoDTO solicitud)
@@ -43,56 +55,12 @@ namespace REST_VECINDAPP.Controllers
             }
         }
 
-        [HttpPost("aprobar")]
-        [Authorize(Roles = "Directiva")]
-        public async Task<IActionResult> AprobarCertificado([FromBody] AprobarCertificadoRequest request)
-        {
-            try
-            {
-                var resultado = await _certificadosService.AprobarCertificado(request.SolicitudId);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-        }
-
-        [HttpPost("rechazar")]
-        [Authorize(Roles = "Directiva")]
-        public async Task<IActionResult> RechazarCertificado([FromBody] RechazarCertificadoRequest request)
-        {
-            try
-            {
-                var resultado = await _certificadosService.RechazarCertificado(request.SolicitudId, request.MotivoRechazo);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-        }
-
-        [HttpGet("tipos")]
-        public async Task<IActionResult> ObtenerTiposCertificado()
-        {
-            try
-            {
-                var tipos = await _certificadosService.ObtenerTiposCertificado();
-                return Ok(tipos);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-        }
-
         [HttpGet("mis-solicitudes")]
         public async Task<IActionResult> ObtenerMisSolicitudes()
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userId = ObtenerRutUsuarioAutenticado();
                 var solicitudes = await _certificadosService.ObtenerSolicitudesUsuario(userId);
                 return Ok(solicitudes);
             }
@@ -117,51 +85,78 @@ namespace REST_VECINDAPP.Controllers
             }
         }
 
+        // ===== FLUJO DE PAGO TRANSBANK =====
+
         [HttpPost("pago/iniciar")]
         public async Task<IActionResult> IniciarPago([FromBody] PagoTransbankRequest request)
         {
             try
             {
+                Console.WriteLine($"[LOG] Iniciando proceso de pago - Solicitud: {request.SolicitudId}");
+                
                 var solicitud = await _certificadosService.ObtenerSolicitud(request.SolicitudId);
                 if (solicitud == null)
+                {
+                    Console.WriteLine($"[ERROR] Solicitud no encontrada: {request.SolicitudId}");
                     return NotFound(new { mensaje = "Solicitud no encontrada" });
+                }
 
-                var buyOrder = $"cert-{request.SolicitudId}-{DateTime.Now.Ticks}";
+                var buyOrder = $"cert{request.SolicitudId}{DateTimeOffset.Now.ToUnixTimeSeconds()}";
                 var sessionId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.NewGuid().ToString();
 
+                var montoPago = solicitud.Precio;
+                Console.WriteLine($"[LOG] Iniciando pago - Solicitud: {request.SolicitudId}, Monto: {montoPago}, BuyOrder: {buyOrder}");
+
+                // Verificar que el monto sea válido
+                if (montoPago <= 0)
+                {
+                    Console.WriteLine($"[ERROR] Monto inválido: {montoPago}");
+                    return BadRequest(new { mensaje = "El monto del pago debe ser mayor a 0" });
+                }
+
+                // Crear transacción con el nuevo servicio simplificado
                 var response = await _transbankService.CreateTransaction(
-                    solicitud.Precio,
+                    montoPago,
                     buyOrder,
                     sessionId
                 );
 
+                Console.WriteLine($"[LOG] Transacción creada exitosamente - Token: {response.Token}");
+
                 // Registrar el pago en la base de datos
                 int usuarioRut = solicitud.UsuarioRut;
-                var (exito, mensaje) = await _certificadosService.RegistrarPagoCertificado(
+                var (exito, mensaje) = await _certificadosService.RegistrarPagoCertificadoDirecto(
                     usuarioRut,
                     request.SolicitudId,
-                    solicitud.Precio,
+                    montoPago,
                     "webpay",
                     response.Token,
                     response.Url
                 );
                 if (!exito)
                 {
+                    Console.WriteLine($"[ERROR] Error al registrar pago en BD: {mensaje}");
                     return BadRequest(new { mensaje });
                 }
 
                 // Guardar el token en la base de datos para su posterior verificación
                 await _certificadosService.GuardarTokenPago(request.SolicitudId, response.Token);
 
+                Console.WriteLine($"[LOG] Pago registrado exitosamente - URL: {response.Url}");
+
                 return Ok(new
                 {
                     url = response.Url,
-                    token = response.Token
+                    token = response.Token,
+                    monto = montoPago,
+                    conectividad = true,
+                    simulada = false
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { mensaje = ex.Message });
+                Console.WriteLine($"[ERROR] Error en IniciarPago: {ex.Message}");
+                return StatusCode(500, new { mensaje = "Error interno del servidor al procesar el pago" });
             }
         }
 
@@ -171,47 +166,75 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                Console.WriteLine($"[LOG] Iniciando confirmación de pago para token: {request.Token}");
+                Console.WriteLine($"[LOG] ===== INICIANDO CONFIRMACIÓN DE PAGO =====");
+                Console.WriteLine($"[LOG] Token recibido: {request.Token}");
+                
+                // Confirmar la transacción con Transbank
+                Console.WriteLine($"[LOG] Llamando a TransbankService.CommitTransaction...");
                 var response = await _transbankService.CommitTransaction(request.Token);
-                Console.WriteLine($"[LOG] Respuesta de Transbank: Status={response.Status}, BuyOrder={response.BuyOrder}, SessionId={response.SessionId}, Amount={response.Amount}, ResponseCode={response.ResponseCode}, AuthorizationCode={response.AuthorizationCode}, CardDetail={response.CardDetail?.CardNumber}");
-
+                
+                Console.WriteLine($"[LOG] Respuesta de Transbank - Status: {response.Status}, Amount: {response.Amount}");
+                
+                // Buscar la solicitud asociada al token
+                Console.WriteLine($"[LOG] Buscando solicitud por token: {request.Token}");
+                var solicitud = await _certificadosService.ObtenerSolicitudPorTokenWebpay(request.Token);
+                
+                if (solicitud == null)
+                {
+                    Console.WriteLine($"[ERROR] No se encontró solicitud para el token: {request.Token}");
+                    return NotFound(new { mensaje = "Solicitud no encontrada" });
+                }
+                
+                Console.WriteLine($"[LOG] Solicitud encontrada - ID: {solicitud.Id}, Usuario: {solicitud.UsuarioRut}, Estado: {solicitud.Estado}");
+                
+                // Procesar el resultado del pago
                 if (response.Status == "AUTHORIZED")
                 {
-                    // Primero actualizamos el estado del pago
-                    var pagoOk = await _certificadosService.ConfirmarPago(request.Token, "aprobada");
-                    Console.WriteLine($"[LOG] ConfirmarPago ejecutado, resultado: {pagoOk}");
-
-                    if (pagoOk)
+                    Console.WriteLine($"[LOG] Pago autorizado, procediendo a aprobar certificado...");
+                    
+                    // Pago exitoso
+                    var exito = await _certificadosService.AprobarCertificadoSinPago(
+                        solicitud.Id,
+                        "Pago confirmado exitosamente",
+                        $"Pago procesado por Transbank. Monto: {response.Amount}"
+                    );
+                    
+                    Console.WriteLine($"[LOG] Resultado de AprobarCertificadoSinPago: {exito}");
+                    
+                    if (exito)
                     {
-                        // Obtenemos la solicitud para verificar que todo está correcto
-                        var solicitud = await _certificadosService.ObtenerSolicitudPorTokenWebpay(request.Token);
-                        if (solicitud == null)
-                        {
-                            Console.WriteLine($"[ERROR] No se encontró la solicitud para el token: {request.Token}");
-                            return BadRequest(new { mensaje = "Error al procesar la solicitud" });
-                        }
-
+                        Console.WriteLine($"[LOG] Certificado aprobado exitosamente - Solicitud: {solicitud.Id}");
                         return Ok(new { 
-                            mensaje = "Pago confirmado y certificado generado correctamente",
-                            solicitudId = solicitud.Id
+                            mensaje = "Pago confirmado y certificado aprobado",
+                            estado = "AUTHORIZED",
+                            solicitudId = solicitud.Id,
+                            redirectUrl = "/certificados/solicitar?descargar=1"
                         });
                     }
                     else
                     {
-                        Console.WriteLine($"[ERROR] Error al confirmar el pago para el token: {request.Token}");
-                        return BadRequest(new { mensaje = "Error al confirmar el pago" });
+                        Console.WriteLine($"[ERROR] Error al aprobar certificado");
+                        return BadRequest(new { mensaje = "Error al aprobar el certificado" });
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"[LOG] Pago no autorizado. Status: {response.Status}");
-                    return BadRequest(new { mensaje = "Pago no autorizado" });
+                    // Pago fallido
+                    Console.WriteLine($"[LOG] Pago fallido - Status: {response.Status}");
+                    return BadRequest(new { 
+                        mensaje = "El pago no pudo ser procesado",
+                        estado = response.Status,
+                        solicitudId = solicitud.Id
+                    });
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] Error en ConfirmarPago: {ex.Message}");
-                return StatusCode(500, new { mensaje = "Error interno del servidor", error = ex.Message });
+                Console.WriteLine($"[ERROR] ===== EXCEPCIÓN EN CONFIRMAR PAGO =====");
+                Console.WriteLine($"[ERROR] Mensaje: {ex.Message}");
+                Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
+                Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException?.Message}");
+                return StatusCode(500, new { mensaje = "Error interno del servidor al confirmar el pago" });
             }
         }
 
@@ -233,13 +256,51 @@ namespace REST_VECINDAPP.Controllers
             }
         }
 
-        [HttpPost("pagar/{solicitudId}")]
-        public async Task<IActionResult> PagarCertificado(int solicitudId, [FromBody] PagoTransbankRequest pago)
+        // ===== ENDPOINTS DE APROBACIÓN MANUAL =====
+
+        [HttpPost("aprobar-sin-pago")]
+        [Authorize(Roles = "Directiva")]
+        public async Task<IActionResult> AprobarCertificadoSinPago([FromBody] AprobarCertificadoSinPagoRequest request)
         {
             try
             {
-                var resultado = await _certificadosService.ProcesarPagoCertificado(solicitudId, pago.Token);
-                return Ok(resultado);
+                Console.WriteLine($"[LOG] Aprobando certificado sin pago - Solicitud ID: {request.SolicitudId}, Motivo: {request.Motivo}");
+                
+                // Aprobar el certificado directamente
+                var exito = await _certificadosService.AprobarCertificadoSinPago(
+                    request.SolicitudId, 
+                    request.Motivo,
+                    request.Observaciones
+                );
+                
+                if (exito)
+                {
+                    return Ok(new { 
+                        mensaje = "Certificado aprobado exitosamente sin pago",
+                        solicitudId = request.SolicitudId
+                    });
+                }
+                else
+                {
+                    return BadRequest(new { mensaje = "Error al aprobar el certificado" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Error en AprobarCertificadoSinPago: {ex.Message}");
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        // ===== ENDPOINTS DE GESTIÓN =====
+
+        [HttpGet("tipos")]
+        public async Task<IActionResult> ObtenerTiposCertificados()
+        {
+            try
+            {
+                var tipos = await _certificadosService.ObtenerTiposCertificado();
+                return Ok(tipos);
             }
             catch (Exception ex)
             {
@@ -252,9 +313,9 @@ namespace REST_VECINDAPP.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userId = ObtenerRutUsuarioAutenticado();
                 var certificado = await _certificadosService.ObtenerCertificado(certificadoId);
-                
+
                 if (certificado == null)
                     return NotFound(new { mensaje = "Certificado no encontrado" });
 
@@ -264,7 +325,22 @@ namespace REST_VECINDAPP.Controllers
                 var resultado = await _certificadosService.GenerarPDFCertificado(certificadoId);
                 if (!resultado.Exito)
                     return BadRequest(new { mensaje = resultado.Mensaje });
-                return Ok(new { mensaje = "Certificado generado correctamente" });
+
+                var rutaArchivo = Path.Combine(Directory.GetCurrentDirectory(), "Certificados", $"certificado_{certificadoId}.pdf");
+
+                if (!System.IO.File.Exists(rutaArchivo))
+                    return NotFound(new { mensaje = "Archivo PDF no encontrado" });
+
+                var bytes = await System.IO.File.ReadAllBytesAsync(rutaArchivo);
+                var base64 = Convert.ToBase64String(bytes);
+
+                return Ok(new
+                {
+                    file = base64,
+                    fileName = $"certificado_{certificadoId}.pdf",
+                    codigoVerificacion = certificado.codigo_verificacion,
+                    fechaAprobacion = certificado.fecha_emision.ToString("dd-MM-yyyy")
+                });
             }
             catch (Exception ex)
             {
@@ -300,20 +376,21 @@ namespace REST_VECINDAPP.Controllers
                 return BadRequest(new { mensaje = ex.Message });
             }
         }
+
+        private int ObtenerRutUsuarioAutenticado()
+        {
+            var rut = User.Claims.FirstOrDefault(c => c.Type == "Rut")?.Value;
+
+            if (string.IsNullOrEmpty(rut))
+            {
+                throw new UnauthorizedAccessException("No se pudo obtener el RUT del usuario autenticado");
+            }
+
+            return int.Parse(rut);
+        }
     }
 
-    public class WebhookNotification
-    {
-        public string Type { get; set; }
-        public string Action { get; set; }
-        public WebhookData Data { get; set; }
-    }
-
-    public class WebhookData
-    {
-        public string Token { get; set; }
-        public string Status { get; set; }
-    }
+    // ===== DTOs =====
 
     public class PagoTransbankRequest
     {
@@ -326,6 +403,13 @@ namespace REST_VECINDAPP.Controllers
     public class ConfirmarPagoRequest
     {
         public string Token { get; set; }
+    }
+
+    public class AprobarCertificadoSinPagoRequest
+    {
+        public int SolicitudId { get; set; }
+        public string Motivo { get; set; }
+        public string Observaciones { get; set; }
     }
 }
 
