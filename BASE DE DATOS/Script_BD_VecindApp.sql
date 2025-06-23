@@ -56,7 +56,6 @@ DROP TABLE IF EXISTS `certificados`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `certificados` (
-  `id` int NOT NULL,
   `solicitud_id` int NOT NULL AUTO_INCREMENT,
   `tipo_certificado_id` int DEFAULT NULL,
   `codigo_verificacion` varchar(50) NOT NULL,
@@ -68,9 +67,8 @@ CREATE TABLE `certificados` (
   `estado` varchar(20) NOT NULL DEFAULT 'vigente',
   `emitido_por` int DEFAULT NULL,
   PRIMARY KEY (`solicitud_id`),
-  UNIQUE KEY `codigo_verificacion_UNIQUE` (`codigo_verificacion`),
-  KEY `solicitud_id_idx` (`solicitud_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `codigo_verificacion_UNIQUE` (`codigo_verificacion`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -79,8 +77,67 @@ CREATE TABLE `certificados` (
 
 LOCK TABLES `certificados` WRITE;
 /*!40000 ALTER TABLE `certificados` DISABLE KEYS */;
-INSERT INTO `certificados` VALUES (1,1,NULL,'CERT-952959','2025-05-23 19:06:22','2025-08-23','/certificados/CERT-952959.pdf',NULL,NULL,'vigente',NULL);
 /*!40000 ALTER TABLE `certificados` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `certificados_backup`
+--
+
+DROP TABLE IF EXISTS `certificados_backup`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `certificados_backup` (
+  `solicitud_id` int NOT NULL DEFAULT '0',
+  `tipo_certificado_id` int DEFAULT NULL,
+  `codigo_verificacion` varchar(50) NOT NULL,
+  `fecha_emision` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `archivo_pdf` varchar(255) NOT NULL,
+  `nombre_archivo` varchar(255) DEFAULT NULL,
+  `ruta_completa` varchar(255) DEFAULT NULL,
+  `estado` varchar(20) NOT NULL DEFAULT 'vigente',
+  `emitido_por` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `certificados_backup`
+--
+
+LOCK TABLES `certificados_backup` WRITE;
+/*!40000 ALTER TABLE `certificados_backup` DISABLE KEYS */;
+/*!40000 ALTER TABLE `certificados_backup` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `certificados_backup_final`
+--
+
+DROP TABLE IF EXISTS `certificados_backup_final`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `certificados_backup_final` (
+  `solicitud_id` int NOT NULL DEFAULT '0',
+  `tipo_certificado_id` int DEFAULT NULL,
+  `codigo_verificacion` varchar(50) NOT NULL,
+  `fecha_emision` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `archivo_pdf` varchar(255) NOT NULL,
+  `nombre_archivo` varchar(255) DEFAULT NULL,
+  `ruta_completa` varchar(255) DEFAULT NULL,
+  `estado` varchar(20) NOT NULL DEFAULT 'vigente',
+  `emitido_por` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `certificados_backup_final`
+--
+
+LOCK TABLES `certificados_backup_final` WRITE;
+/*!40000 ALTER TABLE `certificados_backup_final` DISABLE KEYS */;
+/*!40000 ALTER TABLE `certificados_backup_final` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -313,6 +370,35 @@ LOCK TABLES `notificaciones` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pago`
+--
+
+DROP TABLE IF EXISTS `pago`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pago` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `solicitud_id` int NOT NULL,
+  `token_webpay` varchar(255) DEFAULT NULL,
+  `monto` int DEFAULT NULL,
+  `estado` varchar(50) DEFAULT NULL,
+  `fecha_pago` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `solicitud_id` (`solicitud_id`),
+  CONSTRAINT `pago_ibfk_1` FOREIGN KEY (`solicitud_id`) REFERENCES `solicitudes_certificado` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pago`
+--
+
+LOCK TABLES `pago` WRITE;
+/*!40000 ALTER TABLE `pago` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pago` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `pagos`
 --
 
@@ -440,6 +526,9 @@ CREATE TABLE `solicitudes_certificado` (
   `precio` decimal(10,2) NOT NULL,
   `pago_id` int DEFAULT NULL,
   `observaciones` text,
+  `token_webpay` varchar(255) DEFAULT NULL,
+  `monto` int DEFAULT NULL,
+  `fecha_pago` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `usuario_rut_idx` (`usuario_rut`),
   KEY `tipo_certificado_idx` (`tipo_certificado_id`),
@@ -458,7 +547,7 @@ CREATE TABLE `solicitudes_certificado` (
 
 LOCK TABLES `solicitudes_certificado` WRITE;
 /*!40000 ALTER TABLE `solicitudes_certificado` DISABLE KEYS */;
-INSERT INTO `solicitudes_certificado` VALUES (1,NULL,17144575,3,'2025-05-23 18:41:41','aprobado','Necesito certificado de residencia para trámites bancarios','documento.pdf','2025-05-23 19:06:22',NULL,17144575,3000.00,NULL,'prueba'),(6,NULL,17144575,3,'2025-06-15 01:26:52','pendiente','','',NULL,NULL,NULL,0.00,NULL,NULL),(9,NULL,17144575,3,'2025-06-15 01:29:41','pendiente','','',NULL,NULL,NULL,0.00,NULL,NULL),(11,NULL,17144575,3,'2025-06-15 01:34:49','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(12,NULL,17144575,3,'2025-06-15 01:41:06','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(13,NULL,17144575,3,'2025-06-15 01:44:38','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(14,NULL,17144575,3,'2025-06-15 01:50:24','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(15,NULL,17144575,3,'2025-06-15 01:54:56','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(16,NULL,17144575,3,'2025-06-15 01:57:35','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(17,NULL,17144575,3,'2025-06-16 19:51:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(18,NULL,17144575,3,'2025-06-16 19:52:28','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(19,NULL,17144575,3,'2025-06-16 19:58:47','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(20,NULL,17144575,3,'2025-06-16 20:02:15','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(21,NULL,17144575,3,'2025-06-16 20:21:04','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(22,NULL,17144575,3,'2025-06-16 20:21:04','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(23,NULL,17144575,3,'2025-06-16 20:30:16','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL),(24,NULL,17144575,3,'2025-06-17 00:49:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(25,NULL,17144575,3,'2025-06-17 00:51:13','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(26,NULL,17144575,3,'2025-06-17 00:51:24','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(27,NULL,17144575,3,'2025-06-17 00:53:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(28,NULL,17144575,3,'2025-06-17 00:59:25','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(29,NULL,17144575,3,'2025-06-17 11:41:51','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(30,NULL,17144575,3,'2025-06-17 11:46:16','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(31,NULL,17144575,3,'2025-06-17 11:47:35','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(32,NULL,17144575,3,'2025-06-17 11:50:55','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(33,NULL,17144575,3,'2025-06-17 12:30:38','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(34,NULL,17144575,3,'2025-06-17 12:30:50','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(35,NULL,17144575,3,'2025-06-17 12:48:19','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(36,NULL,17144575,3,'2025-06-17 12:59:52','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL),(37,NULL,17144575,3,'2025-06-17 15:28:25','pendiente','tramites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abab32858adb7e6a5af0ecd9c3cb0c56bcd904a913af408677eaebdf4f49ec'),(38,NULL,17144575,3,'2025-06-17 15:35:18','pendiente','Trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab63fd1f6776e1f6ec3c50967177bf55c41f101ec4f33fff18a0addeaeef35'),(39,NULL,17144575,3,'2025-06-17 15:41:01','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abbbfeb596ab620eb4b4506175230d01375bbd045ade57ba2ecc40cb3e27b5'),(40,NULL,17144575,3,'2025-06-17 15:41:02','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abe5ffc9e6487e67b173fae3b2adde6396a31d7fcf5589b5d35dc1fdf9c8e2'),(41,NULL,17144575,3,'2025-06-17 15:43:42','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abc695de52f4e2269d3bb183dcbd50b12632e50928d26c8e7d0e5e45953c91'),(42,NULL,17144575,3,'2025-06-17 15:45:29','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab8233b13abb94ecef00eb7c81b9218f961e5c8ca097a1a9b910e69f77c2e5'),(43,NULL,17144575,3,'2025-06-17 15:50:05','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abc59d54456be7c503f5f45d3b2b11607855f6de5823c54bea04faae384079'),(44,NULL,17144575,3,'2025-06-17 15:52:08','pendiente','trámites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab2900dfa407b6a8d721fee507ea5863e4d67fa14b7a733771c937f50fb1fc'),(45,NULL,17144575,3,'2025-06-17 15:58:24','pendiente','trámites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab0e385204770bb2796c192bc27205ebad2ab8e32f93625027bb0551e2a2af'),(46,NULL,17144575,3,'2025-06-17 16:03:33','pendiente','trámites de banco','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abf7991e98ec0b51c931058dba86f4dfb05fca1d9b1f80bb0ddf8cc35b9819'),(47,NULL,17144575,3,'2025-06-17 16:07:20','pendiente','trámites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab99677732a57f3847c4dcd7e4db2ef3b2578a3ceca960d276f19e2b8abb37'),(48,NULL,17144575,3,'2025-06-17 16:13:05','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab64b98036f2c4a7692e12359168e78967d724b0f2c18ef3896aa8265ab678'),(49,NULL,17144575,3,'2025-06-17 16:14:17','pendiente','aaaaaaaaaaaaaaaaaaaaaa','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abe19ee22242bf32d6d304a5d9c3c70d7817bd87f883330ff2e9ffb011921e'),(50,NULL,17144575,3,'2025-06-17 16:24:36','pendiente','trámites de banco','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abbb505aa1d91f9e382ab83c61bffed032de62cfc3e4592fb51c41d40da7c2'),(51,NULL,17144575,3,'2025-06-17 16:30:23','pendiente','tramites salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abeffb9fc971d3ee17587761a7b84e6f26b4cc8b012017dc02daeb35a70350'),(52,NULL,17144575,3,'2025-06-17 16:37:36','pendiente','tramites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab9b1f9a3e6ac554d42b6781e3f50b190842cc140f133fd4758921f2de201c'),(53,NULL,17144575,3,'2025-06-17 17:13:34','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abb1704e69e05040991492fde12fd055c82c8c58d818ca252325c2bdccd114'),(54,NULL,17144575,3,'2025-06-17 17:45:16','pendiente','trámites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab35415566d0c6114c171e541726a3a647c83d3f112030020cdf09bd3f8688'),(55,NULL,17144575,3,'2025-06-17 17:49:41','pendiente','tramites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab01000e01cefe81838caf8a360ad5e82bed5e0280921f27492125e30029eb'),(56,NULL,17144575,3,'2025-06-17 17:58:29','pendiente','tramites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab377416ac5883e1f1a3dac92a494c8e903910a18eee248128f89dede36b31'),(57,NULL,17144575,3,'2025-06-17 18:02:48','pendiente','tramites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab515cee44827bb717cd09f687ae9dc880c899ad93cfe91e0e6de338fce224'),(58,NULL,17144575,3,'2025-06-17 18:18:12','pendiente','tramite municipal','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abc883cbfb455321f80cc4048aa544df30b5f113d26bddb34dd149a165b1d8'),(59,NULL,17144575,3,'2025-06-17 18:33:48','pendiente','tramite municipal','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab5bd162a090a7cc603113db6fc1ef57ec9e8d5a9a91ed9d315c0997ad72de'),(60,NULL,17144575,3,'2025-06-17 18:42:47','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab07445d216491b328b17098d66b706664ff5275d1c0e8885112eb7307883e');
+INSERT INTO `solicitudes_certificado` VALUES (1,NULL,17144575,3,'2025-05-23 18:41:41','aprobado','Necesito certificado de residencia para trámites bancarios','documento.pdf','2025-05-23 19:06:22',NULL,17144575,3000.00,NULL,'prueba',NULL,NULL,NULL),(6,NULL,17144575,3,'2025-06-15 01:26:52','pendiente','','',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(9,NULL,17144575,3,'2025-06-15 01:29:41','pendiente','','',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(11,NULL,17144575,3,'2025-06-15 01:34:49','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(12,NULL,17144575,3,'2025-06-15 01:41:06','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(13,NULL,17144575,3,'2025-06-15 01:44:38','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(14,NULL,17144575,3,'2025-06-15 01:50:24','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(15,NULL,17144575,3,'2025-06-15 01:54:56','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(16,NULL,17144575,3,'2025-06-15 01:57:35','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(17,NULL,17144575,3,'2025-06-16 19:51:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(18,NULL,17144575,3,'2025-06-16 19:52:28','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(19,NULL,17144575,3,'2025-06-16 19:58:47','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(20,NULL,17144575,3,'2025-06-16 20:02:15','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(21,NULL,17144575,3,'2025-06-16 20:21:04','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(22,NULL,17144575,3,'2025-06-16 20:21:04','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(23,NULL,17144575,3,'2025-06-16 20:30:16','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,0.00,NULL,NULL,NULL,NULL,NULL),(24,NULL,17144575,3,'2025-06-17 00:49:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(25,NULL,17144575,3,'2025-06-17 00:51:13','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(26,NULL,17144575,3,'2025-06-17 00:51:24','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(27,NULL,17144575,3,'2025-06-17 00:53:30','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(28,NULL,17144575,3,'2025-06-17 00:59:25','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(29,NULL,17144575,3,'2025-06-17 11:41:51','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(30,NULL,17144575,3,'2025-06-17 11:46:16','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(31,NULL,17144575,3,'2025-06-17 11:47:35','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(32,NULL,17144575,3,'2025-06-17 11:50:55','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(33,NULL,17144575,3,'2025-06-17 12:30:38','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(34,NULL,17144575,3,'2025-06-17 12:30:50','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(35,NULL,17144575,3,'2025-06-17 12:48:19','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(36,NULL,17144575,3,'2025-06-17 12:59:52','pendiente','Certificado de Residencia','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,NULL,NULL,NULL,NULL),(37,NULL,17144575,3,'2025-06-17 15:28:25','pendiente','tramites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abab32858adb7e6a5af0ecd9c3cb0c56bcd904a913af408677eaebdf4f49ec',NULL,NULL,NULL),(38,NULL,17144575,3,'2025-06-17 15:35:18','pendiente','Trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab63fd1f6776e1f6ec3c50967177bf55c41f101ec4f33fff18a0addeaeef35',NULL,NULL,NULL),(39,NULL,17144575,3,'2025-06-17 15:41:01','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abbbfeb596ab620eb4b4506175230d01375bbd045ade57ba2ecc40cb3e27b5',NULL,NULL,NULL),(40,NULL,17144575,3,'2025-06-17 15:41:02','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abe5ffc9e6487e67b173fae3b2adde6396a31d7fcf5589b5d35dc1fdf9c8e2',NULL,NULL,NULL),(41,NULL,17144575,3,'2025-06-17 15:43:42','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abc695de52f4e2269d3bb183dcbd50b12632e50928d26c8e7d0e5e45953c91',NULL,NULL,NULL),(42,NULL,17144575,3,'2025-06-17 15:45:29','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab8233b13abb94ecef00eb7c81b9218f961e5c8ca097a1a9b910e69f77c2e5',NULL,NULL,NULL),(43,NULL,17144575,3,'2025-06-17 15:50:05','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abc59d54456be7c503f5f45d3b2b11607855f6de5823c54bea04faae384079',NULL,NULL,NULL),(44,NULL,17144575,3,'2025-06-17 15:52:08','pendiente','trámites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab2900dfa407b6a8d721fee507ea5863e4d67fa14b7a733771c937f50fb1fc',NULL,NULL,NULL),(45,NULL,17144575,3,'2025-06-17 15:58:24','pendiente','trámites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab0e385204770bb2796c192bc27205ebad2ab8e32f93625027bb0551e2a2af',NULL,NULL,NULL),(46,NULL,17144575,3,'2025-06-17 16:03:33','pendiente','trámites de banco','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abf7991e98ec0b51c931058dba86f4dfb05fca1d9b1f80bb0ddf8cc35b9819',NULL,NULL,NULL),(47,NULL,17144575,3,'2025-06-17 16:07:20','pendiente','trámites de salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab99677732a57f3847c4dcd7e4db2ef3b2578a3ceca960d276f19e2b8abb37',NULL,NULL,NULL),(48,NULL,17144575,3,'2025-06-17 16:13:05','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab64b98036f2c4a7692e12359168e78967d724b0f2c18ef3896aa8265ab678',NULL,NULL,NULL),(49,NULL,17144575,3,'2025-06-17 16:14:17','pendiente','aaaaaaaaaaaaaaaaaaaaaa','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abe19ee22242bf32d6d304a5d9c3c70d7817bd87f883330ff2e9ffb011921e',NULL,NULL,NULL),(50,NULL,17144575,3,'2025-06-17 16:24:36','pendiente','trámites de banco','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abbb505aa1d91f9e382ab83c61bffed032de62cfc3e4592fb51c41d40da7c2',NULL,NULL,NULL),(51,NULL,17144575,3,'2025-06-17 16:30:23','pendiente','tramites salud','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abeffb9fc971d3ee17587761a7b84e6f26b4cc8b012017dc02daeb35a70350',NULL,NULL,NULL),(52,NULL,17144575,3,'2025-06-17 16:37:36','pendiente','tramites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab9b1f9a3e6ac554d42b6781e3f50b190842cc140f133fd4758921f2de201c',NULL,NULL,NULL),(53,NULL,17144575,3,'2025-06-17 17:13:34','pendiente','trámites bancarios','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abb1704e69e05040991492fde12fd055c82c8c58d818ca252325c2bdccd114',NULL,NULL,NULL),(54,NULL,17144575,3,'2025-06-17 17:45:16','pendiente','trámites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab35415566d0c6114c171e541726a3a647c83d3f112030020cdf09bd3f8688',NULL,NULL,NULL),(55,NULL,17144575,3,'2025-06-17 17:49:41','pendiente','tramites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab01000e01cefe81838caf8a360ad5e82bed5e0280921f27492125e30029eb',NULL,NULL,NULL),(56,NULL,17144575,3,'2025-06-17 17:58:29','pendiente','tramites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab377416ac5883e1f1a3dac92a494c8e903910a18eee248128f89dede36b31',NULL,NULL,NULL),(57,NULL,17144575,3,'2025-06-17 18:02:48','pendiente','tramites municipales','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab515cee44827bb717cd09f687ae9dc880c899ad93cfe91e0e6de338fce224',NULL,NULL,NULL),(58,NULL,17144575,3,'2025-06-17 18:18:12','pendiente','tramite municipal','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01abc883cbfb455321f80cc4048aa544df30b5f113d26bddb34dd149a165b1d8',NULL,NULL,NULL),(59,NULL,17144575,3,'2025-06-17 18:33:48','pendiente','tramite municipal','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab5bd162a090a7cc603113db6fc1ef57ec9e8d5a9a91ed9d315c0997ad72de',NULL,NULL,NULL),(60,NULL,17144575,3,'2025-06-17 18:42:47','pendiente','trámite bancario','Sin documentos adjuntos',NULL,NULL,NULL,2000.00,NULL,' | TOKEN_WEBPAY: 01ab07445d216491b328b17098d66b706664ff5275d1c0e8885112eb7307883e',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `solicitudes_certificado` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -684,6 +773,40 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_ESTADO_PAGO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_ESTADO_PAGO`(
+    IN p_solicitud_id INT,
+    IN p_estado VARCHAR(20),
+    IN p_token_webpay VARCHAR(255),
+    IN p_monto INT,
+    IN p_fecha_pago DATETIME
+)
+BEGIN
+    UPDATE solicitudes_certificado 
+    SET estado = p_estado,
+        token_webpay = p_token_webpay,
+        monto = p_monto,
+        fecha_pago = p_fecha_pago,
+        fecha_aprobacion = CASE 
+            WHEN p_estado = 'Pagado' THEN NOW()
+            ELSE fecha_aprobacion
+        END
+    WHERE id = p_solicitud_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_ESTADO_SOCIO` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -780,6 +903,32 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_ACTUALIZAR_RUTA_CERTIFICADO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_RUTA_CERTIFICADO`(
+    IN p_certificado_id INT,
+    IN p_ruta_archivo VARCHAR(255)
+)
+BEGIN
+    UPDATE certificados
+    SET archivo_pdf = p_ruta_archivo
+    WHERE solicitud_id = p_certificado_id;
+    
+    SELECT 'Ruta del certificado actualizada exitosamente' AS mensaje;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_APROBAR_CERTIFICADO` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -812,7 +961,7 @@ BEGIN
         observaciones = p_observaciones
     WHERE id = p_solicitud_id;
 
-    -- Insertar certificado
+    -- Insertar certificado (SIN el campo id)
     INSERT INTO certificados 
     (solicitud_id, codigo_verificacion, fecha_emision, fecha_vencimiento, archivo_pdf, estado)
     VALUES 
@@ -1559,6 +1708,43 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_CONSULTAR_SOLICITUD_POR_ID` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONSULTAR_SOLICITUD_POR_ID`(
+    IN p_solicitud_id INT
+)
+BEGIN
+    SELECT 
+        id,
+        usuario_rut,
+        tipo_certificado_id,
+        fecha_solicitud,
+        estado,
+        motivo,
+        documentos_adjuntos,
+        fecha_aprobacion,
+        directiva_rut,
+        precio,
+        observaciones,
+        token_webpay,
+        monto,
+        fecha_pago
+    FROM solicitudes_certificado
+    WHERE id = p_solicitud_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_CREAR_EVENTO` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -1916,6 +2102,32 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_GUARDAR_PAGO_HISTORIAL` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GUARDAR_PAGO_HISTORIAL`(
+    IN p_solicitud_id INT,
+    IN p_token_webpay VARCHAR(255),
+    IN p_monto INT,
+    IN p_estado VARCHAR(50),
+    IN p_fecha_pago DATETIME
+)
+BEGIN
+    INSERT INTO pago (solicitud_id, token_webpay, monto, estado, fecha_pago)
+    VALUES (p_solicitud_id, p_token_webpay, p_monto, p_estado, p_fecha_pago);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_GUARDAR_TOKEN_PAGO` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -2034,6 +2246,44 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_CERTIFICADO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_OBTENER_CERTIFICADO`(
+    IN p_solicitud_id INT
+)
+BEGIN
+    SELECT 
+        c.solicitud_id,
+        c.solicitud_id,
+        c.codigo_verificacion,
+        c.fecha_emision,
+        c.fecha_vencimiento,
+        c.archivo_pdf,
+        c.estado,
+        sc.id AS solicitud_id,
+        sc.usuario_rut,
+        sc.tipo_certificado_id,
+        sc.fecha_solicitud,
+        sc.estado AS solicitud_estado,
+        sc.motivo,
+        sc.documentos_adjuntos
+    FROM certificados c
+    JOIN solicitudes_certificado sc ON c.solicitud_id = sc.id
+    WHERE c.solicitud_id = p_solicitud_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_DETALLE_SOLICITUD` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -2145,6 +2395,42 @@ BEGIN
     WHERE ra.entidad IN ('socio', 'solicitud_membresia')
     ORDER BY ra.fecha_hora DESC
     LIMIT 5;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `SP_OBTENER_HISTORIAL_CERTIFICADOS` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_OBTENER_HISTORIAL_CERTIFICADOS`(
+    IN p_usuario_rut INT
+)
+BEGIN
+    SELECT 
+        c.solicitud_id,
+        c.codigo_verificacion,
+        c.fecha_emision,
+        c.archivo_pdf,
+        c.estado,
+        sc.usuario_rut,
+        sc.tipo_certificado_id,
+        sc.fecha_solicitud,
+        sc.estado as solicitud_estado,
+        sc.motivo,
+        sc.documentos_adjuntos
+    FROM certificados c
+    INNER JOIN solicitudes_certificado sc ON c.solicitud_id = sc.id
+    WHERE sc.usuario_rut = p_usuario_rut
+    ORDER BY c.fecha_emision DESC;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -3336,7 +3622,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_VERIFICAR_CERTIFICADO`(
 )
 BEGIN
     SELECT 
-        c.id,
+        c.solicitud_id AS id_certificado,
         c.codigo_verificacion,
         c.fecha_emision,
         c.fecha_vencimiento,
@@ -3344,33 +3630,20 @@ BEGIN
         sc.usuario_rut,
         u.nombre,
         u.apellido_paterno,
-        u.apellido_materno,
         tc.nombre AS tipo_certificado
     FROM certificados c
     JOIN solicitudes_certificado sc ON c.solicitud_id = sc.id
     JOIN usuarios u ON sc.usuario_rut = u.rut
     JOIN tipos_certificado tc ON sc.tipo_certificado_id = tc.id
-    WHERE c.codigo_verificacion = p_codigo_verificacion;
+    WHERE c.codigo_verificacion = p_codigo_verificacion
+    AND c.estado = 'vigente'
+    AND c.fecha_vencimiento > NOW();
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_ACTUALIZAR_RUTA_CERTIFICADO`(
-    IN p_certificado_id INT,
-    IN p_ruta_archivo VARCHAR(255)
-)
-BEGIN
-    UPDATE certificados
-    SET archivo_pdf = p_ruta_archivo
-    WHERE id = p_certificado_id;
-    
-    SELECT 'Ruta del certificado actualizada exitosamente' AS mensaje;
-END ;;
-DELIMITER ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -3381,4 +3654,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-17 18:45:41
+-- Dump completed on 2025-06-21  3:35:19

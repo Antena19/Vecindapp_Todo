@@ -124,7 +124,21 @@ export class SolicitarCertificadoComponent implements OnInit {
           },
           error: (err: any) => {
             console.error('Error en pago:', err);
-            alert('Error al iniciar el pago: ' + (err?.error?.mensaje || 'Error desconocido'));
+            
+            // Verificar si es un error de conectividad con Transbank
+            if (err?.status === 503 && err?.error?.conectividad === false) {
+              const mensaje = `⚠️ ${err.error.mensaje}\n\n` +
+                            `📋 Su solicitud ha sido registrada con ID: ${err.error.solicitudId}\n\n` +
+                            `📞 Contacte a la directiva para aprobación manual.\n\n` +
+                            `💡 Recomendación: ${err.error.recomendacion}`;
+              
+              alert(mensaje);
+              
+              // Opcional: Redirigir a una página de estado de solicitud
+              // window.location.href = `/certificados/estado/${err.error.solicitudId}`;
+            } else {
+              alert('Error al iniciar el pago: ' + (err?.error?.mensaje || 'Error desconocido'));
+            }
           }
         });
       },

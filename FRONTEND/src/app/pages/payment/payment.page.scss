@@ -28,4 +28,83 @@ ion-button {
   margin-top: 20px;
   --border-radius: 8px;
   font-weight: bold;
+}
+
+.payment-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  
+  ion-spinner {
+    width: 60px;
+    height: 60px;
+    color: var(--ion-color-primary);
+  }
+  
+  h2 {
+    color: var(--ion-color-primary);
+    margin: 0;
+    font-size: 20px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+.simulated-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 400px;
+  
+  .payment-icon {
+    font-size: 80px;
+    color: var(--ion-color-warning);
+  }
+  
+  h2 {
+    color: var(--ion-color-warning);
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  .transaction-info {
+    background: var(--ion-color-light);
+    border-radius: 10px;
+    padding: 15px;
+    width: 100%;
+    text-align: left;
+    
+    p {
+      margin: 5px 0;
+      font-size: 14px;
+      
+      strong {
+        color: var(--ion-color-dark);
+      }
+    }
+  }
 } 

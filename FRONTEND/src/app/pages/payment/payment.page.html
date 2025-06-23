@@ -1,22 +1,30 @@
-<ion-header>
+<ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Pago</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/certificados/solicitar"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Procesando Pago</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Realizar Pago</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-label position="stacked">Monto a pagar</ion-label>
-        <ion-input type="number" [(ngModel)]="monto" placeholder="Ingrese el monto"></ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="iniciarPago(monto)" class="ion-margin-top">
-        Pagar con WebPay
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+<ion-content [fullscreen]="true">
+  <div class="payment-container">
+    <div *ngIf="!isSimulated" class="loading-section">
+      <ion-spinner name="crescent"></ion-spinner>
+      <h2>Procesando pago con Transbank...</h2>
+      <p>Por favor, espere mientras se procesa su transacción.</p>
+    </div>
+    
+    <div *ngIf="isSimulated" class="simulated-section">
+      <ion-icon name="card" class="payment-icon"></ion-icon>
+      <h2>Pago Simulado</h2>
+      <p>Esta es una transacción simulada para desarrollo.</p>
+      <p>En producción, esto sería una transacción real procesada por Transbank.</p>
+      
+      <div class="transaction-info">
+        <p><strong>Token:</strong> {{ token }}</p>
+        <p><strong>Estado:</strong> Procesando...</p>
+      </div>
+    </div>
+  </div>
 </ion-content> 

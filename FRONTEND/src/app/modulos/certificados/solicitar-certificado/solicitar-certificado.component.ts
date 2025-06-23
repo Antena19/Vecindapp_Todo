@@ -58,6 +58,8 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
     this.route.queryParams.subscribe(params => {
       if (params['descargar']) {
         this.puedeDescargarPDF = true;
+        // Descargar automáticamente el certificado más reciente
+        this.descargarCertificadoReciente();
       }
     });
     this.usuario = this.authService.obtenerUsuarioActual();
@@ -572,5 +574,81 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
         }
       }
     });
+  }
+
+  async descargarCertificadoReciente(): Promise<void> {
+    try {
+      console.log('Descargando certificado más reciente...');
+      
+      // Obtener las solicitudes del usuario
+      this.certificadosService.obtenerHistorial().subscribe({
+        next: (solicitudes: any[]) => {
+          if (solicitudes && solicitudes.length > 0) {
+            // Filtrar solo las solicitudes aprobadas
+            const solicitudesAprobadas = solicitudes.filter(s => s.estado === 'aprobado' || s.estado === 'Aprobado');
+            
+            if (solicitudesAprobadas.length > 0) {
+              // Obtener la solicitud aprobada más reciente
+              const solicitudReciente = solicitudesAprobadas[0];
+              console.log('Solicitud aprobada más reciente encontrada:', solicitudReciente);
+              
+              // Mostrar información del certificado
+              const fechaAprobacion = solicitudReciente.fechaAprobacion ? 
+                new Date(solicitudReciente.fechaAprobacion).toLocaleDateString('es-CL') : 'No disponible';
+              
+              console.log(`Certificado aprobado el: ${fechaAprobacion}`);
+              console.log(`Código de validación: ${solicitudReciente.codigoVerificacion || 'No disponible'}`);
+              
+              // Descargar el certificado
+              this.certificadosService.descargarCertificado(solicitudReciente.id).subscribe({
+                next: (response: any) => {
+                  console.log('Certificado descargado exitosamente');
+                  
+                  // Crear un blob y descargar el archivo
+                  const blob = new Blob([response], { type: 'application/pdf' });
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `certificado_${solicitudReciente.id}.pdf`;
+                  link.click();
+                  window.URL.revokeObjectURL(url);
+                  
+                  // Mostrar mensaje de éxito con información
+                  this.mostrarMensajeExito(`Certificado descargado exitosamente\nFecha de aprobación: ${fechaAprobacion}\nCódigo de validación: ${solicitudReciente.codigoVerificacion || 'No disponible'}`);
+                },
+                error: (error) => {
+                  console.error('Error al descargar certificado:', error);
+                  this.mostrarMensajeError('Error al descargar el certificado: ' + (error?.error?.mensaje || 'Error desconocido'));
+                }
+              });
+            } else {
+              console.log('No se encontraron certificados aprobados para descargar');
+              this.mostrarMensajeError('No tienes certificados aprobados para descargar. Tus solicitudes están pendientes de aprobación.');
+            }
+          } else {
+            console.log('No se encontraron solicitudes de certificados');
+            this.mostrarMensajeError('No tienes solicitudes de certificados. Debes solicitar un certificado primero.');
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener solicitudes de certificados:', error);
+          this.mostrarMensajeError('Error al obtener tus certificados: ' + (error?.error?.mensaje || 'Error desconocido'));
+        }
+      });
+    } catch (error) {
+      console.error('Error al descargar certificado:', error);
+      this.mostrarMensajeError('Error al descargar el certificado');
+    }
+  }
+
+  mostrarMensajeExito(mensaje: string): void {
+    // No hacer nada para evitar la alerta.
+    console.log('Éxito:', mensaje);
+  }
+
+  mostrarMensajeError(mensaje: string): void {
+    // Aquí puedes implementar la lógica para mostrar un mensaje de error
+    // Por ejemplo, usando un toast o alert
+    alert('Error: ' + mensaje);
   }
 }

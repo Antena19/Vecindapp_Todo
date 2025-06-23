@@ -69,4 +69,308 @@ textarea {
 
 .btn-rechazar:hover {
   background-color: #c82333;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Estado de Conectividad */
+.conectividad-status {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.conectividad-ok {
+  border-color: #28a745;
+  background: #d4edda;
+}
+
+.conectividad-error {
+  border-color: #dc3545;
+  background: #f8d7da;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.online {
+  background-color: #28a745;
+}
+
+.status-dot.offline {
+  background-color: #dc3545;
+}
+
+.status-text {
+  font-weight: 500;
+}
+
+.btn-refresh {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-refresh:hover {
+  background: #0056b3;
+}
+
+/* Lista de Solicitudes */
+.solicitudes-container {
+  margin-bottom: 30px;
+}
+
+.solicitudes-container h3 {
+  color: #495057;
+  margin-bottom: 20px;
+}
+
+.solicitud-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.solicitud-item:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.solicitud-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.solicitud-info strong {
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+.solicitud-info span {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.estado-pendiente {
+  background: #ffc107;
+  color: #212529;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Detalle de Solicitud */
+.detalle-solicitud {
+  background: white;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 25px;
+  margin-top: 20px;
+}
+
+.detalle-solicitud h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.solicitud-detalle p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.solicitud-detalle strong {
+  color: #495057;
+  min-width: 150px;
+  display: inline-block;
+}
+
+/* Aprobación Sin Pago */
+.aprobacion-sin-pago {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.aprobacion-sin-pago h4 {
+  color: #856404;
+  margin-bottom: 15px;
+}
+
+/* Formularios */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+select.form-control {
+  background: white;
+}
+
+textarea.form-control {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Sección de Rechazo */
+.rechazo-section {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.rechazo-section h4 {
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+
+/* Botones de Acción */
+.acciones {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.btn-aprobar, .btn-aprobar-sin-pago, .btn-rechazar, .btn-cancelar {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn-aprobar {
+  background: #28a745;
+  color: white;
+}
+
+.btn-aprobar:hover {
+  background: #218838;
+}
+
+.btn-aprobar-sin-pago {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-aprobar-sin-pago:hover {
+  background: #e0a800;
+}
+
+.btn-rechazar {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-rechazar:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.btn-rechazar:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-cancelar {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancelar:hover {
+  background: #5a6268;
+}
+
+/* Mensaje sin solicitudes */
+.no-solicitudes {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .solicitud-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .acciones {
+    flex-direction: column;
+  }
+  
+  .btn-aprobar, .btn-aprobar-sin-pago, .btn-rechazar, .btn-cancelar {
+    width: 100%;
+  }
 } 

@@ -32,7 +32,7 @@ export class MantenedoresService {
 
        // Realiza la petición GET a la API y devuelve el Observable resultante
        return this.httpClient.get<Usuario[]>(
-           Constantes.API_URL + "/api/Usuarios", // URL completa del endpoint
+           Constantes.API_URL + "/Usuarios", // URL completa del endpoint
            httpOptions // Opciones de la petición (headers y params)
        );
    }

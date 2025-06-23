@@ -119,7 +119,7 @@ export class RecuperarPasswordComponent implements OnInit {
       ConfirmarContrasena: this.recuperacionForm.get('confirmPassword')?.value
     };
     
-    this.http.post(`${environment.apiUrl}/api/Autenticacion/recuperar-clave-simple`, datos)
+    this.http.post(`${environment.apiUrl}/Autenticacion/recuperar-clave-simple`, datos)
       .subscribe({
         next: async () => {
           this.cargando = false;

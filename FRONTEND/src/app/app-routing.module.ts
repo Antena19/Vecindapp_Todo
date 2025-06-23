@@ -61,6 +61,14 @@ const routes: Routes = [
   {
     path: 'payment/return',
     loadComponent: () => import('./pages/payment/payment.page').then(m => m.PaymentPage)
+  },
+  {
+    path: 'payment/success',
+    loadComponent: () => import('./pages/payment/success/success.page').then(m => m.SuccessPage)
+  },
+  {
+    path: 'payment/final',
+    loadComponent: () => import('./pages/payment/payment-final/payment-final.component').then(m => m.PaymentFinalComponent)
   }
 ];
 

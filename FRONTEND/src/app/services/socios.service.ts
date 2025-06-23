@@ -13,8 +13,8 @@ import { SocioActivoDTO } from '../modelos/DTOs/socio-activo.dto';
     providedIn: 'root'
 })
 export class SociosService {
-    private apiUrlSocios = environment.apiUrl + '/api/socios';
-    private apiUrlDirectiva = environment.apiUrl + '/api/directiva';
+    private apiUrlSocios = environment.apiUrl + '/socios';
+    private apiUrlDirectiva = environment.apiUrl + '/directiva';
 
     constructor(private http: HttpClient) { }
 

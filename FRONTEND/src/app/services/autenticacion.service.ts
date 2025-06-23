@@ -68,7 +68,7 @@ export class AutenticacionService {
   }
 
   iniciarSesion(rut: number, dv_rut: string, password: string): Observable<any> {
-    const url = `${Constantes.API_URL}/api/Autenticacion/login`;
+    const url = `${Constantes.API_URL}/Autenticacion/login`;
     console.log('URL del login:', url);
     const body = {
       username: rut.toString(),

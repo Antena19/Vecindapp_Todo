@@ -1,30 +1,98 @@
-<div class="aprobar-certificado-container">
-  <h2>Solicitudes Pendientes de Certificados</h2>
-  <ul>
-    <li *ngFor="let solicitud of solicitudes" (click)="seleccionarSolicitud(solicitud)">
-      {{ solicitud.nombre }} - {{ solicitud.rut }} - {{ solicitud.fecha }}
-    </li>
-  </ul>
-  <div *ngIf="solicitudSeleccionada">
-    <h3>Detalle de la Solicitud</h3>
-    <p><b>Nombre:</b> {{ solicitudSeleccionada.nombre }}</p>
-    <p><b>RUT:</b> {{ solicitudSeleccionada.rut }}</p>
-    <p><b>Dirección:</b> {{ solicitudSeleccionada.direccion }}</p>
-    <p><b>Teléfono:</b> {{ solicitudSeleccionada.telefono }}</p>
-    <p><b>Parentesco:</b> {{ solicitudSeleccionada.parentesco }}</p>
-    <div *ngIf="solicitudSeleccionada.documentos">
-      <p><b>Documentos adjuntos:</b></p>
-      <ul>
-        <li *ngFor="let doc of solicitudSeleccionada.documentos">
-          <a [href]="doc.url" target="_blank">{{ doc.nombre }}</a>
-        </li>
-      </ul>
+<div class="container">
+  <h2>Aprobar Certificados</h2>
+  
+  <!-- Estado de Conectividad -->
+  <div class="conectividad-status" [ngClass]="{'conectividad-ok': conectividadTransbank, 'conectividad-error': !conectividadTransbank}">
+    <div class="status-indicator">
+      <span class="status-dot" [ngClass]="{'online': conectividadTransbank, 'offline': !conectividadTransbank}"></span>
+      <span class="status-text">
+        <span *ngIf="cargandoConectividad">Verificando conectividad...</span>
+        <span *ngIf="!cargandoConectividad && conectividadTransbank">✓ Transbank disponible - Flujo normal de pago</span>
+        <span *ngIf="!cargandoConectividad && !conectividadTransbank">⚠ Sin conectividad con Transbank - Aprobación manual disponible</span>
+      </span>
     </div>
-    <button (click)="aprobar()">Aprobar</button>
-    <button (click)="rechazar()">Rechazar</button>
-    <div>
-      <label>Motivo de rechazo:</label>
-      <input [(ngModel)]="motivoRechazo">
+    <button *ngIf="!cargandoConectividad" (click)="verificarConectividad()" class="btn-refresh">
+      🔄 Actualizar
+    </button>
+  </div>
+
+  <!-- Lista de Solicitudes -->
+  <div class="solicitudes-container">
+    <h3>Solicitudes Pendientes</h3>
+    <div class="solicitud-item" *ngFor="let solicitud of solicitudes" (click)="seleccionarSolicitud(solicitud)">
+      <div class="solicitud-info">
+        <strong>{{ solicitud.nombreCompleto }}</strong>
+        <span>RUT: {{ solicitud.rut }}</span>
+        <span>Tipo: {{ solicitud.tipoCertificado }}</span>
+        <span>Fecha: {{ solicitud.fechaSolicitud | date:'dd/MM/yyyy' }}</span>
+        <span class="estado-pendiente">Pendiente</span>
+      </div>
     </div>
+  </div>
+
+  <!-- Detalle de Solicitud Seleccionada -->
+  <div *ngIf="solicitudSeleccionada" class="detalle-solicitud">
+    <h3>Detalle de Solicitud</h3>
+    <div class="solicitud-detalle">
+      <p><strong>Nombre:</strong> {{ solicitudSeleccionada.nombreCompleto }}</p>
+      <p><strong>RUT:</strong> {{ solicitudSeleccionada.rut }}</p>
+      <p><strong>Tipo de Certificado:</strong> {{ solicitudSeleccionada.tipoCertificado }}</p>
+      <p><strong>Fecha de Solicitud:</strong> {{ solicitudSeleccionada.fechaSolicitud | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p><strong>Motivo:</strong> {{ solicitudSeleccionada.motivo }}</p>
+      <p><strong>Precio:</strong> ${{ solicitudSeleccionada.precio | number }}</p>
+    </div>
+
+    <!-- Campos para Aprobación Sin Pago (solo cuando no hay conectividad) -->
+    <div *ngIf="!conectividadTransbank && !cargandoConectividad" class="aprobacion-sin-pago">
+      <h4>Aprobación Sin Pago (Sin Conectividad Transbank)</h4>
+      <div class="form-group">
+        <label for="motivoAprobacion">Motivo de Aprobación Sin Pago *:</label>
+        <select id="motivoAprobacion" [(ngModel)]="motivoAprobacionSinPago" class="form-control">
+          <option value="">Seleccione un motivo</option>
+          <option value="Problemas de conectividad con Transbank">Problemas de conectividad con Transbank</option>
+          <option value="Emergencia o urgencia especial">Emergencia o urgencia especial</option>
+          <option value="Pago en efectivo realizado">Pago en efectivo realizado</option>
+          <option value="Exención por situación especial">Exención por situación especial</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="observaciones">Observaciones Adicionales:</label>
+        <textarea id="observaciones" [(ngModel)]="observacionesAprobacion" class="form-control" 
+                  placeholder="Detalles adicionales sobre la aprobación sin pago..."></textarea>
+      </div>
+    </div>
+
+    <!-- Campos para Rechazo -->
+    <div class="rechazo-section">
+      <h4>Rechazar Solicitud</h4>
+      <div class="form-group">
+        <label for="motivoRechazo">Motivo de Rechazo:</label>
+        <textarea id="motivoRechazo" [(ngModel)]="motivoRechazo" class="form-control" 
+                  placeholder="Especifique el motivo del rechazo..."></textarea>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="acciones">
+      <button *ngIf="conectividadTransbank" (click)="aprobar()" class="btn-aprobar">
+        ✅ Aprobar (Con Pago)
+      </button>
+      <button *ngIf="!conectividadTransbank && !cargandoConectividad" (click)="aprobar()" class="btn-aprobar-sin-pago">
+        ✅ Aprobar Sin Pago
+      </button>
+      <button (click)="rechazar()" class="btn-rechazar" [disabled]="!motivoRechazo.trim()">
+        ❌ Rechazar
+      </button>
+      <button (click)="solicitudSeleccionada = null" class="btn-cancelar">
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay solicitudes -->
+  <div *ngIf="solicitudes.length === 0" class="no-solicitudes">
+    <p>No hay solicitudes pendientes de certificados.</p>
   </div>
 </div> 

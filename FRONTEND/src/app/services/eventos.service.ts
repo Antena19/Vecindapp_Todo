@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class EventosService {
-  private apiUrl = `${environment.apiUrl}/api/Eventos`;
+  private apiUrl = `${environment.apiUrl}/Eventos`;
 
   constructor(private http: HttpClient) { }
 

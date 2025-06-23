@@ -88,7 +88,7 @@ export class MiPerfilComponent implements OnInit {
       });
       await this.loading.present();
 
-      this.http.get(`${environment.apiUrl}/api/Usuarios/autenticado`)
+      this.http.get(`${environment.apiUrl}/Usuarios/autenticado`)
         .subscribe({
           next: (response: any) => {
             this.usuario = response.usuario;
@@ -188,7 +188,7 @@ export class MiPerfilComponent implements OnInit {
         Direccion: this.perfilForm.value.direccion
       };
 
-      this.http.put(`${environment.apiUrl}/api/Usuarios/${this.usuario.rut}`, datosActualizados)
+      this.http.put(`${environment.apiUrl}/Usuarios/${this.usuario.rut}`, datosActualizados)
         .subscribe({
           next: async () => {
             // Actualizar datos locales
@@ -298,7 +298,7 @@ export class MiPerfilComponent implements OnInit {
       nuevaContrasena: this.passwordForm.value.passwordNueva
     };
     
-    this.http.post(`${environment.apiUrl}/api/Autenticacion/cambiar-contrasena`, datosPassword)
+    this.http.post(`${environment.apiUrl}/Autenticacion/cambiar-contrasena`, datosPassword)
       .subscribe({
         next: async () => {
           this.cargando = false;

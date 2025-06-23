@@ -1,0 +1,35 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/certificados/solicitar"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Confirmando Pago</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="payment-final-container">
+    
+    <!-- Estado de carga -->
+    <div *ngIf="loading && !error" class="loading-section">
+      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+      <h2>Confirmando pago con Transbank...</h2>
+      <p>Por favor, espere mientras se procesa su transacción.</p>
+    </div>
+
+    <!-- Estado de error -->
+    <div *ngIf="error" class="error-section">
+      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+      <h2>Error en el Pago</h2>
+      <p>{{ error }}</p>
+      
+      <div class="action-buttons">
+        <ion-button expand="block" (click)="volverACertificados()">
+          <ion-icon name="arrow-back" slot="start"></ion-icon>
+          Volver a Certificados
+        </ion-button>
+      </div>
+    </div>
+
+  </div>
+</ion-content> 

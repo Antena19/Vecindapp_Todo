@@ -1,94 +1,69 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { WebpayService } from '../../services/webpay.service';
-import { AlertController, IonicModule } from '@ionic/angular';
+import { AlertController, LoadingController, IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule]
 })
 export class PaymentPage implements OnInit {
-  monto: number = 0;
-  private confirmando = false;
+  token: string = '';
+  isSimulated: boolean = false;
 
   constructor(
-    private webpayService: WebpayService,
     private route: ActivatedRoute,
     private router: Router,
-    private alertController: AlertController
+    private loadingCtrl: LoadingController,
+    private alertCtrl: AlertController
   ) { }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      if (params['token_ws'] && !this.confirmando) {
-        this.confirmando = true;
-        this.confirmarTransaccion(params['token_ws']);
-      }
-    });
+    this.token = this.route.snapshot.queryParamMap.get('token_ws') || '';
+    this.isSimulated = this.token.startsWith('simulated_');
+    
+    if (this.isSimulated) {
+      this.handleSimulatedPayment();
+    }
   }
 
-  async iniciarPago(monto: number) {
+  async handleSimulatedPayment() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Procesando pago simulado...'
+    });
+    await loading.present();
+
     try {
-      const response = await this.webpayService.crearTransaccion(monto).toPromise();
+      // Simular un delay para que parezca real
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      if (response && response.url && response.token) {
-        window.location.href = `${response.url}?token_ws=${response.token}`;
-      }
+      await loading.dismiss();
+      
+      const alert = await this.alertCtrl.create({
+        header: 'Pago Simulado Exitoso',
+        message: 'Esta es una transacción simulada para desarrollo. En producción, esto sería una transacción real de Transbank.',
+        buttons: [
+          {
+            text: 'Continuar',
+            handler: () => {
+              // Redirigir a la página de éxito
+              this.router.navigate(['/payment/success'], {
+                queryParams: { 
+                  token: this.token,
+                  simulated: 'true'
+                }
+              });
+            }
+          }
+        ]
+      });
+      await alert.present();
     } catch (error) {
-      this.mostrarError('Error al iniciar el pago');
+      await loading.dismiss();
+      console.error('Error en pago simulado:', error);
     }
-  }
-
-  async confirmarTransaccion(token: string) {
-    try {
-      const response = await this.webpayService.confirmarTransaccion(token).toPromise();
-      console.log('Respuesta de backend al confirmar transacción:', response);
-      if ((response.status && response.status === 'AUTHORIZED') || (response.mensaje && response.mensaje.toLowerCase().includes('confirmado'))) {
-        await this.mostrarExito('Pago realizado con éxito. Status: ' + (response.status || ''));
-        this.router.navigate(['/certificados/solicitar'], { queryParams: { descargar: 1 } });
-      } else {
-        let msg = 'El pago no pudo ser procesado.';
-        if (response.status) {
-          msg += ' Status: ' + response.status;
-        }
-        if (response.mensaje) {
-          msg += ' Mensaje: ' + response.mensaje;
-        }
-        await this.mostrarError(msg);
-      }
-    } catch (error: any) {
-      let msg = 'Error al confirmar el pago';
-      if (error?.error?.mensaje && error.error.mensaje.toLowerCase().includes('ya fue procesado')) {
-        msg = 'Este pago ya fue procesado o el enlace expiró. Si ya pagaste, revisa tu historial.';
-      } else if (error?.error?.mensaje) {
-        msg = error.error.mensaje;
-      } else if (error?.error?.status) {
-        msg += ' Status: ' + error.error.status;
-      }
-      await this.mostrarError(msg);
-    }
-  }
-
-  async mostrarExito(mensaje: string) {
-    const alert = await this.alertController.create({
-      header: 'Éxito',
-      message: mensaje,
-      buttons: ['OK']
-    });
-    await alert.present();
-  }
-
-  async mostrarError(mensaje: string) {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: mensaje,
-      buttons: ['OK']
-    });
-    await alert.present();
   }
 } 

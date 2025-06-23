@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  //apiUrl: 'https://localhost:7287'
-  apiUrl: 'https://backendvecindapp-production.up.railway.app'
+  apiUrl: 'http://localhost:5032/api'
+  //apiUrl: 'https://backendvecindapp-production.up.railway.app' // Para producción
 };

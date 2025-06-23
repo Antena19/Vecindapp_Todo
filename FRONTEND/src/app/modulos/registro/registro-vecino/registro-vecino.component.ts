@@ -138,7 +138,7 @@ export class RegistroVecinoComponent implements OnInit {
     };
     
     // Realizar petición HTTP al backend
-    this.http.post(`${environment.apiUrl}/api/Usuarios/registrar`, datosUsuario)
+    this.http.post(`${environment.apiUrl}/Usuarios/registrar`, datosUsuario)
       .subscribe({
         next: async (response: any) => {
           this.cargando = false;

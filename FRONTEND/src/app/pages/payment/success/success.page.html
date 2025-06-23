@@ -1,0 +1,42 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/certificados/solicitar"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Pago Exitoso</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="success-container">
+    <ion-icon name="checkmark-circle" class="success-icon"></ion-icon>
+    
+    <h1>¡Pago Procesado Exitosamente!</h1>
+    
+    <div class="info-card">
+      <p *ngIf="isSimulated" class="simulated-notice">
+        <ion-icon name="information-circle"></ion-icon>
+        Esta fue una transacción simulada para desarrollo.
+      </p>
+      
+      <p>Tu certificado ha sido procesado y está listo para descargar.</p>
+      
+      <div class="transaction-details">
+        <p><strong>Token:</strong> {{ token }}</p>
+        <p><strong>Tipo:</strong> {{ isSimulated ? 'Simulado' : 'Real' }}</p>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <ion-button expand="block" (click)="volverACertificados()">
+        <ion-icon name="document" slot="start"></ion-icon>
+        Volver a Certificados
+      </ion-button>
+      
+      <ion-button expand="block" fill="outline" (click)="mostrarInformacion()">
+        <ion-icon name="information-circle" slot="start"></ion-icon>
+        Más Información
+      </ion-button>
+    </div>
+  </div>
+</ion-content> 
