@@ -344,34 +344,28 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   }
 
   exportarPDF() {
-    const element = document.getElementById('certificadoFormal');
-    if (element) {
-      // Mostrar solo la firma del presidente en el PDF
-      const firmaPresidente = element.querySelector('img[alt="Firma Presidente"]') as HTMLImageElement;
-      if (firmaPresidente) {
-        firmaPresidente.style.display = 'block';
+    this.certificadosService.obtenerHistorial().subscribe({
+      next: (historial: any[]) => {
+        let codigo = '';
+        let fecha = '';
+
+        if (historial && historial.length > 0) {
+          const ultimoCertificado = historial[0]; // El historial viene ordenado por fecha desc.
+          codigo = ultimoCertificado.codigoVerificacion || 'No disponible';
+          if (ultimoCertificado.fechaEmision) {
+            fecha = new Date(ultimoCertificado.fechaEmision).toLocaleString('es-CL');
+          } else {
+            fecha = 'No disponible';
+          }
+        }
+        
+        this.generarPDF(codigo, fecha, true);
+      },
+      error: (err) => {
+        console.error('Error al obtener historial para PDF, usando datos locales.', err);
+        this.generarPDF(this.hashVerificacion, this.timestampFirma, true);
       }
-      // Ocultar la firma digital del usuario siempre
-      const firmaUsuario = element.querySelector('img[alt="Firma Usuario"]') as HTMLImageElement;
-      if (firmaUsuario) {
-        firmaUsuario.style.display = 'none';
-      }
-      // Mostrar temporalmente el certificado
-      const originalDisplay = element.style.display;
-      element.style.display = 'block';
-      setTimeout(() => {
-        const opt = {
-          margin: 0.2,
-          filename: `certificado_residencia_${this.hashVerificacion}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save().then(() => {
-          element.style.display = originalDisplay;
-        });
-      }, 100);
-    }
+    });
   }
 
   previsualizarPDF() {
@@ -379,29 +373,70 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       alert('⚠️ Debe firmar el certificado antes de previsualizar.');
       return;
     }
+    // Para la previsualización, no mostramos código ni fecha.
+    this.generarPDF('', '', false);
+  }
 
+  private generarPDF(codigo: string, fecha: string, guardarArchivo: boolean): void {
     const element = document.getElementById('certificadoFormal');
-    if (element) {
-      const originalDisplay = element.style.display;
-      element.style.display = 'block';
+    if (!element) {
+      console.error('Elemento #certificadoFormal no encontrado');
+      return;
+    }
 
+    const codigoElement = element.querySelector('#pdf-codigo-verificacion') as HTMLElement;
+    const fechaElement = element.querySelector('#pdf-fecha-emision') as HTMLElement;
+    const validadoElement = codigoElement?.parentElement;
+
+    // Guardar estado original
+    const codigoOriginal = codigoElement?.innerText;
+    const fechaOriginal = fechaElement?.innerText;
+    const displayOriginal = validadoElement?.style.display ?? '';
+    const originalElementDisplay = element.style.display;
+
+    // Modificar para la generación del PDF
+    if (validadoElement) {
+      if (codigo || fecha) {
+        if(codigoElement) codigoElement.innerText = codigo;
+        if(fechaElement) fechaElement.innerText = fecha;
+        validadoElement.style.display = 'block';
+      } else {
+        validadoElement.style.display = 'none';
+      }
+    }
+    
+    element.style.display = 'block';
+
+    // *** Usamos un setTimeout para dar tiempo al DOM a renderizar los cambios ***
+    setTimeout(() => {
       const opt = {
         margin: 0.2,
-        filename: `certificado_residencia_${this.hashVerificacion}.pdf`,
+        filename: `certificado_residencia_${codigo || 'preview'}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
-      
-      html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf: any) => {
-        const blob = pdf.output('blob');
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        element.style.display = originalDisplay;
-      });
-      
-      this.certificadoListo = true;
-    }
+
+      const promise = guardarArchivo 
+        ? html2pdf().set(opt).from(element).save() 
+        : html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf: any) => {
+            const blob = pdf.output('blob');
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+          });
+
+      promise.catch((err: any) => console.error("Error al generar el PDF:", err))
+        .finally(() => {
+          // Restaurar estado original
+          if (validadoElement) {
+            if(codigoElement && codigoOriginal) codigoElement.innerText = codigoOriginal;
+            if(fechaElement && fechaOriginal) fechaElement.innerText = fechaOriginal;
+            validadoElement.style.display = displayOriginal;
+          }
+          element.style.display = originalElementDisplay;
+          if (!guardarArchivo) this.certificadoListo = true;
+        });
+    }, 100);
   }
 
   private resetForm(): void {

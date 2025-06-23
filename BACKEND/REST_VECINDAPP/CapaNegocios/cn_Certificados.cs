@@ -115,7 +115,7 @@ namespace REST_VECINDAPP.CapaNegocios
             using var connection = new MySqlConnection(_connectionString);
             await connection.OpenAsync();
             
-            // Usar consulta SQL directa en lugar del stored procedure que no existe
+            // Consulta SQL modificada para incluir información del certificado
             var query = @"
                 SELECT 
                     sc.id,
@@ -129,9 +129,13 @@ namespace REST_VECINDAPP.CapaNegocios
                     sc.directiva_rut,
                     sc.precio,
                     sc.observaciones,
-                    tc.nombre AS tipo_certificado_nombre
+                    tc.nombre AS tipo_certificado_nombre,
+                    c.codigo_verificacion,
+                    c.fecha_emision,
+                    c.solicitud_id AS certificado_id
                 FROM solicitudes_certificado sc
                 LEFT JOIN tipos_certificado tc ON sc.tipo_certificado_id = tc.id
+                LEFT JOIN certificados c ON sc.id = c.solicitud_id
                 WHERE sc.usuario_rut = @usuario_rut
                 ORDER BY sc.fecha_solicitud DESC";
                 
@@ -152,7 +156,10 @@ namespace REST_VECINDAPP.CapaNegocios
                     FechaAprobacion = reader.IsDBNull("fecha_aprobacion") ? null : reader.GetDateTime("fecha_aprobacion"),
                     DirectivaRut = reader.IsDBNull("directiva_rut") ? null : reader.GetInt32("directiva_rut"),
                     Precio = reader.GetDecimal("precio"),
-                    Observaciones = reader.IsDBNull("observaciones") ? null : reader.GetString("observaciones")
+                    Observaciones = reader.IsDBNull("observaciones") ? null : reader.GetString("observaciones"),
+                    CodigoVerificacion = reader.IsDBNull("codigo_verificacion") ? null : reader.GetString("codigo_verificacion"),
+                    FechaEmision = reader.IsDBNull("fecha_emision") ? null : reader.GetDateTime("fecha_emision"),
+                    CertificadoId = reader.IsDBNull("certificado_id") ? null : reader.GetInt32("certificado_id")
                 });
             }
             return solicitudes;
@@ -364,8 +371,9 @@ namespace REST_VECINDAPP.CapaNegocios
                         s.motivo,
                         c.codigo_verificacion,
                         c.fecha_emision,
-                        u.nombres,
-                        u.apellidos,
+                        u.nombre,
+                        u.apellido_paterno,
+                        u.apellido_materno,
                         u.rut
                     FROM solicitudes_certificado s
                     JOIN certificados c ON s.id = c.solicitud_id
@@ -385,8 +393,8 @@ namespace REST_VECINDAPP.CapaNegocios
                 {
                     CodigoVerificacion = reader.IsDBNull("codigo_verificacion") ? "No disponible" : reader.GetString("codigo_verificacion"),
                     FechaEmision = reader.GetDateTime("fecha_emision"),
-                    Nombres = reader.GetString("nombres"),
-                    Apellidos = reader.GetString("apellidos"),
+                    Nombres = reader.GetString("nombre"),
+                    Apellidos = $"{reader.GetString("apellido_paterno")} {reader.GetString("apellido_materno")}".Trim(),
                     Rut = reader.GetInt32("rut"),
                     Motivo = reader.IsDBNull("motivo") ? "No especificado" : reader.GetString("motivo")
                 };
@@ -395,9 +403,14 @@ namespace REST_VECINDAPP.CapaNegocios
 
                 // 2. Definir rutas a las imágenes (ajusta si es necesario)
                 string basePath = Directory.GetCurrentDirectory();
-                string logoPath = Path.Combine(basePath, "..", "FRONTEND", "src", "assets", "images", "logo-junta.png");
-                string firmaPath = Path.Combine(basePath, "..", "FRONTEND", "src", "assets", "images", "firma-presidente.jpg");
+                string logoPath = Path.Combine(basePath, "..", "..", "FRONTEND", "src", "assets", "images", "logo-junta.png");
+                string firmaPath = Path.Combine(basePath, "..", "..", "FRONTEND", "src", "assets", "images", "firma-presidente.jpg");
 
+                if (!File.Exists(logoPath))
+                {
+                    return (false, $"No se encontró la imagen del logo en la ruta: {logoPath}");
+                }
+                
                 if (!File.Exists(logoPath) || !File.Exists(firmaPath))
                 {
                     return (false, "No se encontraron las imágenes del logo o la firma en la ruta esperada.");
@@ -452,21 +465,26 @@ namespace REST_VECINDAPP.CapaNegocios
                  document.Add(nombrePresidente);
 
                 // Pie de página con código de validación
-                var fechaEmision = new Paragraph($"Emitido el: {data.FechaEmision:dd 'de' MMMM 'de' yyyy}")
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.LEFT)
-                    .SetFontSize(9)
-                    .SetItalic();
+                var pieDePagina = new Div()
+                    .SetFixedPosition(40, 40, 515) // Ajusta la posición según tus márgenes
+                    .SetWidth(515)
+                    .SetMarginTop(20);
 
-                var codigo = new Paragraph($"Código de Verificación: {data.CodigoVerificacion}")
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT)
-                    .SetFontSize(9)
-                    .SetItalic();
+                var tablaPie = new Table(2, true);
                 
-                // Usar una tabla para alinear los elementos del pie de página
-                 var table = new iText.Layout.Element.Table(2, true).SetMarginTop(60);
-                 table.AddCell(new Cell().Add(fechaEmision).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                 table.AddCell(new Cell().Add(codigo).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                 document.Add(table);
+                var fechaEmision = new Paragraph($"Fecha: {data.FechaEmision:dd-MM-yyyy}")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.LEFT)
+                    .SetFontSize(10);
+
+                var codigoVerificacion = new Paragraph($"Código: {data.CodigoVerificacion}")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT)
+                    .SetFontSize(10);
+
+                tablaPie.AddCell(new Cell().Add(fechaEmision).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                tablaPie.AddCell(new Cell().Add(codigoVerificacion).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
+                
+                pieDePagina.Add(tablaPie);
+                document.Add(pieDePagina);
 
                 document.Close();
                 

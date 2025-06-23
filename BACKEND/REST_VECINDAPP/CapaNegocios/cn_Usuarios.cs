@@ -527,17 +527,75 @@ namespace REST_VECINDAPP.CapaNegocios
 
         public (bool Exito, string Mensaje) EliminarUsuario(int rut, int rutSolicitante)
         {
+            try
+            {
+                using (MySqlConnection conn = new MySqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+                    // Verificar si el solicitante es Directiva o Administrador
+                    MySqlCommand checkRoleCmd = new MySqlCommand("SELECT tipo_usuario FROM usuarios WHERE rut = @rut", conn);
+                    checkRoleCmd.Parameters.AddWithValue("@rut", rutSolicitante);
+                    string role = Convert.ToString(checkRoleCmd.ExecuteScalar());
+
+                    if (role != "Directiva" && role != "Administrador")
+                    {
+                        return (false, "No tienes permiso para realizar esta acción.");
+                    }
+
+                    // Proceder con la eliminación
+                    MySqlCommand cmd = new MySqlCommand("SP_ELIMINAR_USUARIO", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@p_rut", rut);
+                    cmd.ExecuteNonQuery();
+
+                    return (true, "Usuario eliminado correctamente");
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Error al eliminar el usuario: {ex.Message}");
+            }
+        }
+
+        public (bool Exito, string Mensaje) RecuperarClaveSimple(string rutCompleto, string nombreCompleto, string nuevaContrasena)
+        {
+            if (string.IsNullOrWhiteSpace(nuevaContrasena))
+            {
+                return (false, "La nueva contraseña no puede estar vacía.");
+            }
+            if (!ValidarComplejidadContraseña(nuevaContrasena))
+            {
+                return (false, "La nueva contraseña no cumple con los requisitos de complejidad.");
+            }
+
+            var rutParts = rutCompleto.Split('-');
+            if (rutParts.Length != 2 || !int.TryParse(rutParts[0], out int rut) || string.IsNullOrEmpty(rutParts[1]))
+            {
+                return (false, "El formato del RUT no es válido. Debe ser '12345678-9'.");
+            }
+            string dv = rutParts[1];
+
+            if (!ValidarRut(rut, dv))
+            {
+                return (false, "El RUT ingresado no es válido.");
+            }
+
+            string passwordHash = HashearContraseña(nuevaContrasena);
+
             using (MySqlConnection conn = new MySqlConnection(_connectionString))
             {
                 try
                 {
                     conn.Open();
-                    using (MySqlCommand cmd = new MySqlCommand("SP_ELIMINAR_USUARIO", conn))
+                    using (MySqlCommand cmd = new MySqlCommand("SP_RECUPERAR_CLAVE_SIMPLE", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@p_rut", rut);
-                        cmd.Parameters.AddWithValue("@p_rut_solicitante", rutSolicitante);
 
+                        cmd.Parameters.AddWithValue("@p_rut", rut);
+                        cmd.Parameters.AddWithValue("@p_nombre_completo", nombreCompleto);
+                        cmd.Parameters.AddWithValue("@p_nueva_contrasena_hash", passwordHash);
+                        
                         MySqlParameter msgParam = new MySqlParameter("@p_mensaje", MySqlDbType.VarChar, 255);
                         msgParam.Direction = ParameterDirection.Output;
                         cmd.Parameters.Add(msgParam);
@@ -545,68 +603,17 @@ namespace REST_VECINDAPP.CapaNegocios
                         cmd.ExecuteNonQuery();
 
                         string mensaje = msgParam.Value?.ToString() ?? "";
-                        return (mensaje == "OK", mensaje);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return (false, $"Error al eliminar usuario: {ex.Message}");
-                }
-            }
-        }
-
-        public (bool Exito, string Mensaje) RecuperarClaveSimple(int rut, string nombreCompleto, string nuevaContrasena)
-        {
-            if (!ValidarComplejidadContraseña(nuevaContrasena))
-            {
-                return (false, "La nueva contraseña no cumple con los requisitos de complejidad.");
-            }
-
-            string nuevaContrasenaHash = HashearContraseña(nuevaContrasena);
-
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
-            {
-                try
-                {
-                    conn.Open();
-
-                    using (MySqlCommand cmd = new MySqlCommand("SP_RECUPERAR_CONTRASENA_SIMPLE", conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.AddWithValue("@p_rut", rut);
-                        cmd.Parameters.AddWithValue("@p_nombre_completo", nombreCompleto);
-                        cmd.Parameters.AddWithValue("@p_nueva_password", nuevaContrasenaHash);
-
-                        using (var reader = cmd.ExecuteReader())
+                        if (mensaje == "OK")
                         {
-                            if (reader.Read())
-                            {
-                                string mensaje = reader["mensaje"].ToString();
-                                return (true, mensaje);
-                            }
-                            else
-                            {
-                                return (false, "Error al procesar la solicitud de recuperación");
-                            }
+                            return (true, "Contraseña actualizada exitosamente.");
                         }
+                        return (false, mensaje);
                     }
-                }
-                catch (MySqlException ex)
-                {
-                    if (ex.Message.Contains("Usuario no encontrado"))
-                    {
-                        return (false, "Usuario no encontrado");
-                    }
-                    if (ex.Message.Contains("nombre completo no coincide"))
-                    {
-                        return (false, "El nombre completo no coincide con el registrado para este RUT");
-                    }
-                    return (false, $"Error al recuperar contraseña: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    return (false, $"Error al recuperar contraseña: {ex.Message}");
+                    // Deberías registrar este error en un sistema de logging.
+                    return (false, $"Ocurrió un error al intentar recuperar la contraseña. Detalle: {ex.Message}");
                 }
             }
         }

@@ -18,10 +18,16 @@ export class HistorialCertificadosComponent implements OnInit {
   ngOnInit(): void {
     this.certificadosService.obtenerHistorial().subscribe(data => {
       this.historial = data;
+      console.log('Historial cargado:', data);
     });
   }
 
   descargar(certificadoId: number) {
+    if (!certificadoId) {
+      alert('No hay certificado disponible para descargar. El certificado debe estar aprobado.');
+      return;
+    }
+
     this.certificadosService.descargarCertificado(certificadoId).subscribe(
       (response) => {
         // Decodificar el base64
@@ -44,6 +50,12 @@ export class HistorialCertificadosComponent implements OnInit {
         // Limpiar
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+
+        // Mostrar información del certificado descargado
+        const mensaje = `Certificado descargado exitosamente\n\n` +
+                       `Código de verificación: ${response.codigoVerificacion || 'No disponible'}\n` +
+                       `Fecha de aprobación: ${response.fechaAprobacion || 'No disponible'}`;
+        alert(mensaje);
 
       },
       (error) => {

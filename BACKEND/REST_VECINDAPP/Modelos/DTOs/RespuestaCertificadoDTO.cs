@@ -23,5 +23,9 @@ namespace REST_VECINDAPP.Modelos.DTOs
         public string HashVerificacion { get; set; }
         public DateTime TimestampFirma { get; set; }
         public string UsuarioFirmante { get; set; }
+        // Campos adicionales para información del certificado
+        public string? CodigoVerificacion { get; set; }
+        public DateTime? FechaEmision { get; set; }
+        public int? CertificadoId { get; set; }
     }
 }

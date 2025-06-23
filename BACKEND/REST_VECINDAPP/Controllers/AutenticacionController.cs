@@ -67,6 +67,18 @@ namespace REST_VECINDAPP.Controllers
             public string? ConfirmarContrasena { get; set; }
         }
 
+        public class RecuperarClaveSimpleRequest
+        {
+            [Required(ErrorMessage = "El RUT es obligatorio.")]
+            public string Rut { get; set; }
+
+            [Required(ErrorMessage = "El nombre completo es obligatorio.")]
+            public string NombreCompleto { get; set; }
+
+            [Required(ErrorMessage = "La nueva contraseña es obligatoria.")]
+            public string NuevaContrasena { get; set; }
+        }
+
         /// <summary>
         /// Autentica a un usuario y devuelve un token JWT si las credenciales son válidas
         /// </summary>
@@ -286,6 +298,23 @@ namespace REST_VECINDAPP.Controllers
                 timestamp = DateTime.UtcNow,
                 origin = Request.Headers["Origin"].ToString()
             });
+        }
+
+        [HttpPost("recuperar-clave-simple")]
+        public IActionResult RecuperarClaveSimple([FromBody] RecuperarClaveSimpleRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var (exito, mensaje) = _cnUsuarios.RecuperarClaveSimple(request.Rut, request.NombreCompleto, request.NuevaContrasena);
+
+            if (exito)
+            {
+                return Ok(new { message = mensaje });
+            }
+
+            return BadRequest(new { message = mensaje });
         }
     }
 }

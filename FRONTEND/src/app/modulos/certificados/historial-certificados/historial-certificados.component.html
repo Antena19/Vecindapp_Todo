@@ -5,19 +5,26 @@
       <tr>
         <th>Nombre</th>
         <th>RUT</th>
-        <th>Fecha</th>
+        <th>Fecha Solicitud</th>
         <th>Estado</th>
+        <th>Código Verificación</th>
+        <th>Fecha Emisión</th>
         <th>Descargar</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let item of historial">
-        <td>{{ item.nombre }}</td>
-        <td>{{ item.rut }}</td>
-        <td>{{ item.fecha }}</td>
+        <td>{{ item.nombreSolicitante || 'N/A' }}</td>
+        <td>{{ item.rutSolicitante || 'N/A' }}</td>
+        <td>{{ item.fechaSolicitud | date:'dd/MM/yyyy' }}</td>
         <td>{{ item.estado }}</td>
         <td>
-          <button (click)="descargar(item.certificadoId)" [disabled]="!item.certificadoId">Descargar</button>
+          <span *ngIf="item.codigoVerificacion" class="codigo-verificacion">{{ item.codigoVerificacion }}</span>
+          <span *ngIf="!item.codigoVerificacion">No disponible</span>
+        </td>
+        <td>{{ item.fechaEmision ? (item.fechaEmision | date:'dd/MM/yyyy') : 'No disponible' }}</td>
+        <td>
+          <button (click)="descargar(item.certificadoId || item.id)" [disabled]="!item.certificadoId && item.estado !== 'aprobado'">Descargar</button>
         </td>
       </tr>
     </tbody>

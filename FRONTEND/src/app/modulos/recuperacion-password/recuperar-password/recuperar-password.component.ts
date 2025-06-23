@@ -112,11 +112,14 @@ export class RecuperarPasswordComponent implements OnInit {
     await loading.present();
     
     // Preparar los datos para el endpoint
+    const rut = this.recuperacionForm.get('rut')?.value;
+    const dv = this.recuperacionForm.get('dv_rut')?.value;
+    const rutCompleto = `${rut}-${dv}`;
+
     const datos = {
-      Rut: parseInt(this.recuperacionForm.get('rut')?.value),
-      NombreCompleto: this.recuperacionForm.get('nombreCompleto')?.value,
-      NuevaContrasena: this.recuperacionForm.get('password')?.value,
-      ConfirmarContrasena: this.recuperacionForm.get('confirmPassword')?.value
+      rut: rutCompleto,
+      nombreCompleto: this.recuperacionForm.get('nombreCompleto')?.value,
+      nuevaContrasena: this.recuperacionForm.get('password')?.value,
     };
     
     this.http.post(`${environment.apiUrl}/Autenticacion/recuperar-clave-simple`, datos)
