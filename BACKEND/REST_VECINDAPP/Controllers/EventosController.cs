@@ -123,7 +123,7 @@ namespace REST_VECINDAPP.Controllers
         public IActionResult ConsultarEventos([FromQuery] DateTime? fechaDesde = null, [FromQuery] DateTime? fechaHasta = null)
         {
             var rut = int.Parse(User.FindFirst("rut")?.Value ?? "0");
-            var (exito, eventos, mensaje) = _eventosService.ConsultarEventos(rut, fechaDesde, fechaHasta);
+            var (exito, eventos, mensaje) = _eventosService.ConsultarEventos(rut);
 
             if (exito)
             {

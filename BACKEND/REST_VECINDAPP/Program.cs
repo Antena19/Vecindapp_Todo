@@ -11,7 +11,12 @@ using Microsoft.AspNetCore.Http.Features;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container - ANTES de builder.Build()
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    options.JsonSerializerOptions.DictionaryKeyPolicy = null;
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {
