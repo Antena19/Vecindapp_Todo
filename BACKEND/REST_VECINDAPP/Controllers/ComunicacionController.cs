@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using REST_VECINDAPP.CapaNegocios;
 using REST_VECINDAPP.Modelos;
 using REST_VECINDAPP.Modelos.DTOs;
@@ -263,8 +264,23 @@ namespace REST_VECINDAPP.Controllers
         #region ESTADÍSTICAS
 
         [HttpGet("estadisticas")]
-        [VerificarRol("ADMINISTRADOR", "DIRECTIVA")]
+        [VerificarRol("Administrador", "Directiva")]
         public async Task<ActionResult<EstadisticasComunicacion>> GetEstadisticas()
+        {
+            try
+            {
+                var estadisticas = await _comunicacionService.ObtenerEstadisticasComunicacionAsync();
+                return Ok(estadisticas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message });
+            }
+        }
+
+        [HttpGet("estadisticas/test")]
+        [AllowAnonymous]
+        public async Task<ActionResult<EstadisticasComunicacion>> GetEstadisticasTest()
         {
             try
             {

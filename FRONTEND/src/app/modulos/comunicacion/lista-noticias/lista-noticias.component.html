@@ -66,18 +66,18 @@
   </ion-card>
 
   <!-- Lista de noticias -->
-  <div *ngIf="loading" class="loading-container">
+  <div *ngIf="isLoading" class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando noticias...</p>
   </div>
 
-  <div *ngIf="!loading && noticiasFiltradas.length === 0" class="no-noticias">
+  <div *ngIf="!isLoading && noticiasFiltradas.length === 0" class="no-noticias">
     <ion-icon name="newspaper-outline" size="large" color="medium"></ion-icon>
     <h3>No se encontraron noticias</h3>
     <p>Intenta ajustar los filtros de búsqueda</p>
   </div>
 
-  <ion-list *ngIf="!loading && noticiasFiltradas.length > 0">
+  <ion-list *ngIf="!isLoading && noticiasFiltradas.length > 0">
     <ion-item *ngFor="let noticia of noticiasFiltradas" 
               (click)="verDetalleNoticia(noticia.id)"
               button
@@ -117,7 +117,7 @@
   </ion-list>
 
   <!-- Contador de resultados -->
-  <ion-card *ngIf="!loading && noticiasFiltradas.length > 0" class="resultados-card">
+  <ion-card *ngIf="!isLoading && noticiasFiltradas.length > 0" class="resultados-card">
     <ion-card-content>
       <p>Mostrando {{ noticiasFiltradas.length }} de {{ noticias.length }} noticias</p>
     </ion-card-content>

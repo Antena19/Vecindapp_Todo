@@ -54,11 +54,8 @@ export interface ComentarioNoticia {
 }
 
 export interface EstadisticasComunicacion {
-  totalNoticias: number;
-  noticiasPublicas: number;
-  noticiasSocios: number;
-  notificacionesEnviadas: number;
-  notificacionesPendientes: number;
-  usuariosNotificados: number;
-  tasaLectura: number;
+  NoticiasPublicadas: number;
+  TotalLecturas: number;
+  TotalComentarios: number;
+  TasaLectura: number;
 } 

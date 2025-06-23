@@ -1,27 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { IonicModule, AlertController } from '@ionic/angular';
+import { Router, RouterModule } from '@angular/router';
 import { ComunicacionService } from '../../../services/comunicacion.service';
 import { Noticia } from '../../../modelos/comunicacion.model';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-noticias',
   templateUrl: './lista-noticias.component.html',
   styleUrls: ['./lista-noticias.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule]
 })
-export class ListaNoticiasComponent implements OnInit {
+export class ListaNoticiasComponent implements OnInit, OnDestroy {
   noticias: Noticia[] = [];
   noticiasFiltradas: Noticia[] = [];
-  loading = false;
+  isLoading = false;
   textoBusqueda = '';
   filtroCategoria = '';
   filtroAlcance = '';
   filtroPrioridad = '';
+  private noticiasSubscription: Subscription | null = null;
 
   categorias = [
     { valor: '', texto: 'Todas las categorías' },
@@ -46,34 +47,36 @@ export class ListaNoticiasComponent implements OnInit {
   constructor(
     private comunicacionService: ComunicacionService,
     private router: Router,
-    private alertController: AlertController,
-    private loadingController: LoadingController
+    private alertController: AlertController
   ) { }
 
   ngOnInit() {
     this.cargarNoticias();
   }
 
-  async cargarNoticias() {
-    this.loading = true;
-    const loading = await this.loadingController.create({
-      message: 'Cargando noticias...'
-    });
-    await loading.present();
+  ngOnDestroy() {
+    if (this.noticiasSubscription) {
+      this.noticiasSubscription.unsubscribe();
+    }
+  }
 
-    this.comunicacionService.getNoticias().subscribe({
-      next: (noticias) => {
-        this.noticias = noticias;
-        this.aplicarFiltros();
-        this.loading = false;
-        loading.dismiss();
-      },
-      error: (error) => {
-        console.error('Error al cargar noticias:', error);
-        this.loading = false;
-        loading.dismiss();
-        this.mostrarError('Error al cargar las noticias');
-      }
+  cargarNoticias(): Promise<void> {
+    this.isLoading = true;
+    return new Promise((resolve) => {
+      this.noticiasSubscription = this.comunicacionService.getNoticias().subscribe({
+        next: (noticias) => {
+          this.noticias = noticias;
+          this.aplicarFiltros();
+          this.isLoading = false;
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error al cargar noticias:', error);
+          this.isLoading = false;
+          this.mostrarError('Error al cargar las noticias');
+          resolve();
+        }
+      });
     });
   }
 

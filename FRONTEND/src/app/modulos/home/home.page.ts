@@ -1,13 +1,14 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { Router, RouterModule } from '@angular/router';
+import { IonicModule, AlertController } from '@ionic/angular';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AutenticacionService } from '../../services/autenticacion.service';
 import { Usuario } from '../../modelos/Usuario';
 import { SociosService } from 'src/app/services/socios.service';
 import { SolicitudSocioDTO } from '../../modelos/DTOs/solicitud-socio.dto';
 import { ComunicacionService } from 'src/app/services/comunicacion.service';
 import { Noticia } from 'src/app/modelos/comunicacion.model';
+import { Subscription, filter } from 'rxjs';
 
 interface MenuOption {
   title: string;
@@ -23,12 +24,14 @@ interface MenuOption {
   imports: [IonicModule, CommonModule, RouterModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
   usuario: Usuario | null = null;
   tipoUsuario: string = 'vecino';
   solicitudSocioEstado: string | null = null;
   detallesSolicitud: SolicitudSocioDTO | null = null;
   noticiasDestacadas: Noticia[] = [];
+  isLoading = true;
+  private subscriptions = new Subscription();
 
   // Menús específicos por rol
   private menuVecino: MenuOption[] = [
@@ -40,7 +43,7 @@ export class HomePage implements OnInit {
     { 
       title: 'Noticias', 
       icon: 'newspaper-outline', 
-      route: '/noticias'
+      route: '/comunicacion'
     },
     { 
       title: 'Certificados', 
@@ -68,7 +71,7 @@ export class HomePage implements OnInit {
     { 
       title: 'Noticias', 
       icon: 'newspaper-outline', 
-      route: '/noticias'
+      route: '/comunicacion'
     },
     { 
       title: 'Certificados', 
@@ -91,7 +94,7 @@ export class HomePage implements OnInit {
     { 
       title: 'Noticias', 
       icon: 'newspaper-outline', 
-      route: '/noticias'
+      route: '/comunicacion'
     },
     { 
       title: 'Certificados', 
@@ -121,60 +124,74 @@ export class HomePage implements OnInit {
     private router: Router,
     private autenticacionService: AutenticacionService,
     private sociosService: SociosService,
-    private comunicacionService: ComunicacionService
+    private comunicacionService: ComunicacionService,
+    private alertController: AlertController
   ) {}
 
   ngOnInit() {
-    this.autenticacionService.usuario.subscribe(user => {
+    this.isLoading = true;
+    const userSub = this.autenticacionService.usuario.subscribe(user => {
       this.usuario = user;
       this.tipoUsuario = user?.tipo_usuario?.toLowerCase() || 'vecino';
-      
-      // Asignar menú según el rol
-      switch(this.tipoUsuario) {
-        case 'socio':
-          this.menuOptions = this.menuSocio;
-          break;
-        case 'directiva':
-          this.menuOptions = this.menuDirectiva;
-          break;
-        default: // 'vecino'
-          this.menuOptions = this.menuVecino.filter(option => {
-            if (option.title === 'Hacerme Socio') {
-              return this.solicitudSocioEstado !== 'pendiente' && this.solicitudSocioEstado !== 'aprobada';
-            }
-            return true;
-          });
-      }
-
-      // Si es vecino, consultar estado de solicitud de membresía
+      this.actualizarMenu();
       if (this.tipoUsuario === 'vecino' && this.usuario) {
         this.consultarEstadoSolicitudSocio();
       }
     });
+    this.subscriptions.add(userSub);
 
     this.cargarNoticiasDestacadas();
 
-    // Suscribirse a los eventos de navegación para actualizar el estado
-    this.router.events.subscribe(() => {
+    const routerSub = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
       if (this.tipoUsuario === 'vecino' && this.usuario) {
         this.consultarEstadoSolicitudSocio();
       }
     });
+    this.subscriptions.add(routerSub);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+  actualizarMenu() {
+    switch(this.tipoUsuario) {
+      case 'socio':
+        this.menuOptions = this.menuSocio;
+        break;
+      case 'directiva':
+        this.menuOptions = this.menuDirectiva;
+        break;
+      default:
+        this.menuOptions = this.menuVecino.filter(option => {
+          if (option.title === 'Hacerme Socio') {
+            return this.solicitudSocioEstado !== 'pendiente' && this.solicitudSocioEstado !== 'aprobada';
+          }
+          return true;
+        });
+    }
   }
 
   cargarNoticiasDestacadas() {
-    this.comunicacionService.getNoticiasDestacadas().subscribe({
+    this.isLoading = true;
+    const noticiasSub = this.comunicacionService.getNoticiasDestacadas().subscribe({
       next: (noticias) => {
         this.noticiasDestacadas = noticias;
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error al cargar noticias destacadas:', error);
+        this.isLoading = false;
+        this.mostrarError('No se pudieron cargar las noticias destacadas.');
       }
     });
+    this.subscriptions.add(noticiasSub);
   }
 
   consultarEstadoSolicitudSocio() {
-    this.sociosService.consultarEstadoSolicitudSocio().subscribe({
+    const solicitudSub = this.sociosService.consultarEstadoSolicitudSocio().subscribe({
       next: (resp: SolicitudSocioDTO) => {
         if (resp) {
           this.detallesSolicitud = resp;
@@ -183,27 +200,25 @@ export class HomePage implements OnInit {
           this.solicitudSocioEstado = 'ninguna';
           this.detallesSolicitud = null;
         }
-        
-        // Actualizar el menú cuando cambie el estado de la solicitud
-        if (this.tipoUsuario === 'vecino') {
-          this.menuOptions = this.menuVecino.filter(option => {
-            if (option.title === 'Hacerme Socio') {
-              return this.solicitudSocioEstado !== 'pendiente' && this.solicitudSocioEstado !== 'aprobada';
-            }
-            return true;
-          });
-        }
+        this.actualizarMenu();
       },
       error: (error) => {
         console.error('Error al consultar estado de solicitud:', error);
         this.solicitudSocioEstado = 'ninguna';
         this.detallesSolicitud = null;
-        
-        if (this.tipoUsuario === 'vecino') {
-          this.menuOptions = this.menuVecino;
-        }
+        this.actualizarMenu();
       }
     });
+    this.subscriptions.add(solicitudSub);
+  }
+
+  async mostrarError(mensaje: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: mensaje,
+      buttons: ['OK']
+    });
+    await alert.present();
   }
 
   getBienvenida(): string {
@@ -215,6 +230,18 @@ export class HomePage implements OnInit {
   }
 
   verDetalleNoticia(noticiaId: number) {
-    this.router.navigate(['/comunicacion/detalle-noticia', noticiaId]);
+    this.router.navigate(['/comunicacion/detalle', noticiaId]);
+  }
+
+  doRefresh(event: any) {
+    // Recargar todos los datos de la página
+    this.cargarNoticiasDestacadas();
+    if (this.tipoUsuario === 'vecino' && this.usuario) {
+      this.consultarEstadoSolicitudSocio();
+    }
+    // Simular que la recarga ha terminado para que el refresher se oculte
+    setTimeout(() => {
+      event.target.complete();
+    }, 1000);
   }
 }

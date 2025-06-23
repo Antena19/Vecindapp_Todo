@@ -116,6 +116,11 @@ export class ComunicacionService {
     return this.http.get<EstadisticasComunicacion>(`${this.apiUrl}/comunicacion/estadisticas`);
   }
 
+  // Obtener estadísticas de comunicación (endpoint de prueba sin autenticación)
+  getEstadisticasComunicacionTest(): Observable<EstadisticasComunicacion> {
+    return this.http.get<EstadisticasComunicacion>(`${this.apiUrl}/comunicacion/estadisticas/test`);
+  }
+
   // ===== FUNCIONALIDADES ESPECIALES =====
 
   // Notificar aviso importante (automático)

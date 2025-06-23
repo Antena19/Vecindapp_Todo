@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { ComunicacionService } from '../../../services/comunicacion.service';
 import { EstadisticasComunicacion } from '../../../modelos/comunicacion.model';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-estadisticas-comunicacion',
@@ -12,39 +13,47 @@ import { AlertController, LoadingController } from '@ionic/angular';
   standalone: true,
   imports: [CommonModule, IonicModule]
 })
-export class EstadisticasComunicacionComponent implements OnInit {
+export class EstadisticasComunicacionComponent implements OnInit, OnDestroy {
   estadisticas: EstadisticasComunicacion | null = null;
   loading = false;
+  private statsSubscription: Subscription | null = null;
 
   constructor(
     private comunicacionService: ComunicacionService,
-    private alertController: AlertController,
-    private loadingController: LoadingController
+    private alertController: AlertController
   ) { }
 
   ngOnInit() {
     this.cargarEstadisticas();
   }
 
-  async cargarEstadisticas() {
-    this.loading = true;
-    const loading = await this.loadingController.create({
-      message: 'Cargando estadísticas...'
-    });
-    await loading.present();
+  ngOnDestroy() {
+    if (this.statsSubscription) {
+      this.statsSubscription.unsubscribe();
+    }
+  }
 
-    this.comunicacionService.getEstadisticasComunicacion().subscribe({
-      next: (estadisticas) => {
-        this.estadisticas = estadisticas;
-        this.loading = false;
-        loading.dismiss();
-      },
-      error: (error) => {
-        console.error('Error al cargar estadísticas:', error);
-        this.loading = false;
-        loading.dismiss();
-        this.mostrarError('Error al cargar las estadísticas');
-      }
+  cargarEstadisticas(): Promise<void> {
+    if (this.loading) {
+      return Promise.resolve();
+    }
+    this.loading = true;
+    
+    return new Promise((resolve) => {
+        this.statsSubscription = this.comunicacionService.getEstadisticasComunicacionTest().subscribe({
+            next: (estadisticas) => {
+              this.estadisticas = estadisticas;
+              this.loading = false;
+              resolve();
+            },
+            error: (error) => {
+              console.error('Error al cargar estadísticas:', error);
+              this.estadisticas = null;
+              this.loading = false;
+              this.mostrarError('Error al cargar las estadísticas');
+              resolve();
+            }
+          });
     });
   }
 

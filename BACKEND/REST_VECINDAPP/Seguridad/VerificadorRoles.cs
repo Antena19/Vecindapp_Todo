@@ -35,7 +35,8 @@ namespace REST_VECINDAPP.Seguridad
             }
 
             // Verificar si el tipo de usuario está en los roles permitidos
-            return rolesPermitidos.Contains(usuario.tipo_usuario);
+            // Convertimos a mayúsculas para una comparación sin distinción de mayúsculas/minúsculas
+            return rolesPermitidos.Any(rol => rol.Equals(usuario.tipo_usuario, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool EsDirectiva()
@@ -58,7 +59,7 @@ namespace REST_VECINDAPP.Seguridad
             }
 
             // Verificar si el usuario es de tipo directiva
-            return usuario.tipo_usuario == "DIRECTIVA";
+            return usuario.tipo_usuario.Equals("Directiva", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

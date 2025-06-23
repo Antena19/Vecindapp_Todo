@@ -641,69 +641,41 @@ namespace REST_VECINDAPP.CapaNegocios
 
         public async Task<EstadisticasComunicacion> ObtenerEstadisticasComunicacionAsync()
         {
+            var estadisticas = new EstadisticasComunicacion();
             using (var connection = new MySqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                
-                var estadisticas = new EstadisticasComunicacion();
-                
-                // Total de noticias
-                var queryTotal = "SELECT COUNT(*) FROM noticias";
-                using (var command = new MySqlCommand(queryTotal, connection))
+
+                // Total de noticias publicadas
+                using (var command = new MySqlCommand("SELECT COUNT(*) FROM noticias WHERE estado = 'ACTIVO'", connection))
                 {
-                    estadisticas.TotalNoticias = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    estadisticas.NoticiasPublicadas = Convert.ToInt32(await command.ExecuteScalarAsync());
                 }
-                
-                // Noticias públicas
-                var queryPublicas = "SELECT COUNT(*) FROM noticias WHERE alcance = 'PUBLICO'";
-                using (var command = new MySqlCommand(queryPublicas, connection))
+
+                // Total de lecturas
+                using (var command = new MySqlCommand("SELECT COUNT(*) FROM lecturas_noticia", connection))
                 {
-                    estadisticas.NoticiasPublicas = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    estadisticas.TotalLecturas = Convert.ToInt32(await command.ExecuteScalarAsync());
                 }
-                
-                // Noticias solo socios
-                var querySocios = "SELECT COUNT(*) FROM noticias WHERE alcance = 'SOCIOS'";
-                using (var command = new MySqlCommand(querySocios, connection))
+
+                // Total de comentarios
+                using (var command = new MySqlCommand("SELECT COUNT(*) FROM comentarios_noticia WHERE estado = 'ACTIVO'", connection))
                 {
-                    estadisticas.NoticiasSocios = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    estadisticas.TotalComentarios = Convert.ToInt32(await command.ExecuteScalarAsync());
                 }
-                
-                // Notificaciones enviadas
-                var queryEnviadas = "SELECT COUNT(*) FROM notificaciones WHERE estado = 'ENVIADA'";
-                using (var command = new MySqlCommand(queryEnviadas, connection))
+
+                // Tasa de apertura/lectura
+                if (estadisticas.NoticiasPublicadas > 0)
                 {
-                    estadisticas.NotificacionesEnviadas = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    // Calcular cuántas noticias han sido leídas al menos una vez
+                    using (var command = new MySqlCommand("SELECT COUNT(DISTINCT noticia_id) FROM lecturas_noticia", connection))
+                    {
+                        var noticiasLeidas = Convert.ToInt32(await command.ExecuteScalarAsync());
+                        estadisticas.TasaLectura = (double)noticiasLeidas / estadisticas.NoticiasPublicadas * 100;
+                    }
                 }
-                
-                // Notificaciones pendientes
-                var queryPendientes = "SELECT COUNT(*) FROM notificaciones WHERE estado = 'PENDIENTE'";
-                using (var command = new MySqlCommand(queryPendientes, connection))
-                {
-                    estadisticas.NotificacionesPendientes = Convert.ToInt32(await command.ExecuteScalarAsync());
-                }
-                
-                // Usuarios notificados
-                var queryUsuarios = "SELECT COUNT(DISTINCT usuario_rut) FROM notificaciones";
-                using (var command = new MySqlCommand(queryUsuarios, connection))
-                {
-                    estadisticas.UsuariosNotificados = Convert.ToInt32(await command.ExecuteScalarAsync());
-                }
-                
-                // Tasa de lectura
-                var queryTasa = @"
-                    SELECT 
-                        CASE 
-                            WHEN COUNT(*) = 0 THEN 0 
-                            ELSE CAST(SUM(CASE WHEN leida = 1 THEN 1 ELSE 0 END) AS FLOAT) / COUNT(*) * 100 
-                        END as TasaLectura
-                    FROM notificaciones";
-                using (var command = new MySqlCommand(queryTasa, connection))
-                {
-                    estadisticas.TasaLectura = Convert.ToDouble(await command.ExecuteScalarAsync());
-                }
-                
-                return estadisticas;
             }
+            return estadisticas;
         }
 
         #endregion
