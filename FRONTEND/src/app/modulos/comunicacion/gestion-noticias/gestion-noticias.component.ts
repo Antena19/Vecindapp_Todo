@@ -22,6 +22,7 @@ export class GestionNoticiasComponent implements OnInit {
   filtroEstado = '';
   filtroCategoria = '';
   filtroAlcance = '';
+  mostrarFiltros: boolean = false;
 
   estados = [
     { valor: '', texto: 'Todos los estados' },
@@ -51,6 +52,10 @@ export class GestionNoticiasComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.cargarNoticias();
+  }
+
+  ionViewWillEnter() {
     this.cargarNoticias();
   }
 
@@ -253,5 +258,11 @@ export class GestionNoticiasComponent implements OnInit {
 
   crearNuevaNoticia() {
     this.router.navigate(['/comunicacion/crear']);
+  }
+
+  getImagenUrl(imagenUrl: string | null): string {
+    if (!imagenUrl) return '';
+    if (imagenUrl.startsWith('http')) return imagenUrl;
+    return 'http://localhost:5032' + imagenUrl;
   }
 } 

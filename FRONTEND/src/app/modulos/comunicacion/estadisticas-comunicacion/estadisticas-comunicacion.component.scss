@@ -1,3 +1,22 @@
+// Fondo general amarillo
+:host {
+  --background: var(--ion-color-light);
+}
+
+ion-content {
+  --background: var(--ion-color-light);
+}
+
+// Fondo de la tarjeta de estadísticas gris muy claro
+.resumen-card, .estadisticas-wrapper ion-card {
+  background: var(--ion-card-background) !important;
+}
+
+// Ajuste para la tarjeta de error (opcional, para mantener contraste)
+.error-container {
+  background: var(--ion-color-light);
+}
+
 .loading-spinner {
   display: flex;
   justify-content: center;
@@ -15,31 +34,36 @@
   gap: 16px;
   
   .estadistica-item {
+    background: #fff !important;
+    border-radius: 16px;
+    padding: 24px 0 12px 0;
+    margin-bottom: 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    padding: 16px;
-    background: var(--ion-color-light);
-    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     
     ion-icon {
       margin-bottom: 8px;
+      font-size: 2.2rem;
+      color: #444 !important;
     }
     
     .texto {
       h3 {
         margin: 0;
-        font-size: 24px;
+        font-size: 2rem;
         font-weight: bold;
-        color: var(--ion-color-dark);
+        color: #444 !important;
+        text-align: center;
       }
       
       p {
-        margin: 4px 0 0 0;
-        font-size: 12px;
-        color: var(--ion-color-medium);
-        text-transform: uppercase;
+        margin: 0;
+        font-size: 1rem;
+        color: #444 !important;
+        letter-spacing: 1px;
+        text-align: center;
       }
     }
   }
@@ -321,4 +345,21 @@
   .resumen-grid .estadistica-item {
     background: var(--ion-color-dark-shade);
   }
+}
+
+ion-card-title {
+  color: var(--ion-color-primary) !important;
+  font-weight: bold;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.titulo-resumen {
+  color: var(--ion-color-primary) !important;
+  font-weight: bold;
+  font-size: 1.4rem !important;
+  margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
+  display: block;
 } 

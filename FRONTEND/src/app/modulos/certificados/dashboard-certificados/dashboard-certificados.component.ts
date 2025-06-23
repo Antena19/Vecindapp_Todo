@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { CertificadosService } from '../certificados.service';
 
 @Component({
@@ -8,7 +9,7 @@ import { CertificadosService } from '../certificados.service';
   templateUrl: './dashboard-certificados.component.html',
   styleUrls: ['./dashboard-certificados.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, RouterModule]
 })
 export class DashboardCertificadosComponent implements OnInit {
   resumen = [

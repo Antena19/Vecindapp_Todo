@@ -160,14 +160,20 @@
       Se extiende el presente documento para ser presentado en la institución que lo requiera.<br><br>
       <b>Ley 20.718 de 02 de enero 2014</b> faculta a las juntas de vecinos a emitir certificados de residencia, siéndole aplicable al requirente que faltare a la verdad cuanto a los datos proporcionados al efecto, las sanciones contempladas en el artículo 212 del código penal.
     </div>
-    <div style="margin-top: 48px; text-align:center;">
-      <img *ngIf="puedeDescargarPDF" src="assets/images/firma-presidente.jpg" alt="Firma Presidente" style="height: 80px; display: block; margin: 0 auto 16px auto; border: none;">
-      <div style="font-weight: bold; color: #00897B; font-size: 1.2rem; margin-top: 8px;">Presidente Junta de Vecinos</div>
-      <div style="font-size: 1rem; color: #222; margin-top: 8px;">
-        <b>Validado digitalmente</b><br>
-        Código: <span id="pdf-codigo-verificacion">{{ hashVerificacion }}</span><br>
-        Fecha: <span id="pdf-fecha-emision">{{ timestampFirma }}</span>
+    <div style="margin-top: 48px; text-align:center; display: flex; flex-direction: row; justify-content: center; gap: 48px; align-items: flex-end;">
+      <div style="text-align: center;">
+        <img *ngIf="puedeDescargarPDF && signatureData" [src]="signatureData" alt="Firma Usuario" style="height: 80px; border: 1px solid #ccc; display: block; margin: 0 auto 8px auto; background: #fff;">
+        <div style="font-size: 1rem; color: #00897B; font-weight: bold;">Firma del Solicitante</div>
       </div>
+      <div style="text-align: center;">
+        <img *ngIf="puedeDescargarPDF" src="assets/images/firma-presidente.jpg" alt="Firma Presidente" style="height: 80px; display: block; margin: 0 auto 8px auto; border: none; background: #fff;">
+        <div style="font-size: 1rem; color: #00897B; font-weight: bold;">Presidente Junta de Vecinos</div>
+      </div>
+    </div>
+    <div style="font-size: 1rem; color: #222; margin-top: 8px; text-align: center;">
+      <b>Validado digitalmente</b><br>
+      Código: <span id="pdf-codigo-verificacion">{{ hashVerificacion }}</span><br>
+      Fecha: <span id="pdf-fecha-emision">{{ timestampFirma }}</span>
     </div>
   </div>
 

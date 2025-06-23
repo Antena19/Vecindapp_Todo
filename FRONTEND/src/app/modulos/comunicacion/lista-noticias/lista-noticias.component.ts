@@ -166,4 +166,10 @@ export class ListaNoticiasComponent implements OnInit, OnDestroy {
       event.target.complete();
     });
   }
+
+  getImagenUrl(imagenUrl: string | null): string {
+    if (!imagenUrl) return '';
+    if (imagenUrl.startsWith('http')) return imagenUrl;
+    return 'http://localhost:5032' + imagenUrl;
+  }
 } 

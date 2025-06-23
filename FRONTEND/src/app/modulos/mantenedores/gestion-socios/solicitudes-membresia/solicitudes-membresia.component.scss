@@ -221,3 +221,18 @@ ion-menu-button, ion-back-button {
   visibility: visible !important;
   color: white !important;
 }
+
+ion-segment {
+  margin: 16px 0;
+  --background: transparent !important;
+}
+
+ion-segment-button {
+  --color-checked: #fff; /* color del texto cuando está seleccionado */
+  font-weight: 600;
+}
+
+ion-segment-button.ion-activated,
+ion-segment-button[aria-checked="true"] {
+  color: #fff !important; /* fuerza el texto blanco cuando está seleccionado */
+}

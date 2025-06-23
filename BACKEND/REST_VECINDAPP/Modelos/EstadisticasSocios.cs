@@ -5,6 +5,7 @@ public class EstadisticasSocios
     public int SolicitudesPendientes { get; set; }
     public int SociosActivos { get; set; }
     public int SociosInactivos { get; set; }
+    public int TotalVecinos { get; set; }
 }
 
 // Models/Actividad.cs

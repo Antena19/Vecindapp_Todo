@@ -196,7 +196,8 @@ namespace REST_VECINDAPP.CapaNegocios
                                         TotalSocios = reader["total_socios"] != DBNull.Value ? Convert.ToInt32(reader["total_socios"]) : 0,
                                         SolicitudesPendientes = reader["solicitudes_pendientes"] != DBNull.Value ? Convert.ToInt32(reader["solicitudes_pendientes"]) : 0,
                                         SociosActivos = reader["socios_activos"] != DBNull.Value ? Convert.ToInt32(reader["socios_activos"]) : 0,
-                                        SociosInactivos = reader["socios_inactivos"] != DBNull.Value ? Convert.ToInt32(reader["socios_inactivos"]) : 0
+                                        SociosInactivos = reader["socios_inactivos"] != DBNull.Value ? Convert.ToInt32(reader["socios_inactivos"]) : 0,
+                                        TotalVecinos = reader["total_vecinos"] != DBNull.Value ? Convert.ToInt32(reader["total_vecinos"]) : 0
                                     };
                                 }
 

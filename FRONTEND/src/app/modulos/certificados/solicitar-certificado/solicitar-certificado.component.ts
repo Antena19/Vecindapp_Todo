@@ -221,6 +221,15 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
 
   onParaOtroChange(event: any) {
     this.paraOtro = event.target.checked;
+    const parentescoControl = this.solicitudForm.get('parentesco');
+    if (this.paraOtro) {
+      parentescoControl?.setValidators([Validators.required]);
+    } else {
+      parentescoControl?.clearValidators();
+      parentescoControl?.setValue('');
+    }
+    parentescoControl?.updateValueAndValidity();
+
     if (!this.paraOtro && this.usuario) {
       this.solicitudForm.patchValue({
         nombre: this.usuario.nombre + ' ' + this.usuario.apellido_paterno + ' ' + this.usuario.apellido_materno,

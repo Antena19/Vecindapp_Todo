@@ -26,6 +26,7 @@ export class GestionSociosComponent implements OnInit {
   solicitudesPendientes: number = 0;
   sociosActivos: number = 0;
   sociosInactivos: number = 0;
+  totalVecinos: number = 0;
 
   // Array para las últimas actividades inicializado vacío
   ultimasActividades: Actividad[] = [];
@@ -47,6 +48,7 @@ export class GestionSociosComponent implements OnInit {
         this.solicitudesPendientes = response.estadisticas.solicitudesPendientes;
         this.sociosActivos = response.estadisticas.sociosActivos;
         this.sociosInactivos = response.estadisticas.sociosInactivos;
+        this.totalVecinos = response.estadisticas.totalVecinos;
 
         // Actualizar actividades
         this.ultimasActividades = response.ultimasActividades;

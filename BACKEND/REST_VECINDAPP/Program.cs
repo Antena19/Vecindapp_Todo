@@ -131,6 +131,7 @@ if (app.Environment.IsDevelopment())
         c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
         c.DefaultModelsExpandDepth(-1); // Oculta la secci�n de modelos por defecto
     });
+    app.UseDeveloperExceptionPage();
 }
 app.UseCors(); // Usar la política por defecto (permisiva)
 // app.UseHttpsRedirection(); // Desactivado para evitar redirección a HTTPS en local y Railway

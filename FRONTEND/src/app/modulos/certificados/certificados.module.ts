@@ -3,19 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { SolicitarCertificadoComponent } from './solicitar-certificado/solicitar-certificado.component';
-import { AprobarCertificadoComponent } from './aprobar-certificado/aprobar-certificado.component';
-import { PagoCertificadoComponent } from './pago-certificado/pago-certificado.component';
-import { HistorialCertificadosComponent } from './historial-certificados/historial-certificados.component';
-import { DashboardCertificadosComponent } from './dashboard-certificados/dashboard-certificados.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: 'solicitar', component: SolicitarCertificadoComponent },
-  { path: 'aprobar', component: AprobarCertificadoComponent },
-  { path: 'pago', component: PagoCertificadoComponent },
-  { path: 'historial', component: HistorialCertificadosComponent },
-  { path: 'dashboard', component: DashboardCertificadosComponent },
+  { path: 'solicitar', loadComponent: () => import('./solicitar-certificado/solicitar-certificado.component').then(m => m.SolicitarCertificadoComponent) },
+  { path: 'aprobar', loadComponent: () => import('./aprobar-certificado/aprobar-certificado.component').then(m => m.AprobarCertificadoComponent) },
+  { path: 'pago', loadComponent: () => import('./pago-certificado/pago-certificado.component').then(m => m.PagoCertificadoComponent) },
+  { path: 'historial', loadComponent: () => import('./historial-certificados/historial-certificados.component').then(m => m.HistorialCertificadosComponent) },
+  { path: 'dashboard', loadComponent: () => import('./dashboard-certificados/dashboard-certificados.component').then(m => m.DashboardCertificadosComponent) },
 ];
 
 @NgModule({
@@ -25,8 +20,7 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    RouterModule.forChild(routes),
-    DashboardCertificadosComponent
+    RouterModule.forChild(routes)
   ]
 })
 export class CertificadosModule { } 

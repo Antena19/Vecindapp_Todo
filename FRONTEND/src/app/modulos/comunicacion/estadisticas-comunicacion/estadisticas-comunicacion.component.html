@@ -1,9 +1,9 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="secondary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/comunicacion"></ion-back-button>
+      <ion-back-button defaultHref="/comunicacion" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>Estadísticas de Comunicación</ion-title>
+    <ion-title>Estadísticas</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -12,48 +12,59 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-spinner *ngIf="loading" name="crescent" class="loading-spinner"></ion-spinner>
+  <!-- Spinner de carga -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando estadísticas...</p>
+  </div>
 
-  <div *ngIf="!loading && estadisticas" class="estadisticas-container">
-    <!-- Resumen general -->
-    <ion-card>
+  <!-- Estadísticas -->
+  <div *ngIf="!loading && estadisticas" class="estadisticas-wrapper">
+    <ion-card class="resumen-card">
       <ion-card-header>
-        <ion-card-title>Resumen General</ion-card-title>
+        <ion-card-title class="titulo-resumen">Resumen General</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <div class="resumen-grid">
-          <div class="estadistica-item">
-            <ion-icon name="newspaper" color="primary" size="large"></ion-icon>
-            <div class="texto">
-              <h3>{{ estadisticas.NoticiasPublicadas }}</h3>
-              <p>Noticias Publicadas</p>
-            </div>
-          </div>
-          
-          <div class="estadistica-item">
-            <ion-icon name="eye" color="secondary" size="large"></ion-icon>
-            <div class="texto">
-              <h3>{{ estadisticas.TotalLecturas }}</h3>
-              <p>Lecturas Totales</p>
-            </div>
-          </div>
-          
-          <div class="estadistica-item">
-            <ion-icon name="chatbubbles" color="warning" size="large"></ion-icon>
-            <div class="texto">
-              <h3>{{ estadisticas.TotalComentarios }}</h3>
-              <p>Comentarios Totales</p>
-            </div>
-          </div>
-          
-          <div class="estadistica-item">
-            <ion-icon name="trending-up" [color]="getColorPorTasa(estadisticas.TasaLectura)" size="large"></ion-icon>
-            <div class="texto">
-              <h3>{{ estadisticas.TasaLectura | number:'1.0-2' }}%</h3>
-              <p>Tasa de Lectura</p>
-            </div>
-          </div>
-        </div>
+        <ion-grid class="resumen-grid">
+          <ion-row>
+            <ion-col size="12" size-md="6" size-lg="3">
+              <div class="estadistica-item">
+                <ion-icon name="newspaper" color="primary" size="large"></ion-icon>
+                <div class="texto">
+                  <h3>{{ estadisticas.NoticiasPublicadas }}</h3>
+                  <p>Noticias Publicadas</p>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="12" size-md="6" size-lg="3">
+              <div class="estadistica-item">
+                <ion-icon name="eye" color="secondary" size="large"></ion-icon>
+                <div class="texto">
+                  <h3>{{ estadisticas.TotalLecturas }}</h3>
+                  <p>Lecturas Totales</p>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="12" size-md="6" size-lg="3">
+              <div class="estadistica-item">
+                <ion-icon name="chatbubbles" color="warning" size="large"></ion-icon>
+                <div class="texto">
+                  <h3>{{ estadisticas.TotalComentarios }}</h3>
+                  <p>Comentarios Totales</p>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="12" size-md="6" size-lg="3">
+              <div class="estadistica-item">
+                <ion-icon name="trending-up" [color]="getColorPorTasa(estadisticas.TasaLectura)" size="large"></ion-icon>
+                <div class="texto">
+                  <h3>{{ estadisticas.TasaLectura | number:'1.0-2' }}%</h3>
+                  <p>Tasa de Lectura</p>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
       </ion-card-content>
     </ion-card>
   </div>

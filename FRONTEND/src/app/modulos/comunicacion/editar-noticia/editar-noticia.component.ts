@@ -90,6 +90,17 @@ export class EditarNoticiaComponent implements OnInit {
   }
 
   cargarDatosEnFormulario(noticia: Noticia) {
+    // Solución robusta para tags
+    if (typeof noticia.tags === 'string') {
+      try {
+        noticia.tags = JSON.parse(noticia.tags);
+      } catch {
+        noticia.tags = [];
+      }
+    }
+    if (!Array.isArray(noticia.tags)) {
+      noticia.tags = [];
+    }
     this.noticiaForm.patchValue({
       titulo: noticia.titulo,
       contenido: noticia.contenido,

@@ -133,4 +133,112 @@
       width: 100%;
     }
   }
+}
+
+:host, ion-content, .formulario-wrapper {
+  background: var(--ion-color-light) !important;
+}
+
+ion-card {
+  max-width: 360px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  background: var(--ion-color-light) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  border: 1px solid var(--ion-color-light-shade);
+}
+
+.formulario-card {
+  max-width: 420px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  padding: 16px 16px 8px 16px;
+  margin-bottom: 16px;
+}
+
+ion-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+ion-item {
+  --background: var(--ion-color-light) !important;
+  background: var(--ion-color-light) !important;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border: none;
+  --inner-border-width: 0 !important;
+  --border-width: 0 !important;
+  --highlight-background: transparent !important;
+  box-shadow: none !important;
+}
+
+ion-input, ion-select, ion-textarea {
+  --background: #fff !important;
+  background: #fff !important;
+  color: #222 !important;
+  border: 1.5px solid #bdbdbd !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  --highlight-background: transparent !important;
+  --border-width: 0 !important;
+  padding: 8px 12px !important;
+}
+
+ion-select {
+  --background: #fff !important;
+  background: #fff !important;
+  color: #222 !important;
+  border: 1.5px solid #bdbdbd !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  --highlight-background: transparent !important;
+  --border-width: 0 !important;
+  padding: 8px 12px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  display: flex;
+  align-items: center;
+}
+
+ion-label, .label-verde {
+  color: var(--ion-color-primary) !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 6px !important;
+  letter-spacing: 0.2px;
+}
+
+ion-card-title {
+  color: var(--ion-color-primary) !important;
+  font-size: 1.18em;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.action-buttons ion-button {
+  width: auto;
+  min-width: 140px;
+  max-width: 220px;
+  display: block;
+  margin: 0 auto 12px auto;
+}
+
+.formulario-wrapper {
+  max-width: 420px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
 } 

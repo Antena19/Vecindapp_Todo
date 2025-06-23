@@ -1,7 +1,7 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="secondary">
     <ion-buttons slot="start">
-      <ion-back-button [defaultHref]="tipoUsuario === 'vecino' || tipoUsuario === 'socio' ? '/home' : '/comunicacion'"></ion-back-button>
+      <ion-back-button [defaultHref]="tipoUsuario === 'vecino' || tipoUsuario === 'socio' ? '/home' : '/comunicacion'" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Noticias y Eventos</ion-title>
     <ion-buttons slot="end">
@@ -26,7 +26,7 @@
         (ionInput)="buscarNoticias()"
         show-clear-button="focus">
       </ion-searchbar>
-      <ion-button expand="block" fill="outline" (click)="mostrarFiltros = !mostrarFiltros" size="small" color="success">
+      <ion-button class="filtros-btn" expand="block" fill="outline" (click)="mostrarFiltros = !mostrarFiltros" size="small">
         <ion-icon name="options-outline" slot="start"></ion-icon>
         Filtros
         <ion-icon [name]="mostrarFiltros ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
@@ -82,39 +82,43 @@
     <p>¡Vuelve pronto para ver novedades de tu comunidad!</p>
   </div>
 
-  <ion-list *ngIf="!isLoading && noticiasFiltradas.length > 0">
-    <div *ngFor="let noticia of noticiasFiltradas" 
-         (click)="verDetalleNoticia(noticia.id)"
-         class="noticia-item">
-      <ion-thumbnail slot="start" *ngIf="noticia.imagenUrl">
-        <img [src]="noticia.imagenUrl" [alt]="noticia.titulo">
-      </ion-thumbnail>
-      <ion-label>
-        <div class="noticia-header">
-          <h2>{{ noticia.titulo }}</h2>
-          <ion-icon [name]="getCategoriaIcon(noticia.categoria)" 
-                   [color]="getPrioridadColor(noticia.prioridad)">
-          </ion-icon>
-        </div>
-        <p class="noticia-contenido">{{ noticia.contenido | slice:0:150 }}...</p>
-        <div class="noticia-metadata">
-          <ion-chip [color]="getPrioridadColor(noticia.prioridad)" size="small">
-            {{ noticia.prioridad }}
-          </ion-chip>
-          <ion-chip [color]="getAlcanceColor(noticia.alcance)" size="small">
-            {{ noticia.alcance }}
-          </ion-chip>
-          <ion-chip color="medium" size="small">
-            {{ noticia.categoria }}
-          </ion-chip>
-        </div>
-        <div class="noticia-footer">
-          <p class="autor">Por: {{ noticia.autorNombre }}</p>
-          <p class="fecha">{{ noticia.fechaPublicacion | date:'short' }}</p>
-        </div>
-      </ion-label>
-    </div>
-  </ion-list>
+  <div class="noticias-wrapper" *ngIf="!isLoading && noticiasFiltradas.length > 0">
+    <ion-grid>
+      <ion-row *ngFor="let noticia of noticiasFiltradas">
+        <ion-col size="12" size-md="8" size-lg="6" class="noticia-col">
+          <div (click)="verDetalleNoticia(noticia.id)" class="noticia-item">
+            <ion-thumbnail slot="start" *ngIf="noticia.imagenUrl">
+              <img [src]="getImagenUrl(noticia.imagenUrl)" [alt]="noticia.titulo">
+            </ion-thumbnail>
+            <ion-label>
+              <div class="noticia-header">
+                <h2>{{ noticia.titulo }}</h2>
+                <ion-icon [name]="getCategoriaIcon(noticia.categoria)" 
+                         [color]="getPrioridadColor(noticia.prioridad)">
+                </ion-icon>
+              </div>
+              <p class="noticia-contenido">{{ noticia.contenido | slice:0:150 }}...</p>
+              <div class="noticia-metadata">
+                <ion-chip [color]="getPrioridadColor(noticia.prioridad)" size="small">
+                  {{ noticia.prioridad }}
+                </ion-chip>
+                <ion-chip [color]="getAlcanceColor(noticia.alcance)" size="small">
+                  {{ noticia.alcance }}
+                </ion-chip>
+                <ion-chip color="medium" size="small">
+                  {{ noticia.categoria }}
+                </ion-chip>
+              </div>
+              <div class="noticia-footer">
+                <p class="autor">Por: {{ noticia.autorNombre }}</p>
+                <p class="fecha">{{ noticia.fechaPublicacion | date:'short' }}</p>
+              </div>
+            </ion-label>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 
   <!-- Contador de resultados -->
   <ion-card *ngIf="!isLoading && noticiasFiltradas.length > 0" class="resultados-card">

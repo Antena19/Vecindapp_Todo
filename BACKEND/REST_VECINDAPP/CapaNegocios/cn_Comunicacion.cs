@@ -10,10 +10,12 @@ namespace REST_VECINDAPP.CapaNegocios
     public class cn_Comunicacion
     {
         private readonly string _connectionString;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public cn_Comunicacion(IConfiguration configuration)
+        public cn_Comunicacion(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection")!;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region NOTICIAS
@@ -151,6 +153,23 @@ namespace REST_VECINDAPP.CapaNegocios
             return null;
         }
 
+        public async Task<Noticia> CrearNoticiaAsync(CrearNoticiaDTO dto)
+        {
+            // Obtener información del usuario actual desde el contexto inyectado
+            var userRut = _httpContextAccessor.HttpContext?.User?.FindFirst("Rut")?.Value
+                        ?? _httpContextAccessor.HttpContext?.User?.FindFirst("rut")?.Value
+                        ?? _httpContextAccessor.HttpContext?.User?.FindFirst("unique_name")?.Value;
+
+            var userNombre = _httpContextAccessor.HttpContext?.User?.FindFirst("nombre")?.Value
+                           ?? _httpContextAccessor.HttpContext?.User?.FindFirst("unique_name")?.Value
+                           ?? "Desconocido";
+            
+            if (string.IsNullOrEmpty(userRut) || string.IsNullOrEmpty(userNombre))
+                throw new Exception("No se pudo obtener la información del usuario");
+            
+            return await CrearNoticiaAsync(dto, int.Parse(userRut), userNombre);
+        }
+
         public async Task<Noticia> CrearNoticiaAsync(CrearNoticiaDTO dto, int autorRut, string autorNombre)
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -203,6 +222,12 @@ namespace REST_VECINDAPP.CapaNegocios
             {
                 await connection.OpenAsync();
                 
+                // Obtener la noticia existente para conservar la fecha si es necesario
+                var noticiaExistente = await ObtenerNoticiaPorIdAsync(id);
+                var fechaPublicacion = dto.PublicarInmediatamente
+                    ? DateTime.Now
+                    : noticiaExistente?.FechaPublicacion ?? DateTime.Now;
+                
                 var query = @"
                     UPDATE noticias 
                     SET titulo = @Titulo, contenido = @Contenido, alcance = @Alcance,
@@ -221,8 +246,7 @@ namespace REST_VECINDAPP.CapaNegocios
                     command.Parameters.AddWithValue("@Categoria", dto.Categoria);
                     command.Parameters.AddWithValue("@Tags", 
                         dto.Tags != null ? JsonSerializer.Serialize(dto.Tags) : (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@FechaPublicacion", 
-                        dto.PublicarInmediatamente ? DateTime.Now : (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@FechaPublicacion", fechaPublicacion);
                     
                     await command.ExecuteNonQueryAsync();
                 }
@@ -779,19 +803,6 @@ namespace REST_VECINDAPP.CapaNegocios
             }
             
             return noticias;
-        }
-
-        public async Task<Noticia> CrearNoticiaAsync(CrearNoticiaDTO dto)
-        {
-            // Obtener información del usuario actual desde el contexto
-            var httpContextAccessor = new HttpContextAccessor();
-            var userRut = httpContextAccessor.HttpContext?.User?.FindFirst("rut")?.Value;
-            var userNombre = httpContextAccessor.HttpContext?.User?.FindFirst("nombre")?.Value;
-            
-            if (string.IsNullOrEmpty(userRut) || string.IsNullOrEmpty(userNombre))
-                throw new Exception("No se pudo obtener la información del usuario");
-            
-            return await CrearNoticiaAsync(dto, int.Parse(userRut), userNombre);
         }
 
         public async Task<ComentarioNoticia> AgregarComentarioAsync(int noticiaId, CrearComentarioDTO dto)

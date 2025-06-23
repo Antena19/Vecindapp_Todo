@@ -1,9 +1,9 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="secondary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>Dashboard de Certificados</ion-title>
+    <ion-title>Certificados</ion-title>
     <ion-buttons slot="end">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -11,8 +11,8 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="dashboard-actions">
-    <ion-button color="success" routerLink="/certificados/solicitar">
+  <div class="dashboard-actions dashboard-actions-center">
+    <ion-button class="primary-button" routerLink="/certificados/solicitar">
       <ion-icon name="add-circle-outline" slot="start"></ion-icon>
       Solicitar Certificado
     </ion-button>
