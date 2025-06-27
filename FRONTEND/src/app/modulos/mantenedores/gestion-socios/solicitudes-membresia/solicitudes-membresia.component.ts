@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { SociosService } from '../../../../services/socios.service';
 import { SolicitudSocioDTO } from '../../../../modelos/DTOs/solicitud-socio.dto';
 import { RechazoDTO } from '../../../../modelos/DTOs/rechazo.dto';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-solicitudes-membresia',
@@ -89,5 +90,11 @@ export class SolicitudesMembresiaComponent implements OnInit {
       this.filtroEstado = estado;
       this.cargarSolicitudes();
     }
+  }
+
+  getImagenUrl(ruta: string | null): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http')) return ruta;
+    return environment.backendUrl + ruta;
   }
 }

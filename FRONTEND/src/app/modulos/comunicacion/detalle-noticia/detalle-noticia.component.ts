@@ -7,6 +7,7 @@ import { ComunicacionService } from '../../../services/comunicacion.service';
 import { Noticia, ComentarioNoticia } from '../../../modelos/comunicacion.model';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-detalle-noticia',
@@ -209,5 +210,11 @@ export class DetalleNoticiaComponent implements OnInit {
 
   volver() {
     this.router.navigate(['/comunicacion']);
+  }
+
+  getImagenUrl(ruta: string | null): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http')) return ruta;
+    return environment.backendUrl + ruta;
   }
 } 

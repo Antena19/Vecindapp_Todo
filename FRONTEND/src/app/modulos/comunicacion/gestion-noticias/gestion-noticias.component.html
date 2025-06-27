@@ -78,7 +78,7 @@
         <ion-col size="12" size-md="8" size-lg="6" class="noticia-col">
           <div class="noticia-item">
             <ion-thumbnail slot="start" *ngIf="noticia.imagenUrl">
-              <img [src]="getImagenUrl(noticia.imagenUrl)" [alt]="noticia.titulo">
+              <img *ngIf="noticia.imagenUrl" [src]="getImagenUrl(noticia.imagenUrl)" [alt]="noticia.titulo">
             </ion-thumbnail>
             <ion-label>
               <div class="noticia-header">

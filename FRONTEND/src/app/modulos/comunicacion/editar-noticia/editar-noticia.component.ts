@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ComunicacionService } from '../../../services/comunicacion.service';
 import { Noticia } from '../../../modelos/comunicacion.model';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-editar-noticia',
@@ -110,10 +111,6 @@ export class EditarNoticiaComponent implements OnInit {
       tags: noticia.tags ? noticia.tags.join(', ') : '',
       publicarInmediatamente: noticia.estado === 'ACTIVO'
     });
-
-    if (noticia.imagenUrl) {
-      this.imagenSeleccionada = noticia.imagenUrl;
-    }
   }
 
   async seleccionarImagen() {
@@ -137,6 +134,12 @@ export class EditarNoticiaComponent implements OnInit {
   eliminarImagen() {
     this.imagenSeleccionada = null;
     this.imagenArchivo = null;
+  }
+
+  eliminarImagenExistente() {
+    if (this.noticia) {
+      this.noticia.imagenUrl = undefined;
+    }
   }
 
   async guardarNoticia() {
@@ -264,5 +267,11 @@ export class EditarNoticiaComponent implements OnInit {
       position: 'bottom'
     });
     await toast.present();
+  }
+
+  getImagenUrl(ruta: string | null): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http')) return ruta;
+    return environment.backendUrl + ruta;
   }
 } 

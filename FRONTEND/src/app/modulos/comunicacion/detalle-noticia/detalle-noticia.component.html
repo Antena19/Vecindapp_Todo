@@ -18,7 +18,7 @@
   <div *ngIf="!loading && noticia" class="noticia-container">
     <!-- Imagen de la noticia -->
     <div *ngIf="noticia.imagenUrl" class="imagen-noticia">
-      <img [src]="noticia.imagenUrl" [alt]="noticia.titulo">
+      <img [src]="getImagenUrl(noticia.imagenUrl)" [alt]="noticia.titulo">
     </div>
 
     <!-- Información de la noticia -->

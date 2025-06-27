@@ -8,6 +8,7 @@ import { SolicitudSocioDTO } from '../modelos/DTOs/solicitud-socio.dto';
 import { RechazoDTO } from '../modelos/DTOs/rechazo.dto';
 import { EstadisticasResponse } from '../modelos/DTOs/estadisticas-response';
 import { SocioActivoDTO } from '../modelos/DTOs/socio-activo.dto';
+import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -57,7 +58,13 @@ export class SociosService {
         if (estado) {
             params = params.set('estadoSolicitud', estado);
         }
-        return this.http.get<SolicitudSocioDTO[]>(`${this.apiUrlDirectiva}/solicitudes`, { params });
+        return this.http.get<any[]>(`${this.apiUrlDirectiva}/solicitudes`, { params }).pipe(
+            map(solicitudes => solicitudes.map(s => ({
+                ...s,
+                DocumentoIdentidad: s.documentoIdentidad,
+                DocumentoDomicilio: s.documentoDomicilio
+            })))
+        );
     }
 
     aprobarSolicitud(rut: number): Observable<{ mensaje: string }> {
