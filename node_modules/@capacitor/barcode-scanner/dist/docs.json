@@ -1,0 +1,262 @@
+{
+  "api": {
+    "name": "CapacitorBarcodeScannerPlugin",
+    "slug": "capacitorbarcodescannerplugin",
+    "docs": "Interface defining the contract for a plugin capable of scanning barcodes.\nRequires implementation of the scanBarcode method, which initiates a barcode scan with given options.",
+    "tags": [],
+    "methods": [
+      {
+        "name": "scanBarcode",
+        "signature": "(options: CapacitorBarcodeScannerOptions) => Promise<CapacitorBarcodeScannerScanResult>",
+        "parameters": [
+          {
+            "name": "options",
+            "docs": "",
+            "type": "CapacitorBarcodeScannerOptions"
+          }
+        ],
+        "returns": "Promise<CapacitorBarcodeScannerScanResult>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [
+          "CapacitorBarcodeScannerScanResult",
+          "CapacitorBarcodeScannerOptions"
+        ],
+        "slug": "scanbarcode"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [],
+  "enums": [
+    {
+      "name": "Html5QrcodeSupportedFormats",
+      "slug": "html5qrcodesupportedformats",
+      "members": [
+        {
+          "name": "QR_CODE",
+          "value": "0",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "AZTEC",
+          "value": "1",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "CODABAR",
+          "value": "2",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "CODE_39",
+          "value": "3",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "CODE_93",
+          "value": "4",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "CODE_128",
+          "value": "5",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "DATA_MATRIX",
+          "value": "6",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "MAXICODE",
+          "value": "7",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "ITF",
+          "value": "8",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "EAN_13",
+          "value": "9",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "EAN_8",
+          "value": "10",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "PDF_417",
+          "value": "11",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "RSS_14",
+          "value": "12",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "RSS_EXPANDED",
+          "value": "13",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "UPC_A",
+          "value": "14",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "UPC_E",
+          "value": "15",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "UPC_EAN_EXTENSION",
+          "value": "16",
+          "tags": [],
+          "docs": ""
+        }
+      ]
+    },
+    {
+      "name": "CapacitorBarcodeScannerTypeHintALLOption",
+      "slug": "capacitorbarcodescannertypehintalloption",
+      "members": [
+        {
+          "name": "ALL",
+          "value": "17",
+          "tags": [],
+          "docs": ""
+        }
+      ]
+    },
+    {
+      "name": "CapacitorBarcodeScannerCameraDirection",
+      "slug": "capacitorbarcodescannercameradirection",
+      "members": [
+        {
+          "name": "BACK",
+          "value": "1",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "FRONT",
+          "value": "2",
+          "tags": [],
+          "docs": ""
+        }
+      ]
+    },
+    {
+      "name": "CapacitorBarcodeScannerScanOrientation",
+      "slug": "capacitorbarcodescannerscanorientation",
+      "members": [
+        {
+          "name": "PORTRAIT",
+          "value": "1",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "LANDSCAPE",
+          "value": "2",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "ADAPTIVE",
+          "value": "3",
+          "tags": [],
+          "docs": ""
+        }
+      ]
+    },
+    {
+      "name": "CapacitorBarcodeScannerAndroidScanningLibrary",
+      "slug": "capacitorbarcodescannerandroidscanninglibrary",
+      "members": [
+        {
+          "name": "ZXING",
+          "value": "'zxing'",
+          "tags": [],
+          "docs": ""
+        },
+        {
+          "name": "MLKIT",
+          "value": "'mlkit'",
+          "tags": [],
+          "docs": ""
+        }
+      ]
+    }
+  ],
+  "typeAliases": [
+    {
+      "name": "CapacitorBarcodeScannerScanResult",
+      "slug": "capacitorbarcodescannerscanresult",
+      "docs": "Defines the structure of the result returned from a barcode scan.",
+      "types": [
+        {
+          "text": "{ ScanResult: string }",
+          "complexTypes": []
+        }
+      ]
+    },
+    {
+      "name": "CapacitorBarcodeScannerOptions",
+      "slug": "capacitorbarcodescanneroptions",
+      "docs": "Defines the options for configuring a barcode scan.",
+      "types": [
+        {
+          "text": "{\n  hint: CapacitorBarcodeScannerTypeHint;\n  scanInstructions?: string;\n  scanButton?: boolean;\n  scanText?: string;\n  cameraDirection?: CapacitorBarcodeScannerCameraDirection;\n  scanOrientation?: CapacitorBarcodeScannerScanOrientation;\n  android?: {\n    scanningLibrary?: CapacitorBarcodeScannerAndroidScanningLibrary;\n  };\n  web?: {\n    showCameraSelection?: boolean;\n    scannerFPS?: number;\n  };\n}",
+          "complexTypes": [
+            "CapacitorBarcodeScannerTypeHint",
+            "CapacitorBarcodeScannerCameraDirection",
+            "CapacitorBarcodeScannerScanOrientation",
+            "CapacitorBarcodeScannerAndroidScanningLibrary"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CapacitorBarcodeScannerTypeHint",
+      "slug": "capacitorbarcodescannertypehint",
+      "docs": "Extends supported formats from Html5Qrcode with a special 'ALL' option,\nindicating support for all barcode types.\nType definition combining Html5QrcodeSupportedFormats and OSBarcodeTypeHintALLOption\nto represent the hint for the type of barcode to be scanned.",
+      "types": [
+        {
+          "text": "Html5QrcodeSupportedFormats",
+          "complexTypes": [
+            "Html5QrcodeSupportedFormats"
+          ]
+        },
+        {
+          "text": "CapacitorBarcodeScannerTypeHintALLOption",
+          "complexTypes": [
+            "CapacitorBarcodeScannerTypeHintALLOption"
+          ]
+        }
+      ]
+    }
+  ],
+  "pluginConfigs": []
+}

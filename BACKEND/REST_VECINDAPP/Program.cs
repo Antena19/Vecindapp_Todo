@@ -74,7 +74,8 @@ builder.Services.AddScoped<TransbankServiceV2>();
 builder.Services.AddScoped<WebpayService>();
 
 // Configurar la autenticacin con JWT
-var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key no est� configurado"));
+var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -149,5 +150,7 @@ app.MapGet("/", () => Results.Ok("API is healthy"));
 app.MapPost("/payment/return", async context => {
     context.Response.Redirect("/payment/return");
 });
+
+
 
 app.Run();
