@@ -38,6 +38,12 @@ export class DetalleNoticiaComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Obtener usuario autenticado del localStorage
+    const usuario = localStorage.getItem('usuario');
+    if (usuario) {
+      this.usuarioActual = JSON.parse(usuario);
+    }
+
     const noticiaId = this.route.snapshot.paramMap.get('id');
     if (noticiaId) {
       this.cargarNoticia(parseInt(noticiaId));
