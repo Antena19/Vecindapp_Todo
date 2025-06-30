@@ -71,7 +71,7 @@ namespace REST_VECINDAPP.Controllers
                             <p><strong>Monto:</strong> ${result.Amount}</p>
                             <p><strong>Estado:</strong> {result.Status}</p>
                             <br>
-                            <p><a href='http://localhost:4200/payment/error'>Volver al sitio</a></p>
+                            <p><a href='http://localhost:8100/payment/error'>Volver al sitio</a></p>
                         </body>
                     </html>";
                     return Content(htmlRechazo, "text/html");
@@ -80,7 +80,7 @@ namespace REST_VECINDAPP.Controllers
                 var htmlExito = $@"
                 <html>
                     <head>
-                        <meta http-equiv='refresh' content='5;url=http://localhost:4200/payment/final' />
+                        <meta http-equiv='refresh' content='5;url=http://localhost:8100/payment/final' />
                     </head>
                     <body style='font-family: sans-serif; text-align: center; padding-top: 50px;'>
                         <h2>✅ ¡Pago confirmado!</h2>
@@ -89,7 +89,7 @@ namespace REST_VECINDAPP.Controllers
                         <p><strong>Monto:</strong> ${result.Amount}</p>
                         <p><strong>Estado:</strong> {result.Status}</p>
                         <br>
-                        <p>Serás redirigido automáticamente. Si no, haz clic <a href='http://localhost:4200/payment/final'>aquí</a>.</p>
+                        <p>Serás redirigido automáticamente. Si no, haz clic <a href='http://localhost:8100/payment/final'>aquí</a>.</p>
                     </body>
                 </html>";
                 return Content(htmlExito, "text/html");
@@ -102,7 +102,7 @@ namespace REST_VECINDAPP.Controllers
                         <h2>❌ Error al procesar el pago</h2>
                         <p>Ocurrió un problema al confirmar el pago.</p>
                         <p><strong>Mensaje:</strong> {ex.Message}</p>
-                        <p><a href='http://localhost:4200/payment/error'>Volver al sitio</a></p>
+                        <p><a href='http://localhost:8100/payment/error'>Volver al sitio</a></p>
                     </body>
                 </html>";
                 return Content(htmlError, "text/html");
