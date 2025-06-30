@@ -122,37 +122,31 @@ ion-button[fill="outline"] {
   margin-bottom: 8px;
 }
 
-.imagen-placeholder {
-  text-align: center;
-  padding: 32px 16px;
-  border: 2px dashed var(--ion-color-medium);
-  border-radius: 8px;
+.imagen-actual, .imagen-preview, .imagen-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 16px;
-  background: #fffbe6;
 }
 
-.imagen-preview {
-  text-align: center;
-  img {
-    max-width: 100%;
-    max-height: 200px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-  }
+.imagen-actual img, .imagen-preview img {
+  max-width: 320px;
+  max-height: 200px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 8px;
+  background: #f4f4f4;
+  object-fit: contain;
 }
 
-.info-text {
-  margin-top: 16px;
-  p {
-    display: flex;
-    align-items: center;
-    margin: 8px 0;
-    font-size: 14px;
-    color: var(--ion-color-medium);
-    ion-icon {
-      margin-right: 8px;
-    }
-  }
+.texto-imagen-actual {
+  color: var(--ion-color-medium);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.imagen-placeholder ion-button {
+  margin-top: 12px;
 }
 
 .warning-text {

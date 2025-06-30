@@ -79,6 +79,15 @@ namespace REST_VECINDAPP.Controllers
             public string NuevaContrasena { get; set; }
         }
 
+        public class CambiarContrasenaRequest
+        {
+            [Required]
+            public string ContrasenaActual { get; set; }
+            [Required]
+            [MinLength(8)]
+            public string NuevaContrasena { get; set; }
+        }
+
         /// <summary>
         /// Autentica a un usuario y devuelve un token JWT si las credenciales son válidas
         /// </summary>
@@ -315,6 +324,33 @@ namespace REST_VECINDAPP.Controllers
             }
 
             return BadRequest(new { message = mensaje });
+        }
+
+        [HttpPost("cambiar-contrasena")]
+        [Authorize] // Si usas autenticación JWT
+        public IActionResult CambiarContrasena([FromBody] CambiarContrasenaRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { mensaje = "Datos inválidos" });
+
+            // Obtener el rut del usuario autenticado
+            var rutClaim = User.Claims.FirstOrDefault(c => c.Type == "Rut")?.Value;
+            if (string.IsNullOrEmpty(rutClaim) || !int.TryParse(rutClaim, out int rut))
+                return Unauthorized(new { mensaje = "No autenticado" });
+
+            try
+            {
+                var (exito, mensaje) = _cnUsuarios.CambiarContrasena(rut, request.ContrasenaActual, request.NuevaContrasena);
+
+                if (exito)
+                    return Ok(new { mensaje });
+
+                return BadRequest(new { mensaje });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error interno del servidor", error = ex.Message });
+            }
         }
     }
 }

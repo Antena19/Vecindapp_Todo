@@ -236,3 +236,31 @@ ion-segment-button.ion-activated,
 ion-segment-button[aria-checked="true"] {
   color: #fff !important; /* fuerza el texto blanco cuando está seleccionado */
 }
+
+.imagenes-solicitud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin: 16px 0;
+}
+
+.imagen-solicitud {
+  max-width: 220px;
+  max-height: 160px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  object-fit: contain;
+  background: #f4f4f4;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.imagenes-solicitud p {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  margin: 0 0 8px 0;
+}

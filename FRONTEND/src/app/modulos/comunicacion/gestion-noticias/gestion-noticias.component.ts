@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ComunicacionService } from '../../../services/comunicacion.service';
 import { Noticia } from '../../../modelos/comunicacion.model';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-gestion-noticias',
@@ -260,9 +261,9 @@ export class GestionNoticiasComponent implements OnInit {
     this.router.navigate(['/comunicacion/crear']);
   }
 
-  getImagenUrl(imagenUrl: string | null): string {
-    if (!imagenUrl) return '';
-    if (imagenUrl.startsWith('http')) return imagenUrl;
-    return 'http://localhost:5032' + imagenUrl;
+  getImagenUrl(ruta: string | null): string {
+    if (!ruta) return '';
+    if (ruta.startsWith('http')) return ruta;
+    return environment.backendUrl + ruta;
   }
 } 

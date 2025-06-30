@@ -7,6 +7,7 @@ import { ComunicacionService } from '../../../services/comunicacion.service';
 import { Noticia } from '../../../modelos/comunicacion.model';
 import { Subscription } from 'rxjs';
 import { AutenticacionService } from 'src/app/services/autenticacion.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-lista-noticias',
@@ -170,6 +171,6 @@ export class ListaNoticiasComponent implements OnInit, OnDestroy {
   getImagenUrl(imagenUrl: string | null): string {
     if (!imagenUrl) return '';
     if (imagenUrl.startsWith('http')) return imagenUrl;
-    return 'http://localhost:5032' + imagenUrl;
+    return environment.backendUrl + imagenUrl;
   }
 } 

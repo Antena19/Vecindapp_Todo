@@ -218,8 +218,7 @@ export class MiPerfilComponent implements OnInit {
           error: async (error) => {
             console.log('Error completo:', error);
             console.log('Respuesta del servidor:', error.error);
-            
-            // Si es un error 400 con statusText "OK", tratar como éxito
+
             if (error.status === 400 && error.statusText === "OK") {
               // Actualizar datos locales
               this.usuario = {
@@ -231,19 +230,25 @@ export class MiPerfilComponent implements OnInit {
                 telefono: this.perfilForm.value.telefono,
                 direccion: this.perfilForm.value.direccion
               };
-              
+
               // Salir del modo edición
               this.editando = false;
               this.perfilForm.disable();
-              
+
               const toast = await this.toastController.create({
                 message: 'Tus datos han sido actualizados exitosamente',
                 duration: 3000,
                 color: 'success',
                 position: 'top'
               });
-              
+
               await toast.present();
+              // Cerrar loading y variable cargando antes de return
+              this.cargando = false;
+              if (this.loading) {
+                this.loading.dismiss();
+                this.loading = null;
+              }
               return;
             }
             
@@ -263,6 +268,12 @@ export class MiPerfilComponent implements OnInit {
             });
             
             await alert.present();
+            // Cerrar loading y variable cargando en cualquier error
+            this.cargando = false;
+            if (this.loading) {
+              this.loading.dismiss();
+              this.loading = null;
+            }
           },
           complete: () => {
             this.cargando = false;

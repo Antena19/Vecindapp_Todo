@@ -7,6 +7,9 @@ import { Evento } from '../../../modelos/evento.model';
 import { ActivatedRoute } from '@angular/router';
 import { EventoReporte } from '../../../modelos/evento.model';
 import * as html2pdf from 'html2pdf.js'; // Importar html2pdf
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { FileOpener } from '@capacitor-community/file-opener';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-reporte-eventos',
@@ -163,17 +166,30 @@ export class ReporteEventosComponent implements OnInit {
       console.log('Contenedor temporal HTML antes de generar PDF:', pdfContentContainer.outerHTML);
 
       // Generar el PDF con un pequeño retraso
-      setTimeout(() => {
-        html2pdf().set(opt).from(pdfContentContainer).save().then(() => {
+      setTimeout(async () => {
+        try {
+          const fileName = 'reporte_evento_' + this.eventoIdDesdeRuta + '.pdf';
+          
+          if (this.isAndroid()) {
+            // Para Android: generar PDF como blob y usar plugins nativos
+            const pdf = await html2pdf().set(opt).from(pdfContentContainer).toPdf().get('pdf');
+            const blob = pdf.output('blob');
+            await this.descargarEnAndroid(blob, fileName);
+            this.presentToast('PDF generado y abierto exitosamente', 'success');
+          } else {
+            // Para navegador: usar el método original
+            await html2pdf().set(opt).from(pdfContentContainer).save();
+            this.presentToast('PDF generado exitosamente', 'success');
+          }
+          
           this.cargando = false;
-          this.presentToast('PDF generado exitosamente', 'success');
           document.body.removeChild(pdfContentContainer); // Eliminar el contenedor temporal
-        }).catch((error: any) => {
+        } catch (error) {
           console.error('Error al generar el PDF:', error);
-          this.presentToast('Error al generar el PDF', 'danger');
+          this.presentToast('Error al generar el PDF: ' + (error instanceof Error ? error.message : 'Error desconocido'), 'danger');
           this.cargando = false;
           document.body.removeChild(pdfContentContainer); // Eliminar el contenedor temporal incluso en error
-        });
+        }
       }, 1000); // Retraso de 1000ms
     } else {
       this.presentToast('No se encontró el contenido del reporte para exportar', 'warning');
@@ -182,5 +198,64 @@ export class ReporteEventosComponent implements OnInit {
 
   get today(): string {
     return new Date().toISOString().substring(0, 10);
+  }
+
+  // Función para detectar si estamos en Android
+  private isAndroid(): boolean {
+    return Capacitor.getPlatform() === 'android';
+  }
+
+  // Función para convertir Blob a base64
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        // Extraer solo la parte base64 (sin el prefijo data:application/pdf;base64,)
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // Función para descargar en Android
+  private async descargarEnAndroid(blob: Blob, fileName: string): Promise<void> {
+    try {
+      // Convertir blob a base64
+      const base64Data = await this.blobToBase64(blob);
+      
+      // Guardar el archivo en el directorio de documentos
+      const savedFile = await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Documents,
+        recursive: true
+      });
+
+      // Abrir el archivo con el visor nativo
+      await FileOpener.open({
+        filePath: savedFile.uri,
+        contentType: 'application/pdf'
+      });
+
+      console.log('PDF guardado y abierto en Android:', savedFile.uri);
+    } catch (error) {
+      console.error('Error al descargar en Android:', error);
+      throw new Error('No se pudo descargar el archivo en Android');
+    }
+  }
+
+  // Función para descargar en navegador
+  private descargarEnNavegador(blob: Blob, fileName: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 } 

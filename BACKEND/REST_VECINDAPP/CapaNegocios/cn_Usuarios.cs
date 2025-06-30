@@ -368,41 +368,32 @@ namespace REST_VECINDAPP.CapaNegocios
 
         public (bool Exito, string Mensaje) CambiarContrasena(int rut, string contrasenaActual, string nuevaContrasena)
         {
-            if (!ValidarComplejidadContraseña(nuevaContrasena))
+            using (var connection = new MySqlConnection(_connectionString))
             {
-                return (false, "La nueva contraseña no cumple con los requisitos de complejidad.");
-            }
-
-            string contrasenaActualHash = HashearContraseña(contrasenaActual);
-            string nuevaContrasenaHash = HashearContraseña(nuevaContrasena);
-
-            using (MySqlConnection conn = new MySqlConnection(_connectionString))
-            {
-                try
+                connection.Open();
+                using (var command = new MySqlCommand("SP_CAMBIAR_CONTRASENA", connection))
                 {
-                    conn.Open();
-                    using (MySqlCommand cmd = new MySqlCommand("SP_CAMBIAR_CONTRASENA", conn))
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@p_rut", rut);
+                    command.Parameters.AddWithValue("@p_contrasena_actual", contrasenaActual);
+                    command.Parameters.AddWithValue("@p_contrasena_nueva", nuevaContrasena);
+
+                    try
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.AddWithValue("@p_rut", rut);
-                        cmd.Parameters.AddWithValue("@p_contrasena_actual", contrasenaActualHash);
-                        cmd.Parameters.AddWithValue("@p_nueva_contrasena", nuevaContrasenaHash);
-
-                        MySqlParameter msgParam = new MySqlParameter("@p_mensaje", MySqlDbType.VarChar, 255);
-                        msgParam.Direction = ParameterDirection.Output;
-                        cmd.Parameters.Add(msgParam);
-
-                        cmd.ExecuteNonQuery();
-
-                        string mensaje = msgParam.Value?.ToString() ?? "";
-
-                        return (mensaje == "OK", mensaje);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                var mensaje = reader["mensaje"].ToString();
+                                return (true, mensaje ?? "Contraseña actualizada exitosamente");
+                            }
+                        }
+                        return (false, "No se pudo actualizar la contraseña");
                     }
-                }
-                catch (Exception ex)
-                {
-                    return (false, $"Error al cambiar contraseña: {ex.Message}");
+                    catch (MySqlException ex)
+                    {
+                        return (false, ex.Message);
+                    }
                 }
             }
         }

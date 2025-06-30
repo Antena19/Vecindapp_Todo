@@ -7,6 +7,9 @@ import { Usuario } from 'src/app/modelos/Usuario';
 import html2pdf from 'html2pdf.js';
 import { CertificadosService } from '../certificados.service';
 import { ActivatedRoute } from '@angular/router';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { FileOpener } from '@capacitor-community/file-opener';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-solicitar-certificado',
@@ -645,20 +648,27 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
               
               // Descargar el certificado
               this.certificadosService.descargarCertificado(solicitudReciente.id).subscribe({
-                next: (response: any) => {
+                next: async (response: any) => {
                   console.log('Certificado descargado exitosamente');
                   
-                  // Crear un blob y descargar el archivo
+                  // Crear un blob con el PDF
                   const blob = new Blob([response], { type: 'application/pdf' });
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = `certificado_${solicitudReciente.id}.pdf`;
-                  link.click();
-                  window.URL.revokeObjectURL(url);
+                  const fileName = `certificado_${solicitudReciente.id}.pdf`;
                   
-                  // Mostrar mensaje de éxito con información
-                  this.mostrarMensajeExito(`Certificado descargado exitosamente\nFecha de aprobación: ${fechaAprobacion}\nCódigo de validación: ${solicitudReciente.codigoVerificacion || 'No disponible'}`);
+                  try {
+                    // Detectar plataforma y usar el método correcto
+                    if (this.isAndroid()) {
+                      await this.descargarEnAndroid(blob, fileName);
+                    } else {
+                      this.descargarEnNavegador(blob, fileName);
+                    }
+                    
+                    // Mostrar mensaje de éxito con información
+                    this.mostrarMensajeExito(`Certificado descargado exitosamente\nFecha de aprobación: ${fechaAprobacion}\nCódigo de validación: ${solicitudReciente.codigoVerificacion || 'No disponible'}`);
+                  } catch (error) {
+                    console.error('Error al procesar la descarga:', error);
+                    this.mostrarMensajeError('Error al procesar la descarga: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+                  }
                 },
                 error: (error) => {
                   console.error('Error al descargar certificado:', error);
@@ -694,5 +704,64 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
     // Aquí puedes implementar la lógica para mostrar un mensaje de error
     // Por ejemplo, usando un toast o alert
     alert('Error: ' + mensaje);
+  }
+
+  // Función para detectar si estamos en Android
+  private isAndroid(): boolean {
+    return Capacitor.getPlatform() === 'android';
+  }
+
+  // Función para convertir Blob a base64
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        // Extraer solo la parte base64 (sin el prefijo data:application/pdf;base64,)
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // Función para descargar en Android
+  private async descargarEnAndroid(blob: Blob, fileName: string): Promise<void> {
+    try {
+      // Convertir blob a base64
+      const base64Data = await this.blobToBase64(blob);
+      
+      // Guardar el archivo en el directorio de documentos
+      const savedFile = await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Documents,
+        recursive: true
+      });
+
+      // Abrir el archivo con el visor nativo
+      await FileOpener.open({
+        filePath: savedFile.uri,
+        contentType: 'application/pdf'
+      });
+
+      console.log('PDF guardado y abierto en Android:', savedFile.uri);
+    } catch (error) {
+      console.error('Error al descargar en Android:', error);
+      throw new Error('No se pudo descargar el archivo en Android');
+    }
+  }
+
+  // Función para descargar en navegador
+  private descargarEnNavegador(blob: Blob, fileName: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 }

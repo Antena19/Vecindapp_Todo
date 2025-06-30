@@ -712,7 +712,7 @@ namespace REST_VECINDAPP.CapaNegocios
             {
                 await connection.OpenAsync();
                 
-                var query = "SELECT CONCAT(nombre, ' ', apellido) FROM usuarios WHERE rut = @Rut";
+                var query = "SELECT CONCAT(nombre, ' ', apellido_paterno, ' ', apellido_materno) FROM usuarios WHERE rut = @Rut";
                 
                 using (var command = new MySqlCommand(query, connection))
                 {

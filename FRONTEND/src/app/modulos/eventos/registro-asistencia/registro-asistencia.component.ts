@@ -36,12 +36,9 @@ export class RegistroAsistenciaComponent implements OnInit, OnDestroy {
 
   async solicitarPermisos() {
     try {
-      const status = await BarcodeScanner.checkPermissions();
-      if (!status.camera) {
-        const requestStatus = await BarcodeScanner.requestPermissions();
-        if (!requestStatus.camera) {
-          this.mensaje = 'Se requieren permisos de cámara para escanear códigos QR';
-        }
+      const status = await BarcodeScanner.checkPermission({ force: true });
+      if (!status.granted) {
+        this.mensaje = 'Se requieren permisos de cámara para escanear códigos QR';
       }
     } catch (error) {
       console.error('Error al solicitar permisos:', error);
@@ -52,12 +49,10 @@ export class RegistroAsistenciaComponent implements OnInit, OnDestroy {
   async iniciarEscaneo() {
     try {
       this.escaneando = true;
-      // @ts-ignore: El método existe en tiempo de ejecución aunque el tipado no lo reconozca
       BarcodeScanner.hideBackground();
       document.body.style.background = 'transparent';
       document.body.style.opacity = '0';
 
-      // @ts-ignore: El método existe en tiempo de ejecución aunque el tipado no lo reconozca
       const resultado = await BarcodeScanner.startScan();
 
       if (resultado && resultado.hasContent) {
@@ -73,9 +68,7 @@ export class RegistroAsistenciaComponent implements OnInit, OnDestroy {
 
   async detenerEscaneo() {
     try {
-      // @ts-ignore: El método existe en tiempo de ejecución aunque el tipado no lo reconozca
       BarcodeScanner.showBackground();
-      // @ts-ignore: El método existe en tiempo de ejecución aunque el tipado no lo reconozca
       BarcodeScanner.stopScan();
       document.body.style.background = '';
       document.body.style.opacity = '1';

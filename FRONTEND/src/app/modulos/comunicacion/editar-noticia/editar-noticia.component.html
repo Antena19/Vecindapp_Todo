@@ -93,28 +93,32 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Imagen -->
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Imagen (opcional)</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <div *ngIf="!imagenSeleccionada" class="imagen-placeholder">
-          <ion-button fill="outline" (click)="seleccionarImagen()">
-            <ion-icon name="camera" slot="start"></ion-icon>
-            Agregar Imagen
-          </ion-button>
-        </div>
+    <!-- Imagen actual de la noticia (si existe y no hay una nueva seleccionada) -->
+    <div *ngIf="!imagenSeleccionada && noticia?.imagenUrl" class="imagen-actual">
+      <img [src]="getImagenUrl(noticia.imagenUrl || null)" [alt]="noticia.titulo">
+      <p class="texto-imagen-actual">Imagen actual</p>
+      <ion-button fill="clear" color="danger" (click)="eliminarImagenExistente()">
+        <ion-icon name="trash" slot="start"></ion-icon>
+        Eliminar
+      </ion-button>
+    </div>
 
-        <div *ngIf="imagenSeleccionada" class="imagen-preview">
-          <img [src]="imagenSeleccionada" alt="Vista previa">
-          <ion-button fill="clear" color="danger" (click)="eliminarImagen()">
-            <ion-icon name="trash" slot="start"></ion-icon>
-            Eliminar
-          </ion-button>
-        </div>
-      </ion-card-content>
-    </ion-card>
+    <!-- Preview de imagen seleccionada -->
+    <div *ngIf="imagenSeleccionada" class="imagen-preview">
+      <img [src]="imagenSeleccionada" alt="Vista previa">
+      <ion-button fill="clear" color="danger" (click)="eliminarImagen()">
+        <ion-icon name="trash" slot="start"></ion-icon>
+        Eliminar
+      </ion-button>
+    </div>
+
+    <!-- Botón para agregar imagen solo si no hay imagen actual ni seleccionada -->
+    <div *ngIf="!noticia?.imagenUrl && !imagenSeleccionada" class="imagen-placeholder">
+      <ion-button fill="outline" (click)="seleccionarImagen()">
+        <ion-icon name="camera" slot="start"></ion-icon>
+        Agregar Imagen
+      </ion-button>
+    </div>
 
     <!-- Opciones de publicación -->
     <ion-card>
