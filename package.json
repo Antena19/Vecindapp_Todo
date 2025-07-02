@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@capacitor/barcode-scanner": "^2.0.3"
-  }
-}
