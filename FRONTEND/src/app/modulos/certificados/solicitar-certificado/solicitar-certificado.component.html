@@ -5,6 +5,9 @@
     </ion-buttons>
     <ion-title>Solicitar Certificado</ion-title>
     <ion-buttons slot="end">
+      <ion-button (click)="refresh()" title="Actualizar">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
   </ion-toolbar>
@@ -86,26 +89,6 @@
       </div>
       <div class="precio-certificado">Precio: ${{ precio }}</div>
 
-      <!-- Vista de solicitud: solo firma del usuario -->
-      <div *ngIf="!puedeDescargarPDF" class="firmas-certificado" style="display: flex; justify-content: center; margin-top: 40px;">
-        <div class="firma-usuario" style="text-align: center;">
-          <img *ngIf="signatureData && puedeDescargarPDF" [src]="signatureData" alt="Firma Usuario" style="height: 80px; border: 1px solid #ccc;">
-          <div style="font-size: 0.95rem; color: #333;">Firma del Usuario</div>
-        </div>
-      </div>
-      <div *ngIf="!puedeDescargarPDF" class="firma-digital-section" style="margin: 24px 0; text-align: center;">
-        <label style="font-weight: bold; color: #00897B;">Firma digital del solicitante:</label>
-        <div style="display: flex; flex-direction: column; align-items: center;">
-          <canvas #signatureCanvas width="320" height="100" style="border:2px solid #00897B; border-radius: 8px; background: #fff; touch-action: none; box-shadow: 0 2px 8px rgba(0,137,123,0.10);"></canvas>
-          <div style="margin-top: 8px;">
-            <button type="button" (click)="guardarFirma()" style="margin-right: 8px; background: #00897B; color: #fff; border: none; border-radius: 5px; padding: 6px 18px; font-weight: 600;">Guardar Firma</button>
-            <button type="button" (click)="limpiarFirma()" style="background: #2C3E50; color: #fff; border: none; border-radius: 5px; padding: 6px 18px; font-weight: 500;">Limpiar</button>
-          </div>
-          <div *ngIf="firmaGuardada" style="color: green; margin-top: 6px;">Firma guardada correctamente</div>
-          <div *ngIf="!firmaGuardada" style="color: #888; margin-top: 6px;">Firme con su dedo o mouse sobre el recuadro</div>
-        </div>
-      </div>
-
       <!-- Botón de Previsualizar PDF separado debajo de la firma -->
       <div style="text-align: center; margin-top: 24px;">
         <button type="button" class="btn-principal" (click)="previsualizarPDF()" *ngIf="!puedeDescargarPDF">Previsualizar PDF</button>
@@ -136,8 +119,8 @@
           <b>Dirección:</b> {{ solicitudForm.value.direccion }}<br>
         </div>
         <div style="display: flex; justify-content: center;">
-          <button class="btn-exportar" (click)="exportarPDF()" type="button" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.13rem; padding: 12px 36px;">
-            <span style="font-size: 1.3rem;">&#128190;</span> Descargar PDF
+          <button class="btn-exportar" (click)="descargarYabrirPDFCertificado()" type="button" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.13rem; padding: 12px 36px;">
+            <ion-icon name="download-outline" style="font-size: 1.3rem;"></ion-icon> Descargar PDF
           </button>
         </div>
       </div>
@@ -145,14 +128,17 @@
   </div>
 
   <!-- Sección oculta para exportar PDF con formato formal -->
-  <div id="certificadoFormal" style="display:none; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,137,123,0.12); max-width: 600px; margin: 32px auto; padding: 0 0 32px 0; font-family: 'Segoe UI', Arial, sans-serif;">
+  <div *ngIf="mostrarPrevisualizacion" id="certificadoFormal" style="background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,137,123,0.12); max-width: 600px; margin: 32px auto; padding: 0 0 32px 0; font-family: 'Segoe UI', Arial, sans-serif;">
+    <div style="text-align:right; margin: 12px 24px 0 0;">
+      <button (click)="cerrarPrevisualizacion()" style="background: #b71c1c; color: #fff; border: none; border-radius: 5px; padding: 6px 18px; font-weight: 600;">Cerrar previsualización</button>
+    </div>
     <div style="text-align:center; margin-bottom: 16px; margin-top: 32px;">
       <img src="assets/images/logo-junta.png" alt="Logo Junta de Vecinos" style="width:120px; margin-bottom:10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.10); border: 2px solid #e0e0e0; background: #fff;">
       <h1 style="font-size:2.2rem; font-weight:bold; margin:0; color: #00897B;">CERTIFICADO DE RESIDENCIA</h1>
       <div style="font-size:1.1rem; margin: 8px 0 18px 0; color: #333;">PUERTO MONTT, {{ fechaFormateada }}.</div>
     </div>
     <div style="font-size:1.05rem; text-align:justify; margin: 0 32px 18px 32px; color: #222;">
-      LA JUNTA DE VECINOS PORTALDE PUERTO MONTT, RUT: 65.066.453 – 1, PERSONALIDAD JURICA N°3849 CON FOJA 3850, CONSTITUIDA EL 13 DE MARZO 2013 EN PUERTO MONTT, perteneciente a la unidad N° 20 con facultad que otorga la Ley N°19.418 en el artículo 43 certifica que:<br><br>
+      La Junta de Vecinos Portal de Puerto Montt , RUT: 65.066.453 – 1, Personalidad Juridica N°3849 con foja 3850, constituida el 13 de marzo 2013 en Puerto Montt, perteneciente a la unidad N° 20 con facultad que otorga la Ley N°19.418 en el artículo 43 certifica que:<br><br>
       Sr.(a): <b>{{ solicitudForm.value.nombre }}</b><br>
       RUT: <b>{{ solicitudForm.value.rut }}</b><br>
       Reside en: <b>{{ solicitudForm.value.direccion }}</b><br>
@@ -162,18 +148,9 @@
     </div>
     <div style="margin-top: 48px; text-align:center; display: flex; flex-direction: row; justify-content: center; gap: 48px; align-items: flex-end;">
       <div style="text-align: center;">
-        <img *ngIf="puedeDescargarPDF && signatureData" [src]="signatureData" alt="Firma Usuario" style="height: 80px; border: 1px solid #ccc; display: block; margin: 0 auto 8px auto; background: #fff;">
-        <div style="font-size: 1rem; color: #00897B; font-weight: bold;">Firma del Solicitante</div>
-      </div>
-      <div style="text-align: center;">
         <img *ngIf="puedeDescargarPDF" src="assets/images/firma-presidente.jpg" alt="Firma Presidente" style="height: 80px; display: block; margin: 0 auto 8px auto; border: none; background: #fff;">
         <div style="font-size: 1rem; color: #00897B; font-weight: bold;">Presidente Junta de Vecinos</div>
       </div>
-    </div>
-    <div style="font-size: 1rem; color: #222; margin-top: 8px; text-align: center;">
-      <b>Validado digitalmente</b><br>
-      Código: <span id="pdf-codigo-verificacion">{{ hashVerificacion }}</span><br>
-      Fecha: <span id="pdf-fecha-emision">{{ timestampFirma }}</span>
     </div>
   </div>
 

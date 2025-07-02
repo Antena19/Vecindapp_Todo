@@ -24,7 +24,9 @@
         </td>
         <td>{{ item.fechaEmision ? (item.fechaEmision | date:'dd/MM/yyyy') : 'No disponible' }}</td>
         <td>
-          <button (click)="descargar(item.certificadoId || item.id)" [disabled]="!item.certificadoId && item.estado !== 'aprobado'">Descargar</button>
+          <button (click)="descargar(item.certificadoId || item.id)" [disabled]="!item.certificadoId && item.estado !== 'aprobado'">
+            <ion-icon name="download-outline"></ion-icon> Descargar PDF
+          </button>
         </td>
       </tr>
     </tbody>

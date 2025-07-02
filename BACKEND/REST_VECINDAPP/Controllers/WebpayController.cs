@@ -6,6 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Transbank.Common;
 using REST_VECINDAPP.Servicios;
 using Microsoft.AspNetCore.Authorization;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace REST_VECINDAPP.Controllers
 {
@@ -61,6 +64,19 @@ namespace REST_VECINDAPP.Controllers
                 await _transbankService.GuardarResultadoPago(request.Token, result.Status, Convert.ToDecimal(result.Amount ?? 0), result.BuyOrder);
                 await _transbankService.GuardarPagoEnHistorial(request.Token, result.Status, Convert.ToDecimal(result.Amount ?? 0), result.BuyOrder);
 
+                // NUEVO: Si el pago fue exitoso, confirma el pago y genera el certificado directamente
+                if (result.Status.ToLower() == "authorized")
+                {
+                    // Lógica directa, sin HTTP interno ni doble commit
+                    var certificadosService = HttpContext.RequestServices.GetService(typeof(REST_VECINDAPP.CapaNegocios.cn_Certificados)) as REST_VECINDAPP.CapaNegocios.cn_Certificados;
+                    if (certificadosService != null)
+                    {
+                        await certificadosService.ConfirmarPago(request.Token, "AUTHORIZED");
+                    }
+                    // Redirección HTTP real a la página final con los parámetros
+                    return Redirect($"/payment/final?status={result.Status}&token={request.Token}");
+                }
+
                 if (result.Status.ToLower() != "authorized")
                 {
                     var htmlRechazo = $@"
@@ -70,8 +86,11 @@ namespace REST_VECINDAPP.Controllers
                             <p><strong>Orden:</strong> {result.BuyOrder}</p>
                             <p><strong>Monto:</strong> ${result.Amount}</p>
                             <p><strong>Estado:</strong> {result.Status}</p>
+                            <p><strong>Token:</strong> {request.Token}</p>
                             <br>
-                            <p><a href='http://localhost:8100/payment/error'>Volver al sitio</a></p>
+                            <!--<p><a href='http://localhost:8100/payment/error'>Volver al sitio</a></p>-->
+                            <p style='color: #b71c1c; font-weight: bold;'>El pago no fue exitoso.</p>
+                            <p>Por favor, vuelve a la aplicación para intentarlo nuevamente o revisar el estado de tu certificado.</p>
                         </body>
                     </html>";
                     return Content(htmlRechazo, "text/html");
@@ -80,7 +99,7 @@ namespace REST_VECINDAPP.Controllers
                 var htmlExito = $@"
                 <html>
                     <head>
-                        <meta http-equiv='refresh' content='5;url=http://localhost:8100/payment/final' />
+                        <meta http-equiv='refresh' content='0;url=/payment/final?status={result.Status}&token={request.Token}' />
                     </head>
                     <body style='font-family: sans-serif; text-align: center; padding-top: 50px;'>
                         <h2>✅ ¡Pago confirmado!</h2>
@@ -88,8 +107,11 @@ namespace REST_VECINDAPP.Controllers
                         <p><strong>Orden:</strong> {result.BuyOrder}</p>
                         <p><strong>Monto:</strong> ${result.Amount}</p>
                         <p><strong>Estado:</strong> {result.Status}</p>
+                        <p><strong>Token:</strong> {request.Token}</p>
                         <br>
-                        <p>Serás redirigido automáticamente. Si no, haz clic <a href='http://localhost:8100/payment/final'>aquí</a>.</p>
+                        <p style='color: #388e3c; font-weight: bold;'>Tu pago fue procesado correctamente.</p>
+                        <p>Ahora puedes volver a la aplicación para descargar tu certificado de residencia.</p>
+                        <p style='font-size: 0.9em; color: #888;'>Puedes cerrar esta ventana y regresar a la app.</p>
                     </body>
                 </html>";
                 return Content(htmlExito, "text/html");
@@ -181,6 +203,49 @@ namespace REST_VECINDAPP.Controllers
                 success = false,
                 message = resultado.Mensaje
             });
+        }
+
+        [HttpGet("commit")]
+        public async Task<IActionResult> CommitTransactionGet([FromQuery] string token_ws)
+        {
+            try
+            {
+                var options = new Options(
+                    _configuration["Transbank:CommerceCode"],
+                    _configuration["Transbank:ApiKey"],
+                    WebpayIntegrationType.Test
+                );
+                var transaction = new Transaction(options);
+                var result = transaction.Commit(token_ws);
+                // Guardar resultado en base de datos
+                await _transbankService.GuardarResultadoPago(token_ws, result.Status, Convert.ToDecimal(result.Amount ?? 0), result.BuyOrder);
+                await _transbankService.GuardarPagoEnHistorial(token_ws, result.Status, Convert.ToDecimal(result.Amount ?? 0), result.BuyOrder);
+
+                // Si el pago fue exitoso, confirma el pago y genera el certificado directamente
+                if (result.Status.ToLower() == "authorized")
+                {
+                    var certificadosService = HttpContext.RequestServices.GetService(typeof(REST_VECINDAPP.CapaNegocios.cn_Certificados)) as REST_VECINDAPP.CapaNegocios.cn_Certificados;
+                    if (certificadosService != null)
+                    {
+                        await certificadosService.ConfirmarPago(token_ws, "AUTHORIZED");
+                    }
+                }
+                // Redirigir a la página final con los parámetros
+                return Redirect($"/payment/final?status={result.Status}&token={token_ws}");
+            }
+            catch (Exception ex)
+            {
+                var htmlError = $@"
+                <html>
+                    <body style='font-family: sans-serif; text-align: center; padding-top: 50px;'>
+                        <h2>❌ Error al procesar el pago</h2>
+                        <p>Ocurrió un problema al confirmar el pago.</p>
+                        <p><strong>Mensaje:</strong> {ex.Message}</p>
+                        <p><a href='/payment/final'>Volver al sitio</a></p>
+                    </body>
+                </html>";
+                return Content(htmlError, "text/html");
+            }
         }
     }
 

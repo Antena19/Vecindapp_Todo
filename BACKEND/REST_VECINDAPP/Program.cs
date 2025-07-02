@@ -72,6 +72,7 @@ builder.Services.AddScoped<cn_Eventos>();
 builder.Services.AddScoped<cn_Comunicacion>();
 builder.Services.AddScoped<TransbankServiceV2>();
 builder.Services.AddScoped<WebpayService>();
+builder.Services.AddScoped<REST_VECINDAPP.Servicios.TransbankService>();
 
 // Configurar la autenticacin con JWT
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
@@ -149,6 +150,34 @@ app.MapGet("/", () => Results.Ok("API is healthy"));
 // Redirigir POST /payment/return a GET /payment/return para soporte de Webpay
 app.MapPost("/payment/return", async context => {
     context.Response.Redirect("/payment/return");
+});
+
+// Endpoint de confirmación final para Webpay
+app.MapGet("/payment/final", (HttpRequest request) =>
+{
+    return Results.Content(@"
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <title>Pago procesado</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; color: #222; margin: 0; padding: 0; }
+        .container { max-width: 420px; margin: 60px auto; padding: 32px 24px; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 12px rgba(0,185,148,0.08); text-align: center; }
+        .titulo { font-size: 1.7rem; font-weight: 700; color: #00897B; margin-bottom: 18px; }
+        .mensaje { font-size: 1.1rem; margin-bottom: 12px; }
+        .instruccion { font-size: 1rem; color: #555; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='titulo'>Pago procesado</div>
+        <div class='mensaje'>Tu pago fue realizado con éxito.</div>
+        <div class='instruccion'>Puedes volver a la aplicación para descargar tu certificado.</div>
+    </div>
+</body>
+</html>
+", "text/html");
 });
 
 

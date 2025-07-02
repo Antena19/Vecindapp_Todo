@@ -31,7 +31,7 @@ namespace REST_VECINDAPP.Servicios
             try
             {
                 var sessionId = Guid.NewGuid().ToString();
-                var returnUrl = _configuration["Transbank:ReturnUrl"];
+                var returnUrl = "https://backendvecindapp-production.up.railway.app/api/Webpay/commit";
 
                 var response = await Task.Run(() => _transaction.Create(
                     buyOrder: ordenCompra,

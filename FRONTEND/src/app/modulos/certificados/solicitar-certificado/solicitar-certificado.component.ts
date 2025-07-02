@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -6,10 +6,11 @@ import { AutenticacionService } from 'src/app/services/autenticacion.service';
 import { Usuario } from 'src/app/modelos/Usuario';
 import html2pdf from 'html2pdf.js';
 import { CertificadosService } from '../certificados.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileOpener } from '@capacitor-community/file-opener';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-solicitar-certificado',
@@ -28,22 +29,16 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   public precio: number = 0;
   fechaFormateada: string = '';
   certificadoListo: boolean = false;
-  
-  // Propiedades para firma digital
-  private canvas!: HTMLCanvasElement;
-  private ctx!: CanvasRenderingContext2D;
-  private isDrawing: boolean = false;
-  public signatureData: string | null = null;
-  public firmaGuardada: boolean = false;
-  public hashVerificacion: string = '';
-  public timestampFirma: string = '';
   public puedeDescargarPDF: boolean = false;
+  public mostrarPrevisualizacion: boolean = false;
   
   constructor(
     private fb: FormBuilder,
     private authService: AutenticacionService,
     @Inject(CertificadosService) private certificadosService: CertificadosService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.solicitudForm = this.fb.group({
       para_otro: [false],
@@ -58,11 +53,19 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // Restaurar datos si existen en sessionStorage
+    const saved = sessionStorage.getItem('certificadoFormData');
+    if (saved) {
+      const data = JSON.parse(saved);
+      this.solicitudForm.patchValue(data.form);
+      this.paraOtro = data.paraOtro;
+      this.puedeDescargarPDF = data.puedeDescargarPDF;
+      this.mostrarPrevisualizacion = data.mostrarPrevisualizacion;
+      sessionStorage.removeItem('certificadoFormData');
+    }
     this.route.queryParams.subscribe(params => {
       if (params['descargar']) {
         this.puedeDescargarPDF = true;
-        // Descargar automáticamente el certificado más reciente
-        this.descargarCertificadoReciente();
       }
     });
     this.usuario = this.authService.obtenerUsuarioActual();
@@ -83,6 +86,13 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       }
     }
     this.formatearFecha();
+
+    // Lógica para refrescar el estado al volver a la app
+    App.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) {
+        this.verificarEstadoCertificado();
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -106,116 +116,7 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   // ========================
 
   initSignatureCanvas(): void {
-    if (this.signatureCanvas) {
-      this.canvas = this.signatureCanvas.nativeElement;
-      this.ctx = this.canvas.getContext('2d')!;
-      
-      // Configurar el canvas
-      this.ctx.strokeStyle = '#000';
-      this.ctx.lineWidth = 2;
-      this.ctx.lineCap = 'round';
-      this.ctx.lineJoin = 'round';
-
-      // Event listeners para mouse
-      this.canvas.addEventListener('mousedown', this.startDrawing.bind(this));
-      this.canvas.addEventListener('mousemove', this.draw.bind(this));
-      this.canvas.addEventListener('mouseup', this.stopDrawing.bind(this));
-      this.canvas.addEventListener('mouseout', this.stopDrawing.bind(this));
-
-      // Event listeners para touch (móvil)
-      this.canvas.addEventListener('touchstart', this.handleTouch.bind(this));
-      this.canvas.addEventListener('touchmove', this.handleTouch.bind(this));
-      this.canvas.addEventListener('touchend', this.stopDrawing.bind(this));
-      
-      // Prevenir scroll en móvil cuando se dibuja
-      this.canvas.addEventListener('touchstart', (e) => e.preventDefault());
-      this.canvas.addEventListener('touchmove', (e) => e.preventDefault());
-    }
-  }
-
-  private startDrawing(e: MouseEvent): void {
-    this.isDrawing = true;
-    const rect = this.canvas.getBoundingClientRect();
-    this.ctx.beginPath();
-    this.ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-  }
-
-  private draw(e: MouseEvent): void {
-    if (!this.isDrawing) return;
-    const rect = this.canvas.getBoundingClientRect();
-    this.ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    this.ctx.stroke();
-  }
-
-  private stopDrawing(): void {
-    if (this.isDrawing) {
-      this.isDrawing = false;
-      this.ctx.beginPath();
-    }
-  }
-
-  private handleTouch(e: TouchEvent): void {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const mouseEvent = new MouseEvent(
-      e.type === 'touchstart' ? 'mousedown' : 
-      e.type === 'touchmove' ? 'mousemove' : 'mouseup', 
-      {
-        clientX: touch.clientX,
-        clientY: touch.clientY
-      }
-    );
-    this.canvas.dispatchEvent(mouseEvent);
-  }
-
-  limpiarFirma(): void {
-    if (this.ctx && this.canvas) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.signatureData = null;
-      this.firmaGuardada = false;
-      this.hashVerificacion = '';
-      this.timestampFirma = '';
-    }
-  }
-
-  guardarFirma(): void {
-    if (!this.canvas || this.isCanvasBlank()) {
-      alert('Por favor, dibuje su firma antes de guardar.');
-      return;
-    }
-
-    this.signatureData = this.canvas.toDataURL();
-    this.firmaGuardada = true;
-    this.generarHashVerificacion();
-    
-    // Mostrar mensaje de éxito
-    console.log('✅ Firma guardada exitosamente');
-  }
-
-  private isCanvasBlank(): boolean {
-    const blank = document.createElement('canvas');
-    blank.width = this.canvas.width;
-    blank.height = this.canvas.height;
-    return this.canvas.toDataURL() === blank.toDataURL();
-  }
-
-  private generarHashVerificacion(): void {
-    const formValue = this.solicitudForm.value;
-    const timestamp = new Date().toISOString();
-    
-    const data = {
-      nombre: formValue.nombre,
-      rut: formValue.rut,
-      direccion: formValue.direccion,
-      motivo: formValue.motivo,
-      signature: this.signatureData,
-      timestamp: timestamp,
-      usuario_firmante: this.usuario?.rut
-    };
-
-    // Generar hash simple (en producción usar crypto-js)
-    this.hashVerificacion = btoa(JSON.stringify(data)).substring(0, 32);
-    this.timestampFirma = new Date().toLocaleString('es-CL');
+    // Eliminar todas las referencias a 'canvas' y 'ctx' en el componente, incluyendo la inicialización en initSignatureCanvas y cualquier uso en métodos relacionados con la firma.
   }
 
   // ========================
@@ -255,12 +156,6 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
   }
 
   submit() {
-    // Validar que la firma esté presente
-    if (!this.firmaGuardada || !this.signatureData) {
-      alert('⚠️ Debe firmar digitalmente el certificado antes de enviarlo.');
-      return;
-    }
-
     const usuario = this.authService.obtenerUsuarioActual();
     if (!usuario) {
       alert('No se pudo obtener el usuario autenticado.');
@@ -306,8 +201,8 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       RutSolicitante: formValue.rut?.trim() || '',
       Telefono: formValue.telefono?.trim() || '',
       Direccion: formValue.direccion?.trim() || '',
-      FirmaDigital: this.signatureData || '',
-      HashVerificacion: this.hashVerificacion || '',
+      FirmaDigital: '',
+      HashVerificacion: '',
       TimestampFirma: new Date().toISOString(),
       UsuarioFirmante: String(usuario.rut || '')
     };
@@ -330,7 +225,6 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
               console.log('Respuesta de Transbank:', pagoRes);
               if (pagoRes.url && pagoRes.token) {
                 console.log('Redirigiendo a:', pagoRes.url + '?token_ws=' + pagoRes.token);
-                // Usar window.open en lugar de window.location.href para mejor compatibilidad
                 window.open(pagoRes.url + '?token_ws=' + pagoRes.token, '_self');
               } else {
                 console.error('Respuesta de pago incompleta:', pagoRes);
@@ -343,10 +237,8 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
             }
           });
         } else {
-          alert('¡Solicitud enviada correctamente con firma digital!');
+          alert('¡Solicitud enviada correctamente!');
         }
-        this.resetForm();
-        this.puedeDescargarPDF = true;
       },
       error: (err: any) => {
         console.error('Error en solicitud:', err);
@@ -357,12 +249,12 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
 
   exportarPDF() {
     this.certificadosService.obtenerHistorial().subscribe({
-      next: (historial: any[]) => {
+      next: async (historial: any[]) => {
         let codigo = '';
         let fecha = '';
 
         if (historial && historial.length > 0) {
-          const ultimoCertificado = historial[0]; // El historial viene ordenado por fecha desc.
+          const ultimoCertificado = historial[0];
           codigo = ultimoCertificado.codigoVerificacion || 'No disponible';
           if (ultimoCertificado.fechaEmision) {
             fecha = new Date(ultimoCertificado.fechaEmision).toLocaleString('es-CL');
@@ -371,22 +263,86 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
           }
         }
         
-        this.generarPDF(codigo, fecha, true);
+        const element = document.getElementById('certificadoFormal');
+        if (!element) {
+          console.error('Elemento #certificadoFormal no encontrado');
+          return;
+        }
+        element.style.display = 'block';
+        setTimeout(async () => {
+          const opt = {
+            margin: 0.2,
+            filename: `certificado_residencia_${codigo || 'preview'}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+          };
+          try {
+            if (this.isAndroid()) {
+              const pdf = await html2pdf().set(opt).from(element).toPdf().get('pdf');
+              const blob = pdf.output('blob');
+              await this.descargarEnAndroid(blob, `certificado_residencia_${codigo || 'preview'}.pdf`);
+            } else {
+              await html2pdf().set(opt).from(element).save();
+            }
+          } catch (error) {
+            console.error('Error al generar el PDF:', error);
+          } finally {
+            element.style.display = 'none';
+            this.router.navigate(['/modulos/certificados/historial-certificados']);
+          }
+        }, 100);
       },
       error: (err) => {
         console.error('Error al obtener historial para PDF, usando datos locales.', err);
-        this.generarPDF(this.hashVerificacion, this.timestampFirma, true);
+        this.generarPDF('', '', true);
+        this.router.navigate(['/modulos/certificados/historial-certificados']);
       }
     });
   }
 
   previsualizarPDF() {
-    if (!this.firmaGuardada) {
-      alert('⚠️ Debe firmar el certificado antes de previsualizar.');
-      return;
+    this.mostrarPrevisualizacion = true;
+  }
+
+  cerrarPrevisualizacion() {
+    this.mostrarPrevisualizacion = false;
+  }
+
+  private isAndroid(): boolean {
+    return Capacitor.getPlatform() === 'android';
+  }
+
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  private async descargarEnAndroid(blob: Blob, fileName: string): Promise<void> {
+    try {
+      const base64Data = await this.blobToBase64(blob);
+      const savedFile = await Filesystem.writeFile({
+        path: fileName,
+        data: base64Data,
+        directory: Directory.Documents,
+        recursive: true
+      });
+      await FileOpener.open({
+        filePath: savedFile.uri,
+        contentType: 'application/pdf'
+      });
+    } catch (error) {
+      console.error('Error al descargar en Android:', error);
+      throw new Error('No se pudo descargar el archivo en Android');
     }
-    // Para la previsualización, no mostramos código ni fecha.
-    this.generarPDF('', '', false);
   }
 
   private generarPDF(codigo: string, fecha: string, guardarArchivo: boolean): void {
@@ -395,32 +351,10 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       console.error('Elemento #certificadoFormal no encontrado');
       return;
     }
-
-    const codigoElement = element.querySelector('#pdf-codigo-verificacion') as HTMLElement;
-    const fechaElement = element.querySelector('#pdf-fecha-emision') as HTMLElement;
-    const validadoElement = codigoElement?.parentElement;
-
-    // Guardar estado original
-    const codigoOriginal = codigoElement?.innerText;
-    const fechaOriginal = fechaElement?.innerText;
-    const displayOriginal = validadoElement?.style.display ?? '';
-    const originalElementDisplay = element.style.display;
-
-    // Modificar para la generación del PDF
-    if (validadoElement) {
-      if (codigo || fecha) {
-        if(codigoElement) codigoElement.innerText = codigo;
-        if(fechaElement) fechaElement.innerText = fecha;
-        validadoElement.style.display = 'block';
-      } else {
-        validadoElement.style.display = 'none';
-      }
-    }
     
     element.style.display = 'block';
 
-    // *** Usamos un setTimeout para dar tiempo al DOM a renderizar los cambios ***
-    setTimeout(() => {
+    setTimeout(async () => {
       const opt = {
         margin: 0.2,
         filename: `certificado_residencia_${codigo || 'preview'}.pdf`,
@@ -429,56 +363,35 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
 
-      const promise = guardarArchivo 
-        ? html2pdf().set(opt).from(element).save() 
-        : html2pdf().set(opt).from(element).toPdf().get('pdf').then((pdf: any) => {
+      try {
+        if (this.isAndroid()) {
+          const pdf = await html2pdf().set(opt).from(element).toPdf().get('pdf');
             const blob = pdf.output('blob');
-            const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
-          });
-
-      promise.catch((err: any) => console.error("Error al generar el PDF:", err))
-        .finally(() => {
-          // Restaurar estado original
-          if (validadoElement) {
-            if(codigoElement && codigoOriginal) codigoElement.innerText = codigoOriginal;
-            if(fechaElement && fechaOriginal) fechaElement.innerText = fechaOriginal;
-            validadoElement.style.display = displayOriginal;
-          }
-          element.style.display = originalElementDisplay;
+          await this.descargarEnAndroid(blob, `certificado_residencia_${codigo || 'preview'}.pdf`);
+        } else {
+          await html2pdf().set(opt).from(element).save();
+        }
+      } catch (error) {
+        console.error('Error al generar el PDF:', error);
+      } finally {
+        element.style.display = 'none';
           if (!guardarArchivo) this.certificadoListo = true;
-        });
+      }
     }, 100);
   }
 
   private resetForm(): void {
     this.solicitudForm.reset();
-    this.limpiarFirma();
     this.documentos = [];
     this.certificadoListo = false;
   }
 
   // Función auxiliar para validar el estado del certificado
   puedeGenerarPDF(): boolean {
-    return this.firmaGuardada && this.solicitudForm.valid;
-  }
-
-  // Función para obtener el estado de la firma
-  getEstadoFirma(): string {
-    if (this.firmaGuardada) {
-      return 'Firmado digitalmente';
-    } else {
-      return 'Pendiente de firma';
-    }
+    return this.solicitudForm.valid;
   }
 
   pagar() {
-    // Validar que la firma esté presente
-    if (!this.firmaGuardada || !this.signatureData) {
-      alert('⚠️ Debe firmar digitalmente el certificado antes de pagar.');
-      return;
-    }
-
     const usuario = this.usuario;
     if (!usuario) {
       alert('No se pudo obtener el usuario autenticado.');
@@ -541,60 +454,30 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
       RutSolicitante: formValue.rut?.trim() || '',
       Telefono: formValue.telefono?.trim() || '',
       Direccion: formValue.direccion?.trim() || '',
-      FirmaDigital: this.signatureData || '',
-      HashVerificacion: this.hashVerificacion || '',
+      FirmaDigital: '',
+      HashVerificacion: '',
       TimestampFirma: new Date().toISOString(),
       UsuarioFirmante: String(usuario.rut || '')
     };
 
-    // Validación final antes de enviar
-    const camposRequeridos = [
-      { campo: 'Estado', valor: solicitud.Estado },
-      { campo: 'Motivo', valor: solicitud.Motivo },
-      { campo: 'Telefono', valor: solicitud.Telefono },
-      { campo: 'Direccion', valor: solicitud.Direccion },
-      { campo: 'FirmaDigital', valor: solicitud.FirmaDigital },
-      { campo: 'Observaciones', valor: solicitud.Observaciones },
-      { campo: 'RutSolicitante', valor: solicitud.RutSolicitante },
-      { campo: 'UsuarioFirmante', valor: solicitud.UsuarioFirmante },
-      { campo: 'HashVerificacion', valor: solicitud.HashVerificacion },
-      { campo: 'NombreSolicitante', valor: solicitud.NombreSolicitante }
-    ];
-
-    const camposVacios = camposRequeridos.filter(item => !item.valor || item.valor.toString().trim() === '');
-    
-    if (camposVacios.length > 0) {
-      const listaCampos = camposVacios.map(item => item.campo).join(', ');
-      alert(`Los siguientes campos están vacíos: ${listaCampos}`);
-      console.error('Campos vacíos:', camposVacios);
-      return;
-    }
-
-    console.log('Enviando solicitud completa:', JSON.stringify(solicitud, null, 2));
+    console.log('Enviando solicitud:', solicitud);
 
     this.certificadosService.solicitarCertificado(solicitud).subscribe({
       next: (res: any) => {
-        console.log('Respuesta del servidor:', res);
-        if (!res.id && !res.solicitudId) {
-          alert('Error: No se recibió un ID válido de la solicitud');
-          return;
-        }
-
+        console.log('Respuesta backend al crear solicitud:', res);
+        if (precio > 0) {
         const pago = {
           SolicitudId: res.id || res.solicitudId,
           Monto: precio,
           RutUsuario: usuario.rut + '-' + (usuario.dv_rut || ''),
           Token: ''
         };
-
-        console.log('Iniciando pago con datos:', pago);
-        
+          console.log('Objeto pago que se enviará:', pago);
         this.certificadosService.iniciarPagoTransbank(pago).subscribe({
           next: (pagoRes: any) => {
             console.log('Respuesta de Transbank:', pagoRes);
             if (pagoRes.url && pagoRes.token) {
               console.log('Redirigiendo a:', pagoRes.url + '?token_ws=' + pagoRes.token);
-              // Usar window.open en lugar de window.location.href para mejor compatibilidad
               window.open(pagoRes.url + '?token_ws=' + pagoRes.token, '_self');
             } else {
               console.error('Respuesta de pago incompleta:', pagoRes);
@@ -606,162 +489,119 @@ export class SolicitarCertificadoComponent implements OnInit, AfterViewInit {
             alert('Error al iniciar el pago: ' + (err?.error?.mensaje || 'Error desconocido'));
           }
         });
+        } else {
+          alert('¡Solicitud enviada correctamente!');
+        }
       },
       error: (err: any) => {
         console.error('Error en solicitud:', err);
-        
-        if (err.error && err.error.errors) {
-          console.error('Errores de validación del backend:', err.error.errors);
-          const errorMessages = Object.entries(err.error.errors)
-            .map(([field, messages]: [string, any]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
-            .join('\n');
-          alert(`Errores de validación del backend:\n${errorMessages}`);
-        } else {
-          alert('Error al enviar la solicitud: ' + (err?.error?.mensaje || err?.message || 'Error desconocido'));
-        }
+        alert('Error al enviar la solicitud: ' + (err?.error?.mensaje || 'Error desconocido'));
       }
     });
   }
 
-  async descargarCertificadoReciente(): Promise<void> {
-    try {
-      console.log('Descargando certificado más reciente...');
-      
-      // Obtener las solicitudes del usuario
-      this.certificadosService.obtenerHistorial().subscribe({
-        next: (solicitudes: any[]) => {
-          if (solicitudes && solicitudes.length > 0) {
-            // Filtrar solo las solicitudes aprobadas
-            const solicitudesAprobadas = solicitudes.filter(s => s.estado === 'aprobado' || s.estado === 'Aprobado');
-            
-            if (solicitudesAprobadas.length > 0) {
-              // Obtener la solicitud aprobada más reciente
-              const solicitudReciente = solicitudesAprobadas[0];
-              console.log('Solicitud aprobada más reciente encontrada:', solicitudReciente);
-              
-              // Mostrar información del certificado
-              const fechaAprobacion = solicitudReciente.fechaAprobacion ? 
-                new Date(solicitudReciente.fechaAprobacion).toLocaleDateString('es-CL') : 'No disponible';
-              
-              console.log(`Certificado aprobado el: ${fechaAprobacion}`);
-              console.log(`Código de validación: ${solicitudReciente.codigoVerificacion || 'No disponible'}`);
-              
-              // Descargar el certificado
-              this.certificadosService.descargarCertificado(solicitudReciente.id).subscribe({
-                next: async (response: any) => {
-                  console.log('Certificado descargado exitosamente');
-                  
-                  // Crear un blob con el PDF
-                  const blob = new Blob([response], { type: 'application/pdf' });
-                  const fileName = `certificado_${solicitudReciente.id}.pdf`;
-                  
-                  try {
-                    // Detectar plataforma y usar el método correcto
-                    if (this.isAndroid()) {
-                      await this.descargarEnAndroid(blob, fileName);
-                    } else {
-                      this.descargarEnNavegador(blob, fileName);
-                    }
-                    
-                    // Mostrar mensaje de éxito con información
-                    this.mostrarMensajeExito(`Certificado descargado exitosamente\nFecha de aprobación: ${fechaAprobacion}\nCódigo de validación: ${solicitudReciente.codigoVerificacion || 'No disponible'}`);
-                  } catch (error) {
-                    console.error('Error al procesar la descarga:', error);
-                    this.mostrarMensajeError('Error al procesar la descarga: ' + (error instanceof Error ? error.message : 'Error desconocido'));
-                  }
-                },
-                error: (error) => {
-                  console.error('Error al descargar certificado:', error);
-                  this.mostrarMensajeError('Error al descargar el certificado: ' + (error?.error?.mensaje || 'Error desconocido'));
-                }
-              });
-            } else {
-              console.log('No se encontraron certificados aprobados para descargar');
-              this.mostrarMensajeError('No tienes certificados aprobados para descargar. Tus solicitudes están pendientes de aprobación.');
-            }
+  irAlHistorial() {
+    this.router.navigate(['/modulos/certificados/historial-certificados']);
+  }
+
+  // Nueva función para verificar el estado del último certificado
+  verificarEstadoCertificado() {
+    this.certificadosService.obtenerHistorial().subscribe({
+      next: (historial: any[]) => {
+        console.log('Historial recibido:', historial);
+        if (historial && historial.length > 0) {
+          const ultimo = historial[0];
+          if (
+            (ultimo.estado === 'aprobado' || ultimo.estado === 'emitido' || ultimo.estado === 'vigente') &&
+            (ultimo.certificadoId || ultimo.certificado_id)
+          ) {
+            this.puedeDescargarPDF = true;
           } else {
-            console.log('No se encontraron solicitudes de certificados');
-            this.mostrarMensajeError('No tienes solicitudes de certificados. Debes solicitar un certificado primero.');
+            this.puedeDescargarPDF = false;
           }
-        },
-        error: (error) => {
-          console.error('Error al obtener solicitudes de certificados:', error);
-          this.mostrarMensajeError('Error al obtener tus certificados: ' + (error?.error?.mensaje || 'Error desconocido'));
+        } else {
+          this.puedeDescargarPDF = false;
         }
-      });
-    } catch (error) {
-      console.error('Error al descargar certificado:', error);
-      this.mostrarMensajeError('Error al descargar el certificado');
-    }
-  }
-
-  mostrarMensajeExito(mensaje: string): void {
-    // No hacer nada para evitar la alerta.
-    console.log('Éxito:', mensaje);
-  }
-
-  mostrarMensajeError(mensaje: string): void {
-    // Aquí puedes implementar la lógica para mostrar un mensaje de error
-    // Por ejemplo, usando un toast o alert
-    alert('Error: ' + mensaje);
-  }
-
-  // Función para detectar si estamos en Android
-  private isAndroid(): boolean {
-    return Capacitor.getPlatform() === 'android';
-  }
-
-  // Función para convertir Blob a base64
-  private blobToBase64(blob: Blob): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        // Extraer solo la parte base64 (sin el prefijo data:application/pdf;base64,)
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.puedeDescargarPDF = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  // Función para descargar en Android
-  private async descargarEnAndroid(blob: Blob, fileName: string): Promise<void> {
-    try {
-      // Convertir blob a base64
-      const base64Data = await this.blobToBase64(blob);
-      
-      // Guardar el archivo en el directorio de documentos
-      const savedFile = await Filesystem.writeFile({
-        path: fileName,
-        data: base64Data,
-        directory: Directory.Documents,
-        recursive: true
-      });
-
-      // Abrir el archivo con el visor nativo
-      await FileOpener.open({
-        filePath: savedFile.uri,
-        contentType: 'application/pdf'
-      });
-
-      console.log('PDF guardado y abierto en Android:', savedFile.uri);
-    } catch (error) {
-      console.error('Error al descargar en Android:', error);
-      throw new Error('No se pudo descargar el archivo en Android');
-    }
+  refresh() {
+    // Guardar datos del formulario y variables necesarias
+    sessionStorage.setItem('certificadoFormData', JSON.stringify({
+      form: this.solicitudForm.value,
+      paraOtro: this.paraOtro,
+      puedeDescargarPDF: this.puedeDescargarPDF,
+      mostrarPrevisualizacion: this.mostrarPrevisualizacion
+    }));
+    window.location.reload();
   }
 
-  // Función para descargar en navegador
-  private descargarEnNavegador(blob: Blob, fileName: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+  async descargarYabrirPDFCertificado() {
+    // Obtén el ID del certificado generado (el más reciente del historial)
+    this.certificadosService.obtenerHistorial().subscribe({
+      next: async (historial: any[]) => {
+        if (historial && historial.length > 0) {
+          const ultimo = historial[0];
+          const certificadoId = ultimo.certificadoId || ultimo.certificado_id || ultimo.id;
+          if (!certificadoId) {
+            alert('No se encontró el certificado para descargar.');
+            return;
+          }
+
+          this.certificadosService.descargarCertificado(certificadoId).subscribe(
+            async (response) => {
+              // Decodificar el base64
+              const byteCharacters = atob(response.file);
+              const byteNumbers = new Array(byteCharacters.length);
+              for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+              }
+              const byteArray = new Uint8Array(byteNumbers);
+              const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+              // Guardar y abrir en Android
+              if (Capacitor.getPlatform() === 'android') {
+                const base64Data = await this.blobToBase64(blob);
+                const fileName = response.fileName || 'certificado_residencia.pdf';
+                const savedFile = await Filesystem.writeFile({
+                  path: fileName,
+                  data: base64Data,
+                  directory: Directory.Documents,
+                  recursive: true
+                });
+                await FileOpener.open({
+                  filePath: savedFile.uri,
+                  contentType: 'application/pdf'
+                });
+              } else {
+                // Para navegador, descarga normal
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = response.fileName || 'certificado_residencia.pdf';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+              }
+            },
+            (error) => {
+              alert('Hubo un error al descargar el certificado.');
+            }
+          );
+        } else {
+          alert('No se encontró el certificado para descargar.');
+        }
+      },
+      error: () => {
+        alert('No se pudo obtener el historial de certificados.');
+      }
+    });
   }
 }

@@ -70,7 +70,7 @@ namespace REST_VECINDAPP.Servicios
             
             // Obtener la URL base del entorno actual
             var baseUrl = GetBaseUrl();
-            _returnUrl = $"{baseUrl}/api/certificados/pago/confirmar";
+            _returnUrl = $"{baseUrl}/api/Webpay/commit";
             _finalUrl = $"{baseUrl}/payment/final";
             
             // Configuración de reintentos

@@ -10,6 +10,7 @@ using System.IO;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
+using iText.Kernel.Colors;
 
 namespace REST_VECINDAPP.CapaNegocios
 {
@@ -374,7 +375,8 @@ namespace REST_VECINDAPP.CapaNegocios
                         u.nombre,
                         u.apellido_paterno,
                         u.apellido_materno,
-                        u.rut
+                        u.rut,
+                        u.direccion
                     FROM solicitudes_certificado s
                     JOIN certificados c ON s.id = c.solicitud_id
                     JOIN usuarios u ON s.usuario_rut = u.rut
@@ -396,15 +398,16 @@ namespace REST_VECINDAPP.CapaNegocios
                     Nombres = reader.GetString("nombre"),
                     Apellidos = $"{reader.GetString("apellido_paterno")} {reader.GetString("apellido_materno")}".Trim(),
                     Rut = reader.GetInt32("rut"),
-                    Motivo = reader.IsDBNull("motivo") ? "No especificado" : reader.GetString("motivo")
+                    Motivo = reader.IsDBNull("motivo") ? "No especificado" : reader.GetString("motivo"),
+                    Direccion = reader.IsDBNull("direccion") ? "" : reader.GetString("direccion")
                 };
                 await reader.CloseAsync();
 
 
                 // 2. Definir rutas a las imágenes (ajusta si es necesario)
                 string basePath = Directory.GetCurrentDirectory();
-                string logoPath = Path.Combine(basePath, "..", "..", "FRONTEND", "src", "assets", "images", "logo-junta.png");
-                string firmaPath = Path.Combine(basePath, "..", "..", "FRONTEND", "src", "assets", "images", "firma-presidente.jpg");
+                string logoPath = Path.Combine(basePath, "wwwroot", "logo-junta.png");
+                string firmaPath = Path.Combine(basePath, "wwwroot", "firma-presidente.jpg");
 
                 if (!File.Exists(logoPath))
                 {
@@ -429,62 +432,68 @@ namespace REST_VECINDAPP.CapaNegocios
                 using var document = new Document(pdf);
                 document.SetMargins(40, 40, 40, 40);
 
-                // Encabezado con logo
-                var logo = new Image(iText.IO.Image.ImageDataFactory.Create(logoPath)).ScaleToFit(100, 100).SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER);
+                // Logo
+                var logo = new Image(iText.IO.Image.ImageDataFactory.Create(logoPath))
+                    .ScaleToFit(120, 120)
+                    .SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER)
+                    .SetMarginBottom(10);
                 document.Add(logo);
 
-                // Título
+                // Título (mayúsculas, color teal)
                 var titulo = new Paragraph("CERTIFICADO DE RESIDENCIA")
                     .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
                     .SetFontSize(22)
                     .SetBold()
-                    .SetMarginTop(15);
+                    .SetFontColor(new DeviceRgb(0, 137, 123))
+                    .SetMarginBottom(10);
                 document.Add(titulo);
 
-                // Cuerpo del certificado
-                var cuerpo = new Paragraph($"La Junta de Vecinos 'Villa El Abrazo de Maipú', certifica que Don/Doña {data.Nombres} {data.Apellidos}, RUT {data.Rut}, tiene domicilio en la comuna de Maipú.")
+                // Subtítulo con ciudad y fecha
+                var fechaFormateada = data.FechaEmision.ToString("d 'de' MMMM yyyy", new System.Globalization.CultureInfo("es-CL"));
+                var subtitulo = new Paragraph($"PUERTO MONTT, {fechaFormateada}.")
+                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
+                    .SetFontSize(13)
+                    .SetMarginBottom(18);
+                document.Add(subtitulo);
+
+                // Cuerpo principal (formato normal, datos en negrita)
+                var cuerpo = new Paragraph()
+                    .Add("La Junta de Vecinos Portal de Puerto Montt, RUT: 65.066.453 – 1, Personalidad Juridica N°3849 con foja 3850, constituida el 13 de marzo 2013 en Puerto Montt, perteneciente a la unidad N° 20 con facultad que otorga la Ley N°19.418 en el artículo 43 certifica que:\n\n")
+                    .Add("Sr.(a): ").Add(new Text($"{data.Nombres} {data.Apellidos}").SetBold()).Add("\n")
+                    .Add("RUT: ").Add(new Text($"{data.Rut}").SetBold()).Add("\n")
+                    .Add("Reside en: ").Add(new Text($"{data.Direccion}").SetBold()).Add("\n");
+                if (!string.IsNullOrEmpty(data.Motivo))
+                {
+                    cuerpo.Add("Motivo: ").Add(new Text(data.Motivo).SetBold()).Add("\n\n");
+                }
+                cuerpo.Add("Se extiende el presente documento para ser presentado en la institución que lo requiera.\n\n")
+                    .Add(new Text("Ley 20.718 de 02 de enero 2014").SetBold())
+                    .Add(" faculta a las juntas de vecinos a emitir certificados de residencia, siéndole aplicable al requirente que faltare a la verdad cuanto a los datos proporcionados al efecto, las sanciones contempladas en el artículo 212 del código penal.")
                     .SetTextAlignment(iText.Layout.Properties.TextAlignment.JUSTIFIED)
                     .SetFontSize(12)
-                    .SetMarginTop(30)
-                    .SetMarginBottom(30);
+                    .SetMarginBottom(40);
                 document.Add(cuerpo);
 
-                var motivo = new Paragraph($"El presente certificado se extiende para ser presentado ante: {data.Motivo}.")
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.JUSTIFIED)
-                    .SetFontSize(12)
-                    .SetMarginBottom(50);
-                document.Add(motivo);
+                // Firma del presidente
+                var firma = new Image(iText.IO.Image.ImageDataFactory.Create(firmaPath))
+                    .ScaleToFit(80, 40)
+                    .SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER)
+                    .SetMarginBottom(5);
+                document.Add(firma);
 
-                // Firma
-                var firma = new Image(iText.IO.Image.ImageDataFactory.Create(firmaPath)).ScaleToFit(150, 75).SetHorizontalAlignment(iText.Layout.Properties.HorizontalAlignment.CENTER);
-                var nombrePresidente = new Paragraph("Juan Pérez\nPresidente\nJunta de Vecinos 'Villa El Abrazo'")
+                var nombrePresidente = new Paragraph("Presidente Junta de Vecinos")
                     .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER)
                     .SetFontSize(11)
-                    .SetMarginTop(5);
-                 document.Add(firma);
-                 document.Add(nombrePresidente);
+                    .SetFontColor(new DeviceRgb(0, 137, 123))
+                    .SetBold();
+                document.Add(nombrePresidente);
 
-                // Pie de página con código de validación
-                var pieDePagina = new Div()
-                    .SetFixedPosition(40, 40, 515) // Ajusta la posición según tus márgenes
-                    .SetWidth(515)
-                    .SetMarginTop(20);
-
-                var tablaPie = new Table(2, true);
-                
-                var fechaEmision = new Paragraph($"Fecha: {data.FechaEmision:dd-MM-yyyy}")
-                    .SetTextAlignment(iText.Layout.Properties.TextAlignment.LEFT)
-                    .SetFontSize(10);
-
-                var codigoVerificacion = new Paragraph($"Código: {data.CodigoVerificacion}")
+                // Pie de página con fecha y código de verificación
+                var pie = new Paragraph($"Fecha: {data.FechaEmision:dd-MM-yyyy}        Código: {data.CodigoVerificacion}")
                     .SetTextAlignment(iText.Layout.Properties.TextAlignment.RIGHT)
-                    .SetFontSize(10);
-
-                tablaPie.AddCell(new Cell().Add(fechaEmision).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                tablaPie.AddCell(new Cell().Add(codigoVerificacion).SetBorder(iText.Layout.Borders.Border.NO_BORDER));
-                
-                pieDePagina.Add(tablaPie);
-                document.Add(pieDePagina);
+                    .SetFontSize(10)
+                    .SetMarginTop(30);
+                document.Add(pie);
 
                 document.Close();
                 
@@ -653,10 +662,8 @@ namespace REST_VECINDAPP.CapaNegocios
                 var updateSolicitudResult = await commandUpdateSolicitud.ExecuteNonQueryAsync();
                 Console.WriteLine($"[LOG] Actualización de pago_id en solicitud. Filas afectadas: {updateSolicitudResult}");
 
-                if (updatePagoResult > 0 && updateTransaccionResult > 0)
                 {
-                    Console.WriteLine("[LOG] Estados actualizados correctamente, procediendo con la aprobación del certificado");
-                    
+                    Console.WriteLine("[LOG] Estados actualizados (o ya estaban actualizados), procediendo con la aprobación del certificado");
                     // Si el pago se confirmó exitosamente, aprobamos el certificado automáticamente
                     var aprobacionExitosa = await AprobarCertificadoAutomatico(solicitudId);
                     if (!aprobacionExitosa)
@@ -666,7 +673,6 @@ namespace REST_VECINDAPP.CapaNegocios
                     }
 
                     Console.WriteLine("[LOG] Certificado aprobado, procediendo con la generación del PDF");
-                    
                     // Generamos el PDF del certificado
                     var (exitoGeneracion, mensajeGeneracion) = await GenerarPDFCertificado(solicitudId);
                     if (!exitoGeneracion)
@@ -678,9 +684,6 @@ namespace REST_VECINDAPP.CapaNegocios
                     Console.WriteLine("[LOG] Proceso de confirmación de pago completado exitosamente");
                     return true;
                 }
-
-                Console.WriteLine("[ERROR] No se pudieron actualizar los estados del pago");
-                return false;
             }
             catch (Exception ex)
             {

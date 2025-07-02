@@ -30,7 +30,7 @@ namespace REST_VECINDAPP.Servicios
             
             // URL de retorno
             var baseUrl = configuration["Transbank:BaseUrl"] ?? "http://localhost:4200";
-            _returnUrl = $"{baseUrl.TrimEnd('/')}/payment/final";
+            _returnUrl = $"{baseUrl.TrimEnd('/')}/api/Webpay/commit";
             
             _logger.LogInformation($"TransbankServiceV2 inicializado - CommerceCode: {_commerceCode}, ReturnUrl: {_returnUrl}");
         }
